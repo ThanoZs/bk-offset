@@ -411,8 +411,8 @@ function SocialMediaIcons({ isDark, isAuthenticated }) {
 
   return (
     <div style={{
-      position: "fixed", bottom: "20px", right: "20px",
-      display: "flex", flexDirection: "column", gap: "10px", zIndex: 100,
+      position: "fixed", bottom: "calc(20px + env(safe-area-inset-bottom, 0px))", right: "20px",
+      display: "flex", flexDirection: "column", gap: "10px", zIndex: 1100,
     }}>
       {links.filter(l => l.show !== false).map((link) => (
         <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer"
@@ -751,7 +751,7 @@ export default function App() {
       {/* FOOTER */}
       <Footer isAuth={isAuth} isDark={isDark} phoneNumber={phoneNumber} whatsappLink={whatsappLink} isMobile={isMobile} />
 
-      {windowWidth > 480 && <SocialMediaIcons isDark={isDark} isAuthenticated={isAuth} />}
+      <SocialMediaIcons isDark={isDark} isAuthenticated={isAuth} />
 
       {showAuth && <Auth isDark={isDark} onAuthComplete={handleAuthComplete} />}
     </div>

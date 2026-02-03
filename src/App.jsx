@@ -6,6 +6,7 @@ import {
   Zap, Layers, Leaf, Recycle
 } from "lucide-react";
 import './App.css';
+import logoImg from './assets/Logo/BK_logo.png';
 
 /* ─────────────────────────────────────────────
    DESIGN TOKENS  (single source of truth)
@@ -668,12 +669,10 @@ export default function App() {
         transition: "all 0.3s ease",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: T.radiusMd,
-            background: T.grad, display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#fff", fontWeight: 800, fontSize: "14px",
-            boxShadow: `0 4px 14px ${T.primaryGlow}`,
-          }}>BK</div>
+          <img src={logoImg} alt="BK Offset" style={{
+            width: 36, height: 36, borderRadius: T.radiusMd, objectFit: "cover",
+            display: "block", boxShadow: `0 4px 14px ${T.primaryGlow}`,
+          }} />
           <span style={{ fontSize: isMobile ? "15px" : "17px", fontWeight: 700, letterSpacing: "-0.5px" }}>
             {isTablet ? "BK Offset" : isMobile ? "BK" : "BK Offset Printing"}
           </span>

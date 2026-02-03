@@ -6,7 +6,7 @@ import {
   Zap, Layers, Leaf, Recycle
 } from "lucide-react";
 import './App.css';
-import logoImg from './assets/Logo/BK_logo.png';
+import logoImg from './assets/Logo/BK_logo_png.png';
 
 /* ─────────────────────────────────────────────
    DESIGN TOKENS  (single source of truth)

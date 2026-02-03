@@ -148,17 +148,19 @@ function Auth({ isDark, onAuthComplete }) {
       zIndex: 2000,
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: "20px",
+      overflowY: "auto",
     }}>
       <div style={{
         background: c.bg,
         borderRadius: T.radiusXl,
-        padding: isLogin ? "40px 36px 36px" : "40px 44px 40px",
+        padding: "32px 28px",
         width: "100%",
         maxWidth: isLogin ? "420px" : "720px",
         boxShadow: T.shadowXl,
         border: `1px solid ${c.border}`,
         position: "relative",
         transition: "max-width 0.35s cubic-bezier(.4,0,.2,1), padding 0.35s cubic-bezier(.4,0,.2,1)",
+        margin: "auto",
       }}>
         {/* back button */}
         <button
@@ -178,7 +180,7 @@ function Auth({ isDark, onAuthComplete }) {
         </button>
 
         {/* logo + title */}
-        <div style={{ textAlign: "center", marginBottom: "28px" }}>
+        <div style={{ textAlign: "center", marginBottom: "24px" }}>
           <div style={{
             width: 56, height: 56, borderRadius: "50%",
             background: T.grad,
@@ -232,11 +234,11 @@ function Auth({ isDark, onAuthComplete }) {
         {/* form */}
         <form onSubmit={handleSubmit}>
 
-          {/* ── REGISTER layout: two-column grid ── */}
+          {/* ── REGISTER layout: responsive grid ── */}
           {!isLogin && (
             <>
               {/* Row 1: First Name | Last Name */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "14px", marginBottom: "14px" }}>
                 <div>
                   <label style={labelStyle}>First Name *</label>
                   <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange}
@@ -256,7 +258,7 @@ function Auth({ isDark, onAuthComplete }) {
               </div>
 
               {/* Row 2: Company | Mobile */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "14px", marginBottom: "14px" }}>
                 <div>
                   <label style={labelStyle}>Company Name</label>
                   <input type="text" name="company" value={formData.company} onChange={handleChange}
@@ -276,7 +278,7 @@ function Auth({ isDark, onAuthComplete }) {
               </div>
 
               {/* Row 3: Email | Password */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "14px", marginBottom: "14px" }}>
                 <div>
                   <label style={labelStyle}>Email Address *</label>
                   <input type="email" name="email" required value={formData.email} onChange={handleChange}
@@ -409,7 +411,7 @@ function SocialMediaIcons({ isDark, isAuthenticated }) {
 
   return (
     <div style={{
-      position: "fixed", bottom: "28px", right: "28px",
+      position: "fixed", bottom: "20px", right: "20px",
       display: "flex", flexDirection: "column", gap: "10px", zIndex: 100,
     }}>
       {links.filter(l => l.show !== false).map((link) => (
@@ -431,7 +433,6 @@ function SocialMediaIcons({ isDark, isAuthenticated }) {
           }}
         >
           {link.icon}
-          {/* tooltip */}
           <span style={{
             position: "absolute", right: "calc(100% + 10px)", top: "50%", transform: "translateY(-50%)",
             background: isDark ? T.surfDark2 : T.textLight,
@@ -460,6 +461,13 @@ function SocialMediaIcons({ isDark, isAuthenticated }) {
 function UserProfile({ user, isDark, onLogout, onEdit }) {
   const [open, setOpen] = useState(false);
   const c = th(isDark);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div style={{ position: "relative" }}>
@@ -473,14 +481,14 @@ function UserProfile({ user, isDark, onLogout, onEdit }) {
         onMouseLeave={e => (e.currentTarget.style.background = "none")}
       >
         <div style={{
-          width: "34px", height: "34px", borderRadius: "50%",
+          width: "32px", height: "32px", borderRadius: "50%",
           background: T.grad, display: "flex", alignItems: "center", justifyContent: "center",
           color: "#fff", fontSize: "14px", fontWeight: 700,
           boxShadow: `0 3px 10px ${T.primaryGlow}`,
         }}>
           {user?.firstName?.charAt(0) || "U"}
         </div>
-        <span style={{ fontSize: "14px", fontWeight: 600 }}>Hi, {user?.firstName || "User"}</span>
+        {!isMobile && <span style={{ fontSize: "14px", fontWeight: 600 }}>Hi, {user?.firstName || "User"}</span>}
       </button>
 
       {open && (
@@ -492,12 +500,10 @@ function UserProfile({ user, isDark, onLogout, onEdit }) {
             minWidth: "210px", boxShadow: T.shadowLg,
             border: `1px solid ${c.border}`, zIndex: 1000, overflow: "hidden",
           }}>
-            {/* user info header */}
             <div style={{ padding: "14px 16px", borderBottom: `1px solid ${c.border}`, background: c.surf }}>
               <div style={{ fontWeight: 700, fontSize: "14px", color: c.text }}>{user?.firstName} {user?.lastName}</div>
               <div style={{ fontSize: "12px", color: c.textDim, marginTop: "3px" }}>{user?.email}</div>
             </div>
-            {/* actions */}
             {[
               { label: "Edit Profile", icon: <User size={15} />, onClick: onEdit, color: c.text },
               { label: "Logout",       icon: <LogOut size={15} />, onClick: onLogout, color: T.red },
@@ -531,22 +537,27 @@ export default function App() {
   const phoneNumber  = "+91-99999-88888";
   const whatsappLink = "https://wa.me/919999988888";
 
-  const [theme, setTheme]           = useState("light");
-  const [lang, setLang]             = useState("en");
+  const [theme, setTheme] = useState(() => sessionStorage.getItem("bk_theme") || "light");
+  const [lang, setLang]   = useState(() => sessionStorage.getItem("bk_lang") || "en");
   const [scrolled, setScrolled]     = useState(false);
   const [showAuth, setShowAuth]     = useState(false);
-  const [user, setUser]             = useState(null);
+  const [user, setUser] = useState(() => {
+    const s = localStorage.getItem("bk_user");
+    return s ? JSON.parse(s) : null;
+  });
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("bk_user");
-    if (savedUser) setUser(JSON.parse(savedUser));
-
-    setTheme(sessionStorage.getItem("bk_theme") || "light");
-    setLang(sessionStorage.getItem("bk_lang")   || "en");
-
     const onScroll = () => setScrolled(window.scrollY > 50);
+    const onResize = () => setWindowWidth(window.innerWidth);
+    
     window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onResize);
+    
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   const toggleTheme = () => {
@@ -570,6 +581,8 @@ export default function App() {
   const isDark = theme === "dark";
   const c      = th(isDark);
   const isAuth = !!user;
+  const isMobile = windowWidth < 640;
+  const isTablet = windowWidth >= 640 && windowWidth < 1024;
 
   const text = {
     en: {
@@ -580,7 +593,6 @@ export default function App() {
       experience: "30+ Years",       experienceDesc: "Trusted by thousands of businesses",
       fast: "Fast Turnaround",       fastDesc: "Quick delivery without compromise",
       signIn: "Sign In", register: "Register",
-      // ── Web Offset section ──
       woTitle:      "WEB OFFSET PRINTING",
       woTagline:    "SPEED. SCALE. PRECISION.",
       woHeroTitle:  "Built for High-Volume Excellence",
@@ -607,250 +619,140 @@ export default function App() {
       experience: "30+ वर्ष",         experienceDesc: "हजारों व्यवसायों द्वारा भरोसेमंद",
       fast: "तेज़ डिलीवरी",           fastDesc: "गुणवत्ता से कोई समझौता नहीं",
       signIn: "साइन इन", register: "रजिस्टर",
-      // ── वेब ऑफ़्सेट सेक्शन ──
       woTitle:      "वेब ऑफ़्सेट प्रिंटिंग",
       woTagline:    "गति। पैमाना। सटीकता।",
       woHeroTitle:  "हाई-वॉल्यूम एक्सलेंस के लिए बनाया गया",
-      woHeroDesc:   "वेब ऑफ़्सेट प्रिंटिंग बिना रुके प्रोडक्शन के लिए डिज़ाइन किया गया है, और B&K Offset Printing में, गति केवल शुरुआत है। हमारे अडवांस्ड मल्टी-कलर रोटरी प्रेस मैगज़ीन, कैटलॉग, ब्रोशार, इनसर्ट और बड़े वॉल्यूम में प्रोडक्ड प्रोमोशनल पब्लिकेशनों के लिए आदर्श हैं।",
-      woHeroDesc2:  "हर रोटेशन पॉवर, स्टेबिलिटी और एक्यूरेसी को जोड़ता है, जिससे शार्प इमेज और यूनिफॉर्म कलर रिप्रोडक्शन सुनिश्चित होता है—मिलियन इम्प्रेशनों में भी।",
+      woHeroDesc:   "वेब ऑफ़्सेट प्रिंटिंग बिना रुके प्रोडक्शन के लिए डिज़ाइन किया गया है।",
+      woHeroDesc2:  "हर रोटेशन पॉवर, स्टेबिलिटी और एक्यूरेसी को जोड़ता है।",
       woPerfTitle:  "प्रिंटिंग से आगे की पर्फॉर्मेंस",
-      woPerfDesc:   "हमारे वेब ऑफ़्सेट सिस्टम इंटीग्रेटेड इनलाइन फिनिशिंग के साथ आए हैं, जिससे एक ही रन में कई प्रक्रियाएँ होती हैं।",
-      woPerfList:   ["UV & प्रोटेक्टिव वार्निशिंग","पंचिंग और पर्फोरेशन (पोर्ट्रेट व लैंडस्केप)","फोल्डिंग (स्टैंडार्ड से क्रिएटिव फॉर्मेट्स)","ग्लुइंग और बाइंडिंग प्रिपरेशन","स्पेशल पब्लिकेशनों के लिए कस्टम फिनिशिंग सॉल्यूशन्स"],
-      woPerfFoot:   "यह सीमलेस वर्कफ़लो हमें बिना किसी कमी के तैयार प्रिंटेड प्रोडक्ट्स डेलिवर करने में मदद करता है।",
+      woPerfDesc:   "हमारे वेब ऑफ़्सेट सिस्टम इंटीग्रेटेड इनलाइन फिनिशिंग के साथ आए हैं।",
+      woPerfList:   ["UV & प्रोटेक्टिव वार्निशिंग","पंचिंग और पर्फोरेशन","फोल्डिंग","ग्लुइंग और बाइंडिंग","कस्टम फिनिशिंग"],
+      woPerfFoot:   "यह सीमलेस वर्कफ़लो मदद करता है।",
       woEnvTitle:   "हाई स्पीड। कम पर्यावरणीय प्रभाव।",
-      woEnvDesc:    "शक्तिशाली मशीनों को रिसोर्स बेकार नहीं करना। हमारे वेब ऑफ़्सेट ऑपरेशन एनर्जी-एफिसियंट और पर्यावरण-जिम्मेदार होने के लिए इंजीनीर्ड हैं।",
+      woEnvDesc:    "हमारे ऑपरेशन एनर्जी-एफिसियंट हैं।",
       woEnvList:    ["एनर्जी कंज़ंप्शन","मटेरियल वेस्ट","प्रोडक्शन डाउनटाइम"],
-      woEnvFoot:    "यह हमें 24/7 प्रोडक्शन सॉइकिलों में भी हाई प्रोडक्टिविटी और सस्टेनेबल प्रैक्टिसेज़ को जोड़ने की सुविधा देता है।",
-      woSusTitle:   "एक सस्टेनेबल भविष्य के लिए जिम्मेदार प्रिंटिंग",
-      woSusDesc:    "पर्यावरण की देखभाल हमारी हर प्रक्रिया में बनाया गया है।",
-      woSusList:    ["फ़ेल यूसेज़ कम करने के लिए लो-एनर्जी ड्रइंग टेक्नोलॉजी","अल्कोहल-फ्री प्रिंटिंग प्रोसेसेज़","हानिकारक वोलेटाइल सॉल्वेंट्स से बचाव","इकো-फ्रेंडली इंक्स और कनज़ंप्शेबलज़ का उपयोग","पेपर वेस्ट सेग्रीगेशन और रिसाइक्लिंग"],
-      woSusFoot:    "सभी पेपर वेस्ट को सावधानी से कलेक्ट किया जाता है और मैनुफैक्चर्स को रीयूज़ के लिए वापस किया जाता है—एक क्लोज़ड-लूप रिसाइक्लिंग सिस्टम को सपोर्ट करता है।",
+      woEnvFoot:    "यह हमें सस्टेनेबल प्रैक्टिसेज़ देता है।",
+      woSusTitle:   "जिम्मेदार प्रिंटिंग",
+      woSusDesc:    "पर्यावरण की देखभाल हमारी प्रक्रिया में है।",
+      woSusList:    ["लो-एनर्जी टेक्नोलॉजी","अल्कोहल-फ्री प्रोसेस","इको-फ्रेंडली इंक्स","पेपर रिसाइक्लिंग"],
+      woSusFoot:    "पेपर वेस्ट रिसाइक्लिंग सिस्टम को सपोर्ट करता है।",
     },
   }[lang];
 
-  /* ── NAVBAR ── */
   return (
     <div style={{
       fontFamily: T.fontBody,
       minHeight: "100vh",
       background: isDark
-        ? `linear-gradient(rgba(2,6,23,0.85), rgba(2,6,23,0.88)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80')`
-        : `linear-gradient(rgba(255,255,255,0.80), rgba(248,250,252,0.83)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80')`,
+        ? `linear-gradient(to bottom, rgba(2,6,23,0.92), rgba(2,6,23,0.95)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80')`
+        : `linear-gradient(to bottom, rgba(255,255,255,0.88), rgba(248,250,252,0.92)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80')`,
       backgroundSize: "cover",
-      backgroundAttachment: "fixed",
+      backgroundAttachment: isMobile ? "scroll" : "fixed",
       backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
       color: c.text,
       transition: "background 0.35s, color 0.35s",
     }}>
 
+      {/* NAVBAR */}
       <nav style={{
         position: "sticky", top: 0, zIndex: 1000,
         display: "flex", justifyContent: "space-between", alignItems: "center",
-        padding: "14px 32px",
+        padding: isMobile ? "10px 16px" : "10px 24px",
         background: scrolled
-          ? (isDark ? "rgba(2,6,23,0.92)"  : "rgba(255,255,255,0.92)")
-          : (isDark ? "rgba(2,6,23,0.4)"   : "rgba(255,255,255,0.6)"),
+          ? (isDark ? "rgba(2,6,23,0.95)"  : "rgba(255,255,255,0.95)")
+          : (isDark ? "rgba(2,6,23,0.5)"   : "rgba(255,255,255,0.7)"),
         backdropFilter: "blur(18px)",
         borderBottom: scrolled ? `1px solid ${c.border}` : "1px solid transparent",
         boxShadow: scrolled ? T.shadowSm : "none",
         transition: "all 0.3s ease",
       }}>
-        {/* brand */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <div style={{
-            width: 40, height: 40, borderRadius: T.radiusMd,
+            width: 36, height: 36, borderRadius: T.radiusMd,
             background: T.grad, display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#fff", fontWeight: 800, fontSize: "16px",
+            color: "#fff", fontWeight: 800, fontSize: "14px",
             boxShadow: `0 4px 14px ${T.primaryGlow}`,
           }}>BK</div>
-          <span style={{ fontSize: "18px", fontWeight: 700, letterSpacing: "-0.5px" }}>BK Offset Printing</span>
+          <span style={{ fontSize: isMobile ? "15px" : "17px", fontWeight: 700, letterSpacing: "-0.5px" }}>
+            {isTablet ? "BK Offset" : isMobile ? "BK" : "BK Offset Printing"}
+          </span>
         </div>
 
-        {/* nav actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {!isAuth ? (
             <button onClick={() => setShowAuth(true)} style={{
               background: T.grad, color: "#fff", border: "none",
-              padding: "8px 20px", borderRadius: T.radiusMd,
-              fontWeight: 600, fontSize: "14px", cursor: "pointer",
+              padding: isMobile ? "7px 16px" : "8px 20px",
+              borderRadius: T.radiusMd,
+              fontWeight: 600, fontSize: isMobile ? "13px" : "14px",
+              cursor: "pointer",
               boxShadow: `0 3px 12px ${T.primaryGlow}`,
               transition: "transform 0.2s, box-shadow 0.2s",
+              whiteSpace: "nowrap",
+              fontFamily: T.fontBody,
             }}
               onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = `0 6px 20px ${T.primaryGlow}`; }}
               onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)";  e.currentTarget.style.boxShadow = `0 3px 12px ${T.primaryGlow}`; }}
             >
-              {text.signIn} / {text.register}
+              {isMobile ? "Sign In" : `${text.signIn} / ${text.register}`}
             </button>
           ) : (
             <UserProfile user={user} isDark={isDark} onLogout={handleLogout} onEdit={() => setShowAuth(true)} />
           )}
 
-          {/* language toggle */}
-          <button onClick={toggleLang} aria-label="Toggle Language" style={{
-            background: "transparent", border: "none", color: c.textMid,
-            cursor: "pointer", padding: "8px", borderRadius: T.radiusMd,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            transition: "all 0.2s",
-          }}
-            onMouseEnter={e => { e.currentTarget.style.background = T.primaryFaint; e.currentTarget.style.color = T.primary; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = c.textMid; }}
-          >
-            <Globe size={20} />
-          </button>
+          {windowWidth >= 480 && (
+            <button onClick={toggleLang} aria-label="Toggle Language" style={{
+              background: "transparent", border: "none", color: c.textMid,
+              cursor: "pointer", padding: "7px", borderRadius: T.radiusMd,
+              display: "flex",
+              alignItems: "center", justifyContent: "center",
+              transition: "all 0.2s",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = T.primaryFaint; e.currentTarget.style.color = T.primary; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = c.textMid; }}
+            >
+              <Globe size={19} />
+            </button>
+          )}
 
-          {/* theme toggle */}
           <button onClick={toggleTheme} aria-label="Toggle Theme" style={{
             background: "transparent", border: "none", color: c.textMid,
-            cursor: "pointer", padding: "8px", borderRadius: T.radiusMd,
+            cursor: "pointer", padding: "7px", borderRadius: T.radiusMd,
             display: "flex", alignItems: "center", justifyContent: "center",
             transition: "all 0.2s",
           }}
             onMouseEnter={e => { e.currentTarget.style.background = T.primaryFaint; e.currentTarget.style.color = T.primary; }}
             onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = c.textMid; }}
           >
-            {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            {isDark ? <Sun size={19} /> : <Moon size={19} />}
           </button>
         </div>
       </nav>
 
-      {/* ── HERO ── */}
-      <section style={{
-        padding: "130px 32px 100px",
-        textAlign: "center",
-        background: isDark
-          ? `linear-gradient(rgba(12,35,64,0.82), rgba(2,6,23,0.86)), url('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1920&q=80')`
-          : `linear-gradient(rgba(224,242,254,0.75), rgba(255,255,255,0.80)), url('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1920&q=80')`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        position: "relative", overflow: "hidden",
-      }}>
-        {/* subtle decorative circle */}
-        <div style={{
-          position: "absolute", top: "-120px", left: "50%", transform: "translateX(-50%)",
-          width: "500px", height: "500px", borderRadius: "50%",
-          background: `radial-gradient(circle, ${T.primaryGlow} 0%, transparent 70%)`,
-          pointerEvents: "none",
-        }} />
+      {/* HERO SECTION */}
+      <HeroSection text={text} isDark={isDark} c={c} isAuth={isAuth} isMobile={isMobile} phoneNumber={phoneNumber} whatsappLink={whatsappLink} setShowAuth={setShowAuth} />
 
-        <div style={{ maxWidth: 780, margin: "0 auto", position: "relative", zIndex: 1 }}>
-          {/* sparkle badge */}
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: "6px",
-            background: T.primaryFaint, border: `1px solid ${isDark ? T.primaryDark : T.primaryLight}`,
-            borderRadius: "999px", padding: "6px 14px", marginBottom: "28px",
-            color: T.primary, fontSize: "13px", fontWeight: 600,
-          }}>
-            <Sparkles size={14} /> Premium Printing Services
-          </div>
+      {/* FEATURES BAR */}
+      <FeaturesSection text={text} isDark={isDark} c={c} isMobile={isMobile} isTablet={isTablet} />
 
-          <h1 style={{
-            fontSize: "clamp(38px, 6.5vw, 68px)", fontWeight: 800,
-            letterSpacing: "-2.5px", lineHeight: 1.08, marginBottom: "20px",
-          }}>
-            {text.heroTitle}
-            <br />
-            <span style={{
-              background: "linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)",
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
-            }}>
-              {text.heroTitle2}
-            </span>
-          </h1>
+      {/* PRODUCTS */}
+      <ProductsSection text={text} isDark={isDark} c={c} isMobile={isMobile} isTablet={isTablet} />
 
-          <p style={{ fontSize: "clamp(15px, 1.8vw, 18px)", color: c.textMid, lineHeight: 1.7, marginBottom: "40px", maxWidth: 560, margin: "0 auto 40px" }}>
-            {text.heroSub}
-          </p>
+      {/* GALLERY */}
+      <GallerySection text={text} isDark={isDark} c={c} isMobile={isMobile} isTablet={isTablet} />
 
-          {/* CTA buttons */}
-          <div style={{ display: "flex", justifyContent: "center", gap: "14px", flexWrap: "wrap" }}>
-            {isAuth ? (
-              <>
-                <HeroBtn href={`tel:${phoneNumber}`} icon={<Phone size={17} />} label="Call Now"
-                  bg={T.grad} shadow={T.primaryGlow} />
-                <HeroBtn href={whatsappLink} icon={<MessageCircle size={17} />} label="WhatsApp"
-                  bg="linear-gradient(135deg, #16a34a 0%, #22c55e 100%)" shadow="rgba(22,163,74,0.35)" target="_blank" rel="noopener noreferrer" />
-              </>
-            ) : (
-              <button onClick={() => setShowAuth(true)} style={{
-                background: T.grad, color: "#fff", border: "none",
-                padding: "14px 34px", borderRadius: T.radiusLg,
-                fontWeight: 700, fontSize: "16px", cursor: "pointer",
-                display: "inline-flex", alignItems: "center", gap: "10px",
-                boxShadow: `0 6px 24px ${T.primaryGlow}`,
-                transition: "transform 0.25s, box-shadow 0.25s",
-                fontFamily: T.fontBody,
-              }}
-                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px) scale(1.03)"; e.currentTarget.style.boxShadow = `0 12px 32px ${T.primaryGlow}`; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0) scale(1)";     e.currentTarget.style.boxShadow = `0 6px 24px ${T.primaryGlow}`; }}
-              >
-                <User size={17} /> {text.signIn} to Contact Us
-              </button>
-            )}
-          </div>
-        </div>
-      </section>
+      {/* WEB OFFSET PRINTING */}
+      <WebOffsetSection text={text} isDark={isDark} c={c} isMobile={isMobile} isTablet={isTablet} />
 
-      {/* ── FEATURES BAR ── */}
-      <section style={{
-        display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-        padding: "52px 32px",
-        background: isDark
-          ? `linear-gradient(rgba(15,23,42,0.88), rgba(15,23,42,0.90)), url('https://images.unsplash.com/photo-1563906267088-b029e7101114?w=1920&q=80')`
-          : `linear-gradient(rgba(240,249,255,0.85), rgba(240,249,255,0.88)), url('https://images.unsplash.com/photo-1563906267088-b029e7101114?w=1920&q=80')`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        borderTop: `1px solid ${c.border}`, borderBottom: `1px solid ${c.border}`,
-      }}>
-        <FeatureItem icon={<Award size={22} />}      title={text.quality}    desc={text.qualityDesc}    isDark={isDark} />
-        <FeatureItem icon={<Sparkles size={22} />}   title={text.experience} desc={text.experienceDesc} isDark={isDark} />
-        <FeatureItem icon={<Clock size={22} />}      title={text.fast}       desc={text.fastDesc}       isDark={isDark} />
-      </section>
+      {/* LOCATION */}
+      <LocationSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
 
-      {/* ── PRODUCTS ── */}
-      <ProductsSection text={text} isDark={isDark} c={c} />
+      {/* FOOTER */}
+      <Footer isAuth={isAuth} isDark={isDark} phoneNumber={phoneNumber} whatsappLink={whatsappLink} isMobile={isMobile} />
 
-      {/* ── GALLERY ── */}
-      <GallerySection text={text} isDark={isDark} c={c} />
+      {windowWidth > 480 && <SocialMediaIcons isDark={isDark} isAuthenticated={isAuth} />}
 
-      {/* ── WEB OFFSET PRINTING ── */}
-      <WebOffsetSection text={text} isDark={isDark} c={c} />
-
-      {/* ── LOCATION ── */}
-      <LocationSection text={text} isDark={isDark} c={c} />
-
-      {/* ── FOOTER ── */}
-      <footer style={{
-        background: isDark ? "#020617" : "#0f172a",
-        color: "#cbd5e1", padding: "60px 32px 28px", textAlign: "center",
-        borderTop: `1px solid ${isDark ? T.surfDark2 : "#1e293b"}`,
-      }}>
-        <div style={{ maxWidth: 520, margin: "0 auto" }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: T.radiusMd, background: T.grad,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#fff", fontWeight: 800, fontSize: "16px", margin: "0 auto 14px",
-            boxShadow: `0 4px 14px ${T.primaryGlow}`,
-          }}>BK</div>
-          <div style={{ fontWeight: 700, fontSize: "18px", color: "#f1f5f9" }}>BK Offset Printing</div>
-          <div style={{ fontSize: "13px", color: "#64748b", marginTop: "8px", marginBottom: "20px" }}>
-            Quality printing services since 1995
-          </div>
-          {isAuth && (
-            <div style={{ display: "flex", justifyContent: "center", gap: "12px", marginBottom: "24px" }}>
-              <FooterIcon href={`tel:${phoneNumber}`}    icon={<Phone size={17} />} />
-              <FooterIcon href={whatsappLink} target="_blank" rel="noopener noreferrer" icon={<MessageCircle size={17} />} />
-            </div>
-          )}
-          <div style={{ fontSize: "12px", color: "#475569" }}>
-            © {new Date().getFullYear()} BK Offset Printing. All rights reserved.
-          </div>
-        </div>
-      </footer>
-
-      {/* floating social icons */}
-      <SocialMediaIcons isDark={isDark} isAuthenticated={isAuth} />
-
-      {/* auth modal */}
       {showAuth && <Auth isDark={isDark} onAuthComplete={handleAuthComplete} />}
     </div>
   );
@@ -858,20 +760,105 @@ export default function App() {
 
 
 /* ═══════════════════════════════════════════════
-   SMALL  REUSABLE  COMPONENTS
+   HERO SECTION
    ═══════════════════════════════════════════════ */
+function HeroSection({ text, isDark, c, isAuth, isMobile, phoneNumber, whatsappLink, setShowAuth }) {
+  return (
+    <section style={{
+      padding: isMobile ? "80px 20px 60px" : "120px 32px 90px",
+      textAlign: "center",
+      background: isDark
+        ? `linear-gradient(rgba(12,35,64,0.85), rgba(2,6,23,0.90)), url('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1920&q=80')`
+        : `linear-gradient(rgba(224,242,254,0.80), rgba(255,255,255,0.88)), url('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1920&q=80')`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      position: "relative", overflow: "hidden",
+    }}>
+      <div style={{
+        position: "absolute", top: "-120px", left: "50%", transform: "translateX(-50%)",
+        width: "500px", height: "500px", borderRadius: "50%",
+        background: `radial-gradient(circle, ${T.primaryGlow} 0%, transparent 70%)`,
+        pointerEvents: "none",
+      }} />
 
-/* Hero CTA button */
-function HeroBtn({ href, icon, label, bg, shadow, target, rel }) {
+      <div style={{ maxWidth: 780, margin: "0 auto", position: "relative", zIndex: 1, padding: "0 16px" }}>
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: "6px",
+          background: T.primaryFaint, border: `1px solid ${isDark ? T.primaryDark : T.primaryLight}`,
+          borderRadius: "999px", padding: "6px 14px", marginBottom: "24px",
+          color: T.primary, fontSize: isMobile ? "12px" : "13px", fontWeight: 600,
+        }}>
+          <Sparkles size={14} /> Premium Printing Services
+        </div>
+
+        <h1 style={{
+          fontSize: isMobile ? "32px" : "clamp(38px, 6.5vw, 68px)",
+          fontWeight: 800,
+          letterSpacing: "-2px", lineHeight: 1.1, marginBottom: "18px",
+        }}>
+          {text.heroTitle}
+          <br />
+          <span style={{
+            background: "linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+          }}>
+            {text.heroTitle2}
+          </span>
+        </h1>
+
+        <p style={{
+          fontSize: isMobile ? "14px" : "clamp(15px, 1.8vw, 18px)",
+          color: c.textMid, lineHeight: 1.7, marginBottom: "32px",
+          maxWidth: 560, margin: "0 auto 32px"
+        }}>
+          {text.heroSub}
+        </p>
+
+        <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
+          {isAuth ? (
+            <>
+              <HeroBtn href={`tel:${phoneNumber}`} icon={<Phone size={17} />} label="Call Now"
+                bg={T.grad} shadow={T.primaryGlow} isMobile={isMobile} />
+              <HeroBtn href={whatsappLink} icon={<MessageCircle size={17} />} label="WhatsApp"
+                bg="linear-gradient(135deg, #16a34a 0%, #22c55e 100%)" shadow="rgba(22,163,74,0.35)" target="_blank" rel="noopener noreferrer" isMobile={isMobile} />
+            </>
+          ) : (
+            <button onClick={() => setShowAuth(true)} style={{
+              background: T.grad, color: "#fff", border: "none",
+              padding: isMobile ? "11px 24px" : "13px 30px",
+              borderRadius: T.radiusLg,
+              fontWeight: 700, fontSize: isMobile ? "14px" : "15px",
+              cursor: "pointer",
+              display: "inline-flex", alignItems: "center", gap: "10px",
+              boxShadow: `0 6px 24px ${T.primaryGlow}`,
+              transition: "transform 0.25s, box-shadow 0.25s",
+              fontFamily: T.fontBody,
+            }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px) scale(1.03)"; e.currentTarget.style.boxShadow = `0 12px 32px ${T.primaryGlow}`; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0) scale(1)";     e.currentTarget.style.boxShadow = `0 6px 24px ${T.primaryGlow}`; }}
+            >
+              <User size={17} /> {isMobile ? text.signIn : `${text.signIn} to Contact Us`}
+            </button>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* HERO CTA BUTTON */
+function HeroBtn({ href, icon, label, bg, shadow, target, rel, isMobile }) {
   const [hov, setHov] = useState(false);
   return (
     <a href={href} target={target} rel={rel}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
       style={{
         background: bg, color: "#fff",
-        padding: "13px 30px", borderRadius: "12px",
+        padding: isMobile ? "11px 24px" : "13px 30px",
+        borderRadius: "12px",
         textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "9px",
-        fontWeight: 700, fontSize: "15px",
+        fontWeight: 700, fontSize: isMobile ? "14px" : "15px",
         boxShadow: hov ? `0 12px 28px ${shadow}` : `0 4px 16px ${shadow}`,
         transform: hov ? "translateY(-3px) scale(1.04)" : "translateY(0) scale(1)",
         transition: "all 0.25s cubic-bezier(.4,0,.2,1)",
@@ -882,7 +869,29 @@ function HeroBtn({ href, icon, label, bg, shadow, target, rel }) {
   );
 }
 
-/* Feature bar item */
+/* FEATURES SECTION */
+function FeaturesSection({ text, isDark, c, isMobile }) {
+  return (
+    <section style={{
+      display: "grid",
+      gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(220px, 1fr))",
+      padding: isMobile ? "40px 20px" : "52px 32px",
+      gap: isMobile ? "32px" : "0",
+      background: isDark
+        ? `linear-gradient(rgba(15,23,42,0.90), rgba(15,23,42,0.92)), url('https://images.unsplash.com/photo-1563906267088-b029e7101114?w=1920&q=80')`
+        : `linear-gradient(rgba(240,249,255,0.88), rgba(240,249,255,0.91)), url('https://images.unsplash.com/photo-1563906267088-b029e7101114?w=1920&q=80')`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      borderTop: `1px solid ${c.border}`, borderBottom: `1px solid ${c.border}`,
+    }}>
+      <FeatureItem icon={<Award size={22} />}      title={text.quality}    desc={text.qualityDesc}    isDark={isDark} />
+      <FeatureItem icon={<Sparkles size={22} />}   title={text.experience} desc={text.experienceDesc} isDark={isDark} />
+      <FeatureItem icon={<Clock size={22} />}      title={text.fast}       desc={text.fastDesc}       isDark={isDark} />
+    </section>
+  );
+}
+
 function FeatureItem({ icon, title, desc, isDark }) {
   const [hov, setHov] = useState(false);
   const c = th(isDark);
@@ -911,12 +920,17 @@ function FeatureItem({ icon, title, desc, isDark }) {
   );
 }
 
-/* Products section */
-function ProductsSection({ text, isDark, c }) {
+
+/* PRODUCTS SECTION */
+function ProductsSection({ text, isDark, c, isMobile, isTablet }) {
   return (
-    <section style={{ padding: "100px 32px", maxWidth: 1180, margin: "0 auto" }}>
+    <section style={{ padding: isMobile ? "60px 20px" : "100px 32px", maxWidth: 1180, margin: "0 auto" }}>
       <SectionHeader title={text.products} />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px" }}>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(auto-fit, minmax(300px, 1fr))",
+        gap: isMobile ? "20px" : "24px"
+      }}>
         {[
           { title: "Visiting Cards", desc: "Premium cards with sharp print & elegant finish" },
           { title: "Bill Books",     desc: "Durable multi-copy billing books for your business" },
@@ -924,20 +938,20 @@ function ProductsSection({ text, isDark, c }) {
           { title: "Letterheads",    desc: "Professional letterheads for your brand" },
           { title: "Brochures",      desc: "Eye-catching brochures with vibrant colors" },
           { title: "Envelopes",      desc: "Custom envelopes in all sizes" },
-        ].map((p) => <ProductCard key={p.title} {...p} isDark={isDark} c={c} />)}
+        ].map((p) => <ProductCard key={p.title} {...p} isDark={isDark} c={c} isMobile={isMobile} />)}
       </div>
     </section>
   );
 }
 
-function ProductCard({ title, desc, isDark, c }) {
+function ProductCard({ title, desc, isDark, c, isMobile }) {
   const [hov, setHov] = useState(false);
   return (
     <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{
       background: c.surf,
       border: `1px solid ${hov ? T.primary : c.border}`,
       borderRadius: T.radiusCard,
-      padding: "28px",
+      padding: isMobile ? "24px" : "28px",
       transform: hov ? "translateY(-6px)" : "translateY(0)",
       boxShadow: hov
         ? (isDark ? `0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px ${T.primaryFaint}` : `0 16px 40px rgba(0,0,0,0.10), 0 0 0 1px ${T.primaryFaint}`)
@@ -962,8 +976,8 @@ function ProductCard({ title, desc, isDark, c }) {
   );
 }
 
-/* Gallery section */
-function GallerySection({ text, isDark, c }) {
+/* GALLERY SECTION */
+function GallerySection({ text, isDark, c, isMobile, isTablet }) {
   const images = [
     "https://imgs.search.brave.com/0vmwP543aOM5MH0qMkeK-FUMtyKTAednWzujk0DXxIg/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90NC5m/dGNkbi5uZXQvanBn/LzA5LzE3LzAzLzEz/LzM2MF9GXzkxNzAz/MTM5NV82QjNEMUxK/djM0d29IQnFHSGl6/MmZhZmdIN3FHR1pj/cS5qcGc",
     "https://imgs.search.brave.com/4fSMXgmsWcxyR037wKCJJ7Obd2YO5B6jGhf4rdcRkcQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvNDY2/MjIyMzM2L3Bob3Rv/L21vZGVybi1wcmlu/dGluZy1ob3VzZS5q/cGc_cz02MTJ4NjEy/Jnc9MCZrPTIwJmM9/akZDMXVtWFI1RzYw/b2NCdE9pWE1VZ09D/ZkJHR2RFQWx5cmNk/UFlsRjFnaz0",
@@ -977,18 +991,23 @@ function GallerySection({ text, isDark, c }) {
 
   return (
     <section style={{
-      padding: "100px 32px",
+      padding: isMobile ? "60px 20px" : "100px 32px",
       background: isDark
-        ? `linear-gradient(rgba(15,23,42,0.88), rgba(15,23,42,0.91)), url('https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=1920&q=80')`
-        : `linear-gradient(rgba(240,249,255,0.82), rgba(240,249,255,0.86)), url('https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=1920&q=80')`,
+        ? `linear-gradient(rgba(15,23,42,0.90), rgba(15,23,42,0.93)), url('https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=1920&q=80')`
+        : `linear-gradient(rgba(240,249,255,0.85), rgba(240,249,255,0.89)), url('https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=1920&q=80')`,
       backgroundSize: "cover",
       backgroundPosition: "center",
-      backgroundAttachment: "fixed",
+      backgroundAttachment: isMobile ? "scroll" : "fixed",
+      backgroundRepeat: "no-repeat",
       borderTop: `1px solid ${c.border}`, borderBottom: `1px solid ${c.border}`,
     }}>
       <div style={{ maxWidth: 1180, margin: "0 auto" }}>
         <SectionHeader title={text.gallery} />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(auto-fill, minmax(280px, 1fr))",
+          gap: isMobile ? "16px" : "20px"
+        }}>
           {images.map((src, i) => <GalleryCard key={i} src={src} alt={`Printing Machine ${i + 1}`} isDark={isDark} />)}
         </div>
       </div>
@@ -1007,12 +1026,11 @@ function GalleryCard({ src, alt, isDark }) {
       transform: hov ? "translateY(-4px) scale(1.02)" : "translateY(0) scale(1)",
       transition: "all 0.35s cubic-bezier(.4,0,.2,1)",
     }}>
-      <img src={src} alt={alt} style={{
+      <img src={src} alt={alt} loading="lazy" style={{
         width: "100%", height: "100%", objectFit: "cover",
         transform: hov ? "scale(1.08)" : "scale(1)",
         transition: "transform 0.5s cubic-bezier(.4,0,.2,1)",
       }} />
-      {/* gradient overlay on hover */}
       <div style={{
         position: "absolute", inset: 0,
         background: "linear-gradient(to top, rgba(2,6,23,0.45) 0%, transparent 55%)",
@@ -1023,33 +1041,51 @@ function GalleryCard({ src, alt, isDark }) {
   );
 }
 
-/* ═══════════════════════════════════════════════
-   WEB  OFFSET  PRINTING  SECTION
-   ═══════════════════════════════════════════════ */
+/* SECTION HEADER */
+function SectionHeader({ title }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{ textAlign: "center", marginBottom: "56px" }}
+    >
+      <h2 style={{ fontSize: "clamp(26px, 4vw, 40px)", fontWeight: 800, letterSpacing: "-1px", margin: 0 }}>{title}</h2>
+      <div style={{
+        width: hov ? 72 : 48, height: 3, borderRadius: "999px",
+        background: T.grad, margin: "14px auto 0",
+        boxShadow: `0 2px 8px ${T.primaryGlow}`,
+        transition: "width 0.35s cubic-bezier(.4,0,.2,1)",
+      }} />
+    </div>
+  );
+}
 
-function WebOffsetSection({ text, isDark, c }) {
+
+/* WEB OFFSET SECTION */
+function WebOffsetSection({ text, isDark, c, isMobile, isTablet }) {
   return (
     <section style={{
       background: isDark
-        ? `linear-gradient(rgba(2,6,23,0.87), rgba(2,6,23,0.90)), url('https://images.unsplash.com/photo-1563906267088-b029e7101114?w=1920&q=80')`
-        : `linear-gradient(rgba(255,255,255,0.82), rgba(248,250,252,0.86)), url('https://images.unsplash.com/photo-1563906267088-b029e7101114?w=1920&q=80')`,
+        ? `linear-gradient(rgba(2,6,23,0.90), rgba(2,6,23,0.93)), url('https://images.unsplash.com/photo-1563906267088-b029e7101114?w=1920&q=80')`
+        : `linear-gradient(rgba(255,255,255,0.85), rgba(248,250,252,0.89)), url('https://images.unsplash.com/photo-1563906267088-b029e7101114?w=1920&q=80')`,
       backgroundSize: "cover",
       backgroundPosition: "center",
-      backgroundAttachment: "fixed",
+      backgroundAttachment: isMobile ? "scroll" : "fixed",
+      backgroundRepeat: "no-repeat",
     }}>
-      {/* ── Hero banner ── */}
-      <WebOffsetHero text={text} isDark={isDark} c={c} />
-
-      {/* ── Four content blocks ── */}
-      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "0 32px 100px" }}>
+      <WebOffsetHero text={text} isDark={isDark} c={c} isMobile={isMobile} isTablet={isTablet} />
+      <div style={{
+        maxWidth: 1180, margin: "0 auto",
+        padding: isMobile ? "0 20px 60px" : "0 32px 100px"
+      }}>
         <WebOffsetBlock
           icon={<Layers size={22} />}
           title={text.woPerfTitle}
           desc={text.woPerfDesc}
           items={text.woPerfList}
           footer={text.woPerfFoot}
-          isDark={isDark} c={c}
-          accent="layers"
+          isDark={isDark} c={c} accent="layers" isMobile={isMobile} isTablet={isTablet}
         />
         <WebOffsetBlock
           icon={<Zap size={22} />}
@@ -1057,8 +1093,7 @@ function WebOffsetSection({ text, isDark, c }) {
           desc={text.woEnvDesc}
           items={text.woEnvList}
           footer={text.woEnvFoot}
-          isDark={isDark} c={c}
-          accent="zap"
+          isDark={isDark} c={c} accent="zap" isMobile={isMobile} isTablet={isTablet}
           reduceLabel="By using optimized drying systems and modern press technology, we significantly reduce:"
         />
         <WebOffsetBlock
@@ -1067,81 +1102,86 @@ function WebOffsetSection({ text, isDark, c }) {
           desc={text.woSusDesc}
           items={text.woSusList}
           footer={text.woSusFoot}
-          isDark={isDark} c={c}
-          accent="leaf"
+          isDark={isDark} c={c} accent="leaf" isMobile={isMobile} isTablet={isTablet}
         />
       </div>
     </section>
   );
 }
 
-/* ── Hero banner with decorative background ── */
-function WebOffsetHero({ text, isDark, c }) {
+function WebOffsetHero({ text, isDark, c, isMobile }) {
   return (
     <div style={{
       position: "relative", overflow: "hidden",
-      padding: "110px 32px 100px",
+      padding: isMobile ? "70px 20px 60px" : "110px 32px 100px",
       background: isDark
-        ? `linear-gradient(160deg, rgba(12,30,51,0.85) 0%, rgba(2,6,23,0.88) 55%, rgba(10,22,40,0.86) 100%), url('https://images.unsplash.com/photo-1581092918484-8313e1f6c1ef?w=1920&q=80')`
-        : `linear-gradient(160deg, rgba(224,242,254,0.78) 0%, rgba(240,249,255,0.82) 40%, rgba(255,255,255,0.85) 100%), url('https://images.unsplash.com/photo-1581092918484-8313e1f6c1ef?w=1920&q=80')`,
+        ? `linear-gradient(160deg, rgba(12,30,51,0.88) 0%, rgba(2,6,23,0.91) 55%, rgba(10,22,40,0.89) 100%), url('https://images.unsplash.com/photo-1581092918484-8313e1f6c1ef?w=1920&q=80')`
+        : `linear-gradient(160deg, rgba(224,242,254,0.82) 0%, rgba(240,249,255,0.86) 40%, rgba(255,255,255,0.89) 100%), url('https://images.unsplash.com/photo-1581092918484-8313e1f6c1ef?w=1920&q=80')`,
       backgroundSize: "cover",
       backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
     }}>
-      {/* Decorative circles */}
-      <div style={{
-        position: "absolute", top: "-80px", right: "-80px",
-        width: "380px", height: "380px", borderRadius: "50%",
-        background: `radial-gradient(circle, ${T.primaryGlow} 0%, transparent 70%)`,
-        pointerEvents: "none",
-      }} />
-      <div style={{
-        position: "absolute", bottom: "-60px", left: "-60px",
-        width: "260px", height: "260px", borderRadius: "50%",
-        background: `radial-gradient(circle, rgba(6,182,212,0.2) 0%, transparent 70%)`,
-        pointerEvents: "none",
-      }} />
-      {/* faint grid overlay */}
-      <div style={{
-        position: "absolute", inset: 0, pointerEvents: "none", opacity: isDark ? 0.04 : 0.06,
-        backgroundImage: "linear-gradient(rgba(14,165,233,1) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,1) 1px, transparent 1px)",
-        backgroundSize: "60px 60px",
-      }} />
+      {!isMobile && (
+        <>
+          <div style={{
+            position: "absolute", top: "-80px", right: "-80px",
+            width: "380px", height: "380px", borderRadius: "50%",
+            background: `radial-gradient(circle, ${T.primaryGlow} 0%, transparent 70%)`,
+            pointerEvents: "none",
+          }} />
+          <div style={{
+            position: "absolute", bottom: "-60px", left: "-60px",
+            width: "260px", height: "260px", borderRadius: "50%",
+            background: `radial-gradient(circle, rgba(6,182,212,0.2) 0%, transparent 70%)`,
+            pointerEvents: "none",
+          }} />
+        </>
+      )}
 
-      <div style={{ maxWidth: 780, margin: "0 auto", position: "relative", zIndex: 1, textAlign: "center" }}>
-        {/* eyebrow badge */}
+      <div style={{
+        maxWidth: 780, margin: "0 auto", position: "relative", zIndex: 1, textAlign: "center", padding: "0 16px"
+      }}>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: "8px",
           background: T.primaryFaint,
           border: `1px solid ${isDark ? T.primaryDark : T.primaryLight}`,
-          borderRadius: "999px", padding: "7px 18px", marginBottom: "28px",
-          color: T.primary, fontSize: "13px", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase",
+          borderRadius: "999px", padding: "7px 18px", marginBottom: "24px",
+          color: T.primary, fontSize: isMobile ? "11px" : "13px",
+          fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase",
         }}>
           <Printer size={14} /> {text.woTitle}
         </div>
 
-        {/* Tagline */}
         <h2 style={{
-          fontSize: "clamp(32px, 5.5vw, 56px)", fontWeight: 800,
-          letterSpacing: "-1.5px", lineHeight: 1.1, marginBottom: "18px",
+          fontSize: isMobile ? "28px" : "clamp(32px, 5.5vw, 56px)",
+          fontWeight: 800,
+          letterSpacing: "-1.5px", lineHeight: 1.1, marginBottom: "16px",
           background: "linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)",
           WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
         }}>
           {text.woTagline}
         </h2>
 
-        {/* Main title */}
         <h3 style={{
-          fontSize: "clamp(20px, 2.8vw, 26px)", fontWeight: 700,
-          color: c.text, marginBottom: "22px", letterSpacing: "-0.5px",
+          fontSize: isMobile ? "18px" : "clamp(20px, 2.8vw, 26px)",
+          fontWeight: 700,
+          color: c.text, marginBottom: "20px", letterSpacing: "-0.5px",
         }}>
           {text.woHeroTitle}
         </h3>
 
-        {/* Two paragraph descriptions */}
-        <p style={{ fontSize: "15px", color: c.textMid, lineHeight: 1.8, marginBottom: "16px", maxWidth: 680, margin: "0 auto 16px" }}>
+        <p style={{
+          fontSize: isMobile ? "14px" : "15px",
+          color: c.textMid, lineHeight: 1.8, marginBottom: "16px",
+          maxWidth: 680, margin: "0 auto 16px"
+        }}>
           {text.woHeroDesc}
         </p>
-        <p style={{ fontSize: "15px", color: c.textMid, lineHeight: 1.8, maxWidth: 680, margin: "0 auto" }}>
+        <p style={{
+          fontSize: isMobile ? "14px" : "15px",
+          color: c.textMid, lineHeight: 1.8,
+          maxWidth: 680, margin: "0 auto"
+        }}>
           {text.woHeroDesc2}
         </p>
       </div>
@@ -1149,11 +1189,9 @@ function WebOffsetHero({ text, isDark, c }) {
   );
 }
 
-/* ── Single content block (Performance / Environment / Sustainability) ── */
-function WebOffsetBlock({ icon, title, desc, items, footer, isDark, c, accent, reduceLabel }) {
+function WebOffsetBlock({ icon, title, desc, items, footer, c, accent, reduceLabel, isMobile, isTablet }) {
   const [hov, setHov] = useState(false);
 
-  /* colour accent varies per block */
   const accentColor = accent === "leaf" ? "#22c55e" : accent === "zap" ? "#f59e0b" : T.primary;
   const accentGlow  = accent === "leaf" ? "rgba(34,197,94,0.25)" : accent === "zap" ? "rgba(245,158,11,0.25)" : T.primaryGlow;
   const accentFaint = accent === "leaf" ? "rgba(34,197,94,0.08)" : accent === "zap" ? "rgba(245,158,11,0.08)" : T.primaryFaint;
@@ -1168,12 +1206,15 @@ function WebOffsetBlock({ icon, title, desc, items, footer, isDark, c, accent, r
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        display: "grid", gridTemplateColumns: "1fr 1fr", gap: "48px",
-        alignItems: "start", marginBottom: "80px",
+        display: "grid",
+        gridTemplateColumns: isTablet || isMobile ? "1fr" : "1fr 1fr",
+        gap: isMobile ? "32px" : "48px",
+        alignItems: "start",
+        marginBottom: isMobile ? "50px" : "80px",
         background: c.surf,
         border: `1px solid ${hov ? accentColor : c.border}`,
         borderRadius: T.radiusXl,
-        padding: "48px",
+        padding: isMobile ? "32px 24px" : "48px",
         boxShadow: hov
           ? `0 20px 48px ${accentGlow}, 0 0 0 3px ${accentFaint}`
           : T.shadowSm,
@@ -1181,9 +1222,7 @@ function WebOffsetBlock({ icon, title, desc, items, footer, isDark, c, accent, r
         transition: "all 0.4s cubic-bezier(.4,0,.2,1)",
       }}
     >
-      {/* LEFT: icon + title + description */}
       <div>
-        {/* icon badge */}
         <div style={{
           width: 56, height: 56, borderRadius: "14px",
           background: hov ? accentGrad : accentFaint,
@@ -1198,7 +1237,8 @@ function WebOffsetBlock({ icon, title, desc, items, footer, isDark, c, accent, r
         </div>
 
         <h3 style={{
-          fontSize: "clamp(18px, 2.2vw, 22px)", fontWeight: 750,
+          fontSize: isMobile ? "18px" : "clamp(18px, 2.2vw, 22px)",
+          fontWeight: 750,
           color: c.text, letterSpacing: "-0.4px", marginBottom: "14px", lineHeight: 1.3,
         }}>
           {title}
@@ -1226,12 +1266,11 @@ function WebOffsetBlock({ icon, title, desc, items, footer, isDark, c, accent, r
         )}
       </div>
 
-      {/* RIGHT: bullet list */}
       <div style={{
         background: c.bg,
         border: `1px solid ${c.border}`,
         borderRadius: T.radiusLg,
-        padding: "28px 28px 24px",
+        padding: isMobile ? "24px 20px" : "28px",
       }}>
         <div style={{
           display: "flex", alignItems: "center", gap: "8px",
@@ -1242,7 +1281,10 @@ function WebOffsetBlock({ icon, title, desc, items, footer, isDark, c, accent, r
             background: accentGrad,
             boxShadow: `0 0 8px ${accentGlow}`,
           }} />
-          <span style={{ fontSize: "12px", fontWeight: 700, color: accentColor, letterSpacing: "1px", textTransform: "uppercase" }}>
+          <span style={{
+            fontSize: "12px", fontWeight: 700, color: accentColor,
+            letterSpacing: "1px", textTransform: "uppercase"
+          }}>
             {accent === "leaf" ? "Sustainability" : accent === "zap" ? "Reductions" : "Capabilities"}
           </span>
         </div>
@@ -1255,7 +1297,6 @@ function WebOffsetBlock({ icon, title, desc, items, footer, isDark, c, accent, r
   );
 }
 
-/* ── Single animated list row ── */
 function WebOffsetListItem({ label, accentColor, accentFaint, accentGrad, accentGlow, c }) {
   const [hov, setHov] = useState(false);
   return (
@@ -1272,7 +1313,6 @@ function WebOffsetListItem({ label, accentColor, accentFaint, accentGrad, accent
         marginBottom: "6px",
       }}
     >
-      {/* bullet dot */}
       <div style={{
         width: 22, height: 22, minWidth: 22, borderRadius: "50%",
         background: hov ? accentGrad : accentFaint,
@@ -1286,30 +1326,37 @@ function WebOffsetListItem({ label, accentColor, accentFaint, accentGrad, accent
         </svg>
       </div>
 
-      <span style={{ fontSize: "14px", color: hov ? c.text : c.textMid, fontWeight: hov ? 600 : 500, lineHeight: 1.6, transition: "color 0.2s" }}>
+      <span style={{
+        fontSize: "14px", color: hov ? c.text : c.textMid,
+        fontWeight: hov ? 600 : 500, lineHeight: 1.6, transition: "color 0.2s"
+      }}>
         {label}
       </span>
     </div>
   );
 }
 
-/* Location section */
-function LocationSection({ text, isDark, c }) {
+
+/* LOCATION SECTION */
+function LocationSection({ text, c, isMobile }) {
   const [mapHov, setMapHov]   = useState(false);
   const [addrHov, setAddrHov] = useState(false);
 
   return (
-    <section style={{ padding: "100px 32px", maxWidth: 1180, margin: "0 auto" }}>
+    <section style={{
+      padding: isMobile ? "60px 20px" : "100px 32px",
+      maxWidth: 1180, margin: "0 auto"
+    }}>
       <SectionHeader title={text.visit} />
 
-      {/* address pill */}
-      <div style={{ textAlign: "center", marginBottom: "36px" }}>
+      <div style={{ textAlign: "center", marginBottom: "32px" }}>
         <span
           onMouseEnter={() => setAddrHov(true)}
           onMouseLeave={() => setAddrHov(false)}
           style={{
             display: "inline-flex", alignItems: "center", gap: "8px",
-            fontSize: "15px", fontWeight: 600,
+            fontSize: isMobile ? "14px" : "15px",
+            fontWeight: 600,
             color: addrHov ? T.primary : c.textMid,
             background: addrHov ? T.primaryFaint : "transparent",
             border: `1px solid ${addrHov ? T.primary : "transparent"}`,
@@ -1319,12 +1366,14 @@ function LocationSection({ text, isDark, c }) {
             transition: "all 0.3s cubic-bezier(.4,0,.2,1)",
           }}
         >
-          <MapPin size={17} style={{ color: T.primary, transition: "transform 0.3s", transform: addrHov ? "scale(1.2)" : "scale(1)" }} />
+          <MapPin size={17} style={{
+            color: T.primary, transition: "transform 0.3s",
+            transform: addrHov ? "scale(1.2)" : "scale(1)"
+          }} />
           Naveen Shahdara, Delhi
         </span>
       </div>
 
-      {/* map wrapper with hover */}
       <div
         onMouseEnter={() => setMapHov(true)}
         onMouseLeave={() => setMapHov(false)}
@@ -1340,36 +1389,50 @@ function LocationSection({ text, isDark, c }) {
         }}
       >
         <iframe
-          style={{ width: "100%", height: "380px", border: 0, display: "block" }}
+          style={{ width: "100%", height: isMobile ? "300px" : "380px", border: 0, display: "block" }}
           src="https://www.google.com/maps?q=Naveen%20Shahdara%20Delhi&output=embed"
           title="Location Map"
+          loading="lazy"
         />
       </div>
     </section>
   );
 }
 
-/* Shared section header */
-function SectionHeader({ title }) {
-  const [hov, setHov] = useState(false);
+/* FOOTER */
+function Footer({ isAuth, isDark, phoneNumber, whatsappLink, isMobile }) {
   return (
-    <div
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{ textAlign: "center", marginBottom: "56px" }}
-    >
-      <h2 style={{ fontSize: "clamp(26px, 4vw, 40px)", fontWeight: 800, letterSpacing: "-1px", margin: 0 }}>{title}</h2>
-      <div style={{
-        width: hov ? 72 : 48, height: 3, borderRadius: "999px",
-        background: T.grad, margin: "14px auto 0",
-        boxShadow: `0 2px 8px ${T.primaryGlow}`,
-        transition: "width 0.35s cubic-bezier(.4,0,.2,1)",
-      }} />
-    </div>
+    <footer style={{
+      background: isDark ? "#020617" : "#0f172a",
+      color: "#cbd5e1", padding: isMobile ? "50px 20px 24px" : "60px 32px 28px",
+      textAlign: "center",
+      borderTop: `1px solid ${isDark ? T.surfDark2 : "#1e293b"}`,
+    }}>
+      <div style={{ maxWidth: 520, margin: "0 auto" }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: T.radiusMd, background: T.grad,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          color: "#fff", fontWeight: 800, fontSize: "16px", margin: "0 auto 14px",
+          boxShadow: `0 4px 14px ${T.primaryGlow}`,
+        }}>BK</div>
+        <div style={{ fontWeight: 700, fontSize: "18px", color: "#f1f5f9" }}>BK Offset Printing</div>
+        <div style={{ fontSize: "13px", color: "#64748b", marginTop: "8px", marginBottom: "20px" }}>
+          Quality printing services since 1995
+        </div>
+        {isAuth && (
+          <div style={{ display: "flex", justifyContent: "center", gap: "12px", marginBottom: "24px" }}>
+            <FooterIcon href={`tel:${phoneNumber}`}    icon={<Phone size={17} />} />
+            <FooterIcon href={whatsappLink} target="_blank" rel="noopener noreferrer" icon={<MessageCircle size={17} />} />
+          </div>
+        )}
+        <div style={{ fontSize: "12px", color: "#475569" }}>
+          © {new Date().getFullYear()} BK Offset Printing. All rights reserved.
+        </div>
+      </div>
+    </footer>
   );
 }
 
-/* Footer icon */
 function FooterIcon({ href, icon, target, rel }) {
   const [hov, setHov] = useState(false);
   return (

@@ -1588,7 +1588,7 @@ function HeroSection({
     <section
       ref={ref}
       style={{
-        padding: isMobile ? "80px 20px 60px" : "600px 32px 90px",
+        padding: isMobile ? "600px 20px 60px" : "600px 32px 90px",
         textAlign: "center",
         background: isDark
           ? `linear-gradient(rgba(12,35,64,0.85), rgba(270,6,23,0.90)), url('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1920&q=80')`

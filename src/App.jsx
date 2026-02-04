@@ -708,10 +708,9 @@ export default function App() {
             <UserProfile user={user} isDark={isDark} onLogout={handleLogout} onEdit={() => setShowAuth(true)} />
           )}
 
-          {windowWidth >= 480 && (
             <button onClick={toggleLang} aria-label="Toggle Language" style={{
               background: "transparent", border: "none", color: c.textMid,
-              cursor: "pointer", padding: "7px", borderRadius: T.radiusMd,
+              cursor: "pointer", padding: isMobile ? "6px" : "7px", borderRadius: T.radiusMd,
               display: "flex",
               alignItems: "center", justifyContent: "center",
               transition: "all 0.2s",
@@ -719,9 +718,8 @@ export default function App() {
               onMouseEnter={e => { e.currentTarget.style.background = T.primaryFaint; e.currentTarget.style.color = T.primary; }}
               onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = c.textMid; }}
             >
-              <Globe size={19} />
+              <Globe size={isMobile ? 17 : 19} />
             </button>
-          )}
 
           <button onClick={toggleTheme} aria-label="Toggle Theme" style={{
             background: "transparent", border: "none", color: c.textMid,

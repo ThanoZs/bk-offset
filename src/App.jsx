@@ -1591,7 +1591,7 @@ function HeroSection({
         padding: isMobile ? "500px 20px 60px" : "600px 32px 90px",
         textAlign: "center",
         background: isDark
-          ? `linear-gradient(rgba(12,35,64,0.85), rgba(270,6,23,0.90)), url('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1920&q=80')`
+          ? `linear-gradient(rgba(12, 35, 63, 0.85), rgba(19, 67, 125, 0.9)), url('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1920&q=80')`
           : `linear-gradient(rgba(224,242,254,0.80), rgba(255,255,255,0.88)), url('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1920&q=80')`,
         backgroundSize: "cover",
         backgroundPosition: "center",

@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+﻿import { useState, useRef } from "react";
 import OrderReceipt from "./OrderReceipt";
-import { useOrders } from "./OrdersContext";
+import { useOrders } from "../../context/OrdersContext";
 import "./PrintingPressOrder.css";
 
 const bookTypes = [
@@ -112,6 +112,7 @@ export default function PrintingPressOrder() {
       orderId: "BKO-" + Date.now().toString().slice(-6),
       orderDate: new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
       timestamp: Date.now(),
+      status: "processing",
     };
     
     // Save to orders context

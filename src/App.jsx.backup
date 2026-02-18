@@ -135,44 +135,6 @@ function AppContent() {
           }}
         >
           <div style={{ maxWidth: "1000px", margin: "0 auto", position: "relative" }}>
-      {/* TEMPORARY LOGO TEST - REMOVE AFTER FIXING */}
-      <div style={{
-        position: 'fixed',
-        top: '10px',
-        left: '10px',
-        zIndex: 9999,
-        background: 'white',
-        padding: '10px',
-        borderRadius: '5px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px'
-      }}>
-        <img 
-          src="/src/assets/Logo/BK_logo_png.png" 
-          alt="Logo Test" 
-          style={{
-            width: '50px',
-            height: '50px',
-            objectFit: 'contain',
-            border: '2px solid green'
-          }}
-          onError={(e) => {
-            e.target.style.border = '2px solid red';
-            e.target.alt = 'Failed to load: /src/assets/Logo/BK_logo_png.png';
-            console.error('Logo failed to load:', e.target.src);
-          }}
-          onLoad={(e) => {
-            console.log('Logo loaded successfully:', e.target.src);
-            e.target.style.border = '2px solid green';
-          }}
-        />
-        <div>
-          <div style={{fontWeight: 'bold'}}>Logo Test</div>
-          <div style={{fontSize: '12px'}}>Path: /src/assets/Logo/BK_logo_png.png</div>
-        </div>
-      </div>
             <button
               onClick={() => setShowOrderForm(false)}
               style={{
@@ -242,4 +204,3 @@ function App() {
 }
 
 export default App;
-

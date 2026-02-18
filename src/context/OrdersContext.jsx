@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+﻿import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const OrdersContext = createContext();
 
@@ -26,6 +26,7 @@ export const OrdersProvider = ({ children }) => {
       id: orderData.orderId || 'BKO-' + Date.now().toString().slice(-6),
       date: orderData.orderDate || new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
       timestamp: Date.now(),
+      status: "processing",
     };
     setOrders(prev => [newOrder, ...prev]);
     return newOrder;
@@ -43,6 +44,14 @@ export const OrdersProvider = ({ children }) => {
     setOrders([]);
   };
 
+  const updateOrderStatus = (orderId, status) => {
+    setOrders(prev => prev.map(order => 
+      (order.orderId === orderId || order.id === orderId) 
+        ? { ...order, status } 
+        : order
+    ));
+  };
+
   return (
     <OrdersContext.Provider value={{
       orders,
@@ -50,6 +59,7 @@ export const OrdersProvider = ({ children }) => {
       getOrder,
       deleteOrder,
       clearAllOrders,
+      updateOrderStatus,
     }}>
       {children}
     </OrdersContext.Provider>

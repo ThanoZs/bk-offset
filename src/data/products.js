@@ -1,0 +1,73 @@
+﻿export const products = [
+  {
+    id: 1,
+    title: "Visiting Cards",
+    description: "Premium cards with sharp print & elegant finish",
+    icon: "Printer",
+    category: "stationery",
+    price: "₹499 for 500 cards",
+  },
+  {
+    id: 2,
+    title: "Bill Books",
+    description: "Durable multi-copy billing books for your business",
+    icon: "BookOpen",
+    category: "stationery",
+    price: "₹299 for 100 books",
+  },
+  {
+    id: 3,
+    title: "Pamphlets",
+    description: "High-quality promotional prints that stand out",
+    icon: "FileText",
+    category: "marketing",
+    price: "₹1999 for 1000 pcs",
+  },
+  {
+    id: 4,
+    title: "Letterheads",
+    description: "Professional letterheads for your brand",
+    icon: "File",
+    category: "stationery",
+    price: "₹999 for 500 pcs",
+  },
+  {
+    id: 5,
+    title: "Brochures",
+    description: "Eye-catching brochures with vibrant colors",
+    icon: "Book",
+    category: "marketing",
+    price: "₹2999 for 500 pcs",
+  },
+  {
+    id: 6,
+    title: "Envelopes",
+    description: "Custom envelopes in all sizes",
+    icon: "Mail",
+    category: "stationery",
+    price: "₹799 for 500 pcs",
+  },
+  {
+    id: 7,
+    title: "Magazines",
+    description: "High-volume magazine printing with perfect binding",
+    icon: "BookOpen",
+    category: "publications",
+    price: "Custom quote",
+  },
+  {
+    id: 8,
+    title: "Catalogues",
+    description: "Product catalogues with premium finish",
+    icon: "Layers",
+    category: "marketing",
+    price: "Custom quote",
+  },
+];
+
+export const productCategories = [
+  { id: "all", name: "All Products" },
+  { id: "stationery", name: "Stationery" },
+  { id: "marketing", name: "Marketing Materials" },
+  { id: "publications", name: "Publications" },
+];

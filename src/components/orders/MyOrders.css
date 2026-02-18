@@ -1,4 +1,4 @@
-/* MyOrders.css */
+﻿/* MyOrders.css */
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
 
 * {
@@ -600,7 +600,7 @@
   .orders-search-input,
   .orders-filter-select,
   .order-view-btn {
-    min-height: 44px; /* Apple's recommended touch target size */
+    min-height: 44px;
   }
 
   .order-card {

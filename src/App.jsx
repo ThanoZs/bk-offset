@@ -46,6 +46,19 @@ function AppContent() {
   const text = translations[lang];
   const isMobile = windowWidth < 640;
 
+  // Prevent body scroll when modals are open
+  useEffect(() => {
+    if (showMyOrders || showOrderForm || showAuth) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [showMyOrders, showOrderForm, showAuth]);
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > SCROLL_THRESHOLD);
     const onResize = () => setWindowWidth(window.innerWidth);
@@ -79,6 +92,8 @@ function AppContent() {
         backgroundRepeat: "no-repeat",
         color: c.text,
         transition: "background 0.35s, color 0.35s",
+        height: "100%",
+        overflow: showMyOrders || showOrderForm || showAuth ? "hidden" : "auto",
       }}
     >
       <Navbar
@@ -128,51 +143,13 @@ function AppContent() {
             bottom: "0",
             background: isDark ? "rgba(2,6,23,0.95)" : "rgba(255,255,255,0.98)",
             backdropFilter: "blur(10px)",
-            zIndex: 1998, // Lower than navbar dropdowns
+            zIndex: 1998,
             overflowY: "auto",
             padding: "20px",
             animation: "fadeIn 0.3s ease-out",
           }}
         >
           <div style={{ maxWidth: "1000px", margin: "0 auto", position: "relative" }}>
-      {/* TEMPORARY LOGO TEST - REMOVE AFTER FIXING */}
-      <div style={{
-        position: 'fixed',
-        top: '10px',
-        left: '10px',
-        zIndex: 9999,
-        background: 'white',
-        padding: '10px',
-        borderRadius: '5px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px'
-      }}>
-        <img 
-          src="/src/assets/Logo/BK_logo_png.png" 
-          alt="Logo Test" 
-          style={{
-            width: '50px',
-            height: '50px',
-            objectFit: 'contain',
-            border: '2px solid green'
-          }}
-          onError={(e) => {
-            e.target.style.border = '2px solid red';
-            e.target.alt = 'Failed to load: /src/assets/Logo/BK_logo_png.png';
-            console.error('Logo failed to load:', e.target.src);
-          }}
-          onLoad={(e) => {
-            console.log('Logo loaded successfully:', e.target.src);
-            e.target.style.border = '2px solid green';
-          }}
-        />
-        <div>
-          <div style={{fontWeight: 'bold'}}>Logo Test</div>
-          <div style={{fontSize: '12px'}}>Path: /src/assets/Logo/BK_logo_png.png</div>
-        </div>
-      </div>
             <button
               onClick={() => setShowOrderForm(false)}
               style={{
@@ -204,7 +181,7 @@ function AppContent() {
         </div>
       )}
 
-      {/* My Orders Modal - Lower z-index than navbar dropdowns */}
+      {/* My Orders Modal - Fixed scrolling */}
       {showMyOrders && (
         <div
           style={{
@@ -213,10 +190,10 @@ function AppContent() {
             left: "0",
             right: "0",
             bottom: "0",
-            background: isDark ? "#020617" : "#ffffff",
-            zIndex: 1998, // Lower than navbar dropdowns (2001)
-            overflowY: "auto",
-            animation: "fadeIn 0.2s ease-out",
+            background: "transparent", // Background is handled by MyOrders component
+            zIndex: 1998,
+            overflowY: "auto", // This enables scrolling within the modal only
+            animation: "slideUp 0.2s ease-out",
           }}
         >
           <MyOrders onBack={() => setShowMyOrders(false)} isDark={isDark} />
@@ -242,4 +219,3 @@ function App() {
 }
 
 export default App;
-

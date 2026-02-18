@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Logo Test</title>
+</head>
+<body>
+    <h2>Logo Test Page</h2>
+    <p>Testing logo from: <strong>/src/assets/Logo/BK_logo_png.png</strong></p>
+    <div style="padding: 20px; border: 2px solid #333; display: inline-block;">
+        <img 
+            src="/src/assets/Logo/BK_logo_png.png" 
+            alt="BK Offset Logo" 
+            style="max-width: 200px; border: 2px solid blue;"
+            onerror="this.onerror=null; this.src=''; this.alt='LOGO NOT FOUND!'; this.style.border='2px solid red'; document.getElementById('error').innerHTML='❌ Logo failed to load - file not found at ' + this.src;"
+            onload="document.getElementById('success').innerHTML='✅ Logo loaded successfully!'; this.style.border='2px solid green';"
+        />
+    </div>
+    <p id="success" style="color: green; font-weight: bold;"></p>
+    <p id="error" style="color: red; font-weight: bold;"></p>
+    <p><strong>Expected file location:</strong> C:\Users\Kesha\OneDrive\Desktop\printing-press-system - Copy\src\assets\Logo\BK_logo_png.png</p>
+    <p><strong>Web path:</strong> /src/assets/Logo/BK_logo_png.png</p>
+</body>
+</html>

@@ -25,6 +25,11 @@ import {
 } from "lucide-react";
 import "./App.css";
 import logoImg from "./assets/Logo/BK_logo_png.png";
+import { ShoppingCart, X } from "lucide-react";
+import PrintingPressOrder from "./PrintingPressOrder";
+import "./PrintingPressOrder.css";
+import { OrdersProvider } from './OrdersContext';
+import MyOrders from './MyOrders';
 
 // FIX: Correct logo import path - adjust based on your actual file structure
 // If the logo is in assets/Logo/BK_logo_png.png
@@ -1182,6 +1187,8 @@ export default function App() {
   );
   const [scrolled, setScrolled] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [showOrderForm, setShowOrderForm] = useState(false);
+  const [showMyOrders, setShowMyOrders] = useState(false);
   const [user, setUser] = useState(() => {
     const s = localStorage.getItem("bk_user");
     return s ? JSON.parse(s) : null;
@@ -1253,7 +1260,9 @@ export default function App() {
         "Web offset printing is designed for non-stop production, and at BK Offset Printing, speed is only the beginning. Our advanced multi-colour rotary presses deliver consistent quality at exceptional speeds, making them ideal for magazines, catalogues, brochures, inserts, and promotional publications produced in large volumes.",
       woHeroDesc2:
         "Every rotation combines power, stability, and accuracy, ensuring sharp images and uniform colour reproduction—even across millions of impressions.",
+
       woPerfTitle: "Performance That Goes Beyond Printing",
+
       woPerfDesc:
         "Our web offset systems are equipped with integrated inline finishing, allowing multiple processes to happen in a single run. This means faster turnaround times and flawless results.",
       woPerfList: [
@@ -1336,236 +1345,331 @@ export default function App() {
   }[lang];
 
   return (
-    <div
-      style={{
-        fontFamily: T.fontBody,
-        minHeight: "100vh",
-        background: isDark
-          ? `linear-gradient(to bottom, rgba(2,6,23,0.92), rgba(2,6,23,0.95)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80')`
-          : `linear-gradient(to bottom, rgba(255,255,255,0.88), rgba(248,250,252,0.92)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80')`,
-        backgroundSize: "cover",
-        backgroundAttachment: isMobile ? "scroll" : "fixed",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        color: c.text,
-        transition: "background 0.35s, color 0.35s",
-      }}
-    >
-      {/* NAVBAR */}
-      <nav
+    <OrdersProvider>
+      <div
         style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 1000,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: isMobile ? "10px 16px" : "10px 24px",
-          background: scrolled
-            ? isDark
-              ? "rgba(2,6,23,0.95)"
-              : "rgba(255,255,255,0.95)"
-            : isDark
-            ? "rgba(2,6,23,0.5)"
-            : "rgba(255,255,255,0.7)",
-          backdropFilter: "blur(18px)",
-          borderBottom: scrolled
-            ? `1px solid ${c.border}`
-            : "1px solid transparent",
-          boxShadow: scrolled ? T.shadowSm : "none",
-          transition: "all 0.3s ease",
+          fontFamily: T.fontBody,
+          minHeight: "100vh",
+          background: isDark
+            ? `linear-gradient(to bottom, rgba(2,6,23,0.92), rgba(2,6,23,0.95)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80')`
+            : `linear-gradient(to bottom, rgba(255,255,255,0.88), rgba(248,250,252,0.92)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80')`,
+          backgroundSize: "cover",
+          backgroundAttachment: isMobile ? "scroll" : "fixed",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          color: c.text,
+          transition: "background 0.35s, color 0.35s",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <img
-            src={logoImg}
-            alt="BK Offset"
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: T.radiusMd,
-              objectFit: "cover",
-              display: "block",
-              boxShadow: `0 4px 14px ${T.primaryGlow}`,
-              animation: "none",
-            }}
-          />
-          <span
-            style={{
-              fontSize: isMobile ? "15px" : "17px",
-              fontWeight: 700,
-              letterSpacing: "-0.5px",
-            }}
-          >
-            {isTablet ? "BK Offset" : isMobile ? "BK" : "BK Offset"}
-          </span>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          {!isAuth ? (
-            <button
-              onClick={() => setShowAuth(true)}
+        {/* NAVBAR */}
+        <nav
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 1000,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: isMobile ? "10px 16px" : "10px 24px",
+            background: scrolled
+              ? isDark
+                ? "rgba(2,6,23,0.95)"
+                : "rgba(255,255,255,0.95)"
+              : isDark
+              ? "rgba(2,6,23,0.5)"
+              : "rgba(255,255,255,0.7)",
+            backdropFilter: "blur(18px)",
+            borderBottom: scrolled
+              ? `1px solid ${c.border}`
+              : "1px solid transparent",
+            boxShadow: scrolled ? T.shadowSm : "none",
+            transition: "all 0.3s ease",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <img
+              src={logoImg}
+              alt="BK Offset"
               style={{
-                background: T.grad,
-                color: "#fff",
-                border: "none",
-                padding: isMobile ? "7px 16px" : "8px 20px",
+                width: 36,
+                height: 36,
                 borderRadius: T.radiusMd,
-                fontWeight: 600,
-                fontSize: isMobile ? "13px" : "14px",
-                cursor: "pointer",
-                boxShadow: `0 3px 12px ${T.primaryGlow}`,
-                transition: "transform 0.2s, box-shadow 0.2s",
-                whiteSpace: "nowrap",
-                fontFamily: T.fontBody,
+                objectFit: "cover",
+                display: "block",
+                boxShadow: `0 4px 14px ${T.primaryGlow}`,
+                animation: "none",
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = `0 6px 20px ${T.primaryGlow}`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = `0 3px 12px ${T.primaryGlow}`;
+            />
+            <span
+              style={{
+                fontSize: isMobile ? "15px" : "17px",
+                fontWeight: 700,
+                letterSpacing: "-0.5px",
               }}
             >
-              {isMobile ? "Sign In" : `${text.signIn} / ${text.register}`}
+              {isTablet ? "BK Offset" : isMobile ? "BK" : "BK Offset"}
+            </span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {!isAuth ? (
+              <button
+                onClick={() => setShowAuth(true)}
+                style={{
+                  background: T.grad,
+                  color: "#fff",
+                  border: "none",
+                  padding: isMobile ? "7px 16px" : "8px 20px",
+                  borderRadius: T.radiusMd,
+                  fontWeight: 600,
+                  fontSize: isMobile ? "13px" : "14px",
+                  cursor: "pointer",
+                  boxShadow: `0 3px 12px ${T.primaryGlow}`,
+                  transition: "transform 0.2s, box-shadow 0.2s",
+                  whiteSpace: "nowrap",
+                  fontFamily: T.fontBody,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.boxShadow = `0 6px 20px ${T.primaryGlow}`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = `0 3px 12px ${T.primaryGlow}`;
+                }}
+              >
+                {isMobile ? "Sign In" : `${text.signIn} / ${text.register}`}
+              </button>
+            ) : (
+              <>
+                <UserProfile
+                  user={user}
+                  isDark={isDark}
+                  onLogout={handleLogout}
+                  onEdit={() => setShowAuth(true)}
+                />
+                <button
+                  onClick={() => setShowMyOrders(true)}
+                  style={{
+                    background: "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
+                    color: "#fff",
+                    border: "none",
+                    padding: isMobile ? "7px 16px" : "8px 20px",
+                    borderRadius: T.radiusMd,
+                    fontWeight: 600,
+                    fontSize: isMobile ? "13px" : "14px",
+                    cursor: "pointer",
+                    marginLeft: "4px",
+                    fontFamily: T.fontBody,
+                    transition: "transform 0.2s, box-shadow 0.2s",
+                    whiteSpace: "nowrap",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 6px 20px rgba(139,92,246,0.4)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  📋 My Orders
+                </button>
+              </>
+            )}
+
+            <button
+              onClick={toggleLang}
+              aria-label="Toggle Language"
+              style={{
+                background: "transparent",
+                border: "none",
+                color: c.textMid,
+                cursor: "pointer",
+                padding: isMobile ? "6px" : "7px",
+                borderRadius: T.radiusMd,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = T.primaryFaint;
+                e.currentTarget.style.color = T.primary;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = c.textMid;
+              }}
+            >
+              <Globe size={isMobile ? 17 : 19} />
             </button>
-          ) : (
-            <UserProfile
-              user={user}
-              isDark={isDark}
-              onLogout={handleLogout}
-              onEdit={() => setShowAuth(true)}
-            />
-          )}
 
-          <button
-            onClick={toggleLang}
-            aria-label="Toggle Language"
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle Theme"
+              style={{
+                background: "transparent",
+                border: "none",
+                color: c.textMid,
+                cursor: "pointer",
+                padding: "7px",
+                borderRadius: T.radiusMd,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = T.primaryFaint;
+                e.currentTarget.style.color = T.primary;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = c.textMid;
+              }}
+            >
+              {isDark ? <Sun size={19} /> : <Moon size={19} />}
+            </button>
+          </div>
+        </nav>
+
+        {/* HERO SECTION */}
+        <HeroSection
+          text={text}
+          isDark={isDark}
+          c={c}
+          isAuth={isAuth}
+          isMobile={isMobile}
+          phoneNumber={phoneNumber}
+          whatsappLink={whatsappLink}
+          setShowAuth={setShowAuth}
+          setShowOrderForm={setShowOrderForm}
+        />
+
+        {/* ORDER FORM MODAL */}
+        {showOrderForm && (
+          <div
             style={{
-              background: "transparent",
-              border: "none",
-              color: c.textMid,
-              cursor: "pointer",
-              padding: isMobile ? "6px" : "7px",
-              borderRadius: T.radiusMd,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = T.primaryFaint;
-              e.currentTarget.style.color = T.primary;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.color = c.textMid;
+              position: "fixed",
+              inset: 0,
+              background: isDark ? "rgba(2,6,23,0.95)" : "rgba(255,255,255,0.98)",
+              backdropFilter: "blur(10px)",
+              zIndex: 2000,
+              overflowY: "auto",
+              padding: "20px",
+              animation: "fadeIn 0.3s ease-out",
             }}
           >
-            <Globe size={isMobile ? 17 : 19} />
-          </button>
+            <div style={{ maxWidth: "1000px", margin: "0 auto", position: "relative" }}>
+              <button
+                onClick={() => setShowOrderForm(false)}
+                style={{
+                  position: "sticky",
+                  top: "20px",
+                  right: 0,
+                  float: "right",
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "50%",
+                  background: T.grad,
+                  border: "none",
+                  color: "#fff",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: `0 4px 12px ${T.primaryGlow}`,
+                  zIndex: 2001,
+                  transition: "transform 0.2s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              >
+                <X size={20} />
+              </button>
+              <PrintingPressOrder />
+            </div>
+          </div>
+        )}
 
-          <button
-            onClick={toggleTheme}
-            aria-label="Toggle Theme"
+        {/* MY ORDERS MODAL */}
+        {showMyOrders && (
+          <div
             style={{
-              background: "transparent",
-              border: "none",
-              color: c.textMid,
-              cursor: "pointer",
-              padding: "7px",
-              borderRadius: T.radiusMd,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = T.primaryFaint;
-              e.currentTarget.style.color = T.primary;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.color = c.textMid;
+              position: "fixed",
+              inset: 0,
+              background: isDark ? "rgba(2,6,23,0.98)" : "rgba(255,255,255,0.98)",
+              backdropFilter: "blur(10px)",
+              zIndex: 2000,
+              overflowY: "auto",
+              animation: "fadeIn 0.3s ease-out",
             }}
           >
-            {isDark ? <Sun size={19} /> : <Moon size={19} />}
-          </button>
-        </div>
-      </nav>
+            <MyOrders onBack={() => setShowMyOrders(false)} />
+          </div>
+        )}
 
-      {/* HERO SECTION */}
-      <HeroSection
-        text={text}
-        isDark={isDark}
-        c={c}
-        isAuth={isAuth}
-        isMobile={isMobile}
-        phoneNumber={phoneNumber}
-        whatsappLink={whatsappLink}
-        setShowAuth={setShowAuth}
-      />
+        {/* NEW STATS SECTION */}
+        <StatsSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
 
-      {/* NEW STATS SECTION */}
-      <StatsSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
+        {/* FEATURES BAR */}
+        <FeaturesSection
+          text={text}
+          isDark={isDark}
+          c={c}
+          isMobile={isMobile}
+          isTablet={isTablet}
+        />
 
-      {/* FEATURES BAR */}
-      <FeaturesSection
-        text={text}
-        isDark={isDark}
-        c={c}
-        isMobile={isMobile}
-        isTablet={isTablet}
-      />
+        {/* PRODUCTS */}
+        <ProductsSection
+          text={text}
+          isDark={isDark}
+          c={c}
+          isMobile={isMobile}
+          isTablet={isTablet}
+        />
 
-      {/* PRODUCTS */}
-      <ProductsSection
-        text={text}
-        isDark={isDark}
-        c={c}
-        isMobile={isMobile}
-        isTablet={isTablet}
-      />
+        {/* GALLERY */}
+        <GallerySection
+          text={text}
+          isDark={isDark}
+          c={c}
+          isMobile={isMobile}
+          isTablet={isTablet}
+        />
 
-      {/* GALLERY */}
-      <GallerySection
-        text={text}
-        isDark={isDark}
-        c={c}
-        isMobile={isMobile}
-        isTablet={isTablet}
-      />
+        {/* WEB OFFSET PRINTING */}
+        <WebOffsetSection
+          text={text}
+          isDark={isDark}
+          c={c}
+          isMobile={isMobile}
+          isTablet={isTablet}
+        />
 
-      {/* WEB OFFSET PRINTING */}
-      <WebOffsetSection
-        text={text}
-        isDark={isDark}
-        c={c}
-        isMobile={isMobile}
-        isTablet={isTablet}
-      />
+        {/* LOCATION */}
+        <LocationSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
 
-      {/* LOCATION */}
-      <LocationSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
+        {/* FOOTER */}
+        <Footer
+          isAuth={isAuth}
+          isDark={isDark}
+          phoneNumber={phoneNumber}
+          whatsappLink={whatsappLink}
+          isMobile={isMobile}
+        />
 
-      {/* FOOTER */}
-      <Footer
-        isAuth={isAuth}
-        isDark={isDark}
-        phoneNumber={phoneNumber}
-        whatsappLink={whatsappLink}
-        isMobile={isMobile}
-      />
+        <SocialMediaIcons
+          isDark={isDark}
+          isAuthenticated={isAuth}
+          windowWidth={windowWidth}
+        />
 
-      <SocialMediaIcons
-        isDark={isDark}
-        isAuthenticated={isAuth}
-        windowWidth={windowWidth}
-      />
-
-      {showAuth && <Auth isDark={isDark} onAuthComplete={handleAuthComplete} />}
-    </div>
+        {showAuth && <Auth isDark={isDark} onAuthComplete={handleAuthComplete} />}
+      </div>
+    </OrdersProvider>
   );
 }
 
@@ -1581,6 +1685,7 @@ function HeroSection({
   phoneNumber,
   whatsappLink,
   setShowAuth,
+  setShowOrderForm,
 }) {
   const [ref, isVisible] = useScrollAnimation();
 
@@ -1625,7 +1730,6 @@ function HeroSection({
           right: 0,
           transform: "translateY(-50%)",
           zIndex: 1,
-
         }}
       >
         <div
@@ -1724,6 +1828,35 @@ function HeroSection({
                 rel="noopener noreferrer"
                 isMobile={isMobile}
               />
+              <button
+                onClick={() => setShowOrderForm(true)}
+                style={{
+                  background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                  color: "#fff",
+                  border: "none",
+                  padding: isMobile ? "11px 24px" : "13px 30px",
+                  borderRadius: "12px",
+                  fontWeight: 700,
+                  fontSize: isMobile ? "14px" : "15px",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "9px",
+                  boxShadow: "0 4px 16px rgba(245,158,11,0.35)",
+                  transition: "all 0.25s cubic-bezier(.4,0,.2,1)",
+                  fontFamily: T.fontBody,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-3px) scale(1.04)";
+                  e.currentTarget.style.boxShadow = "0 12px 28px rgba(245,158,11,0.45)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0) scale(1)";
+                  e.currentTarget.style.boxShadow = "0 4px 16px rgba(245,158,11,0.35)";
+                }}
+              >
+                <ShoppingCart size={17} /> Order Now
+              </button>
             </>
           ) : (
             <button
@@ -1745,8 +1878,7 @@ function HeroSection({
                 fontFamily: T.fontBody,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform =
-                  "translateY(-3px) scale(1.03)";
+                e.currentTarget.style.transform = "translateY(-3px) scale(1.03)";
                 e.currentTarget.style.boxShadow = `0 12px 32px ${T.primaryGlow}`;
               }}
               onMouseLeave={(e) => {
@@ -2467,10 +2599,11 @@ function WebOffsetBlock({
         gap: isMobile ? "32px" : "48px",
         alignItems: "start",
         marginBottom: isMobile ? "50px" : "80px",
+        marginTop: isMobile ? "50px" : "80px",
         background: c.surf,
         border: `1px solid ${hov ? accentColor : c.border}`,
         borderRadius: T.radiusXl,
-        padding: isMobile ? "32px 24px" : "48px",
+        padding: isMobile ? "32px 24px" : "60px",
         boxShadow: hov
           ? `0 20px 48px ${accentGlow}, 0 0 0 3px ${accentFaint}`
           : T.shadowSm,

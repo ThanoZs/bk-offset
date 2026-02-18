@@ -42,6 +42,7 @@ export function Navbar({
     alignItems: "center",
     gap: "12px",
     textAlign: "left",
+    transition: "background 0.2s ease",
   };
 
   const dropdownBtnHover = (e) => {
@@ -77,10 +78,15 @@ export function Navbar({
         background: isDark
           ? "rgba(2,6,23,0.95)"
           : "rgba(255,255,255,0.95)",
+        backdropFilter: "blur(10px)",
         borderBottom: scrolled
-          ? "1px solid #cbd5e1"
+          ? "1px solid " + (isDark ? "#334155" : "#cbd5e1")
           : "1px solid transparent",
+        boxShadow: scrolled
+          ? "0 4px 20px rgba(0,0,0,0.1)"
+          : "none",
         transition: "all 0.3s ease",
+        width: "100%",
       }}
     >
       {/* Logo */}
@@ -130,6 +136,15 @@ export function Navbar({
               display: "flex",
               alignItems: "center",
               gap: "8px",
+              transition: "transform 0.2s ease, box-shadow 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 6px 20px rgba(14,165,233,0.3)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
             }}
           >
             <User size={16} />
@@ -143,13 +158,20 @@ export function Navbar({
                 onClick={() => setShowProfile(!showProfile)}
                 style={{
                   background: "transparent",
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid " + (isDark ? "#334155" : "#cbd5e1"),
                   borderRadius: "20px",
                   padding: "4px 12px 4px 4px",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   gap: "8px",
+                  transition: "background 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = isDark ? "rgba(51,65,85,0.5)" : "rgba(241,245,249,0.5)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
                 }}
               >
                 <div
@@ -179,7 +201,7 @@ export function Navbar({
                 </span>
               </button>
 
-              {/* Profile Dropdown - Now only has View Profile */}
+              {/* Profile Dropdown */}
               {showProfile && (
                 <>
                   <div
@@ -198,15 +220,16 @@ export function Navbar({
                       background: isDark ? "#1e293b" : "#ffffff",
                       borderRadius: "12px",
                       boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-                      border: "1px solid #cbd5e1",
+                      border: "1px solid " + (isDark ? "#334155" : "#cbd5e1"),
                       zIndex: 2001,
                       minWidth: "200px",
+                      overflow: "hidden",
                     }}
                   >
                     <div
                       style={{
                         padding: "12px 16px",
-                        borderBottom: "1px solid #cbd5e1",
+                        borderBottom: "1px solid " + (isDark ? "#334155" : "#cbd5e1"),
                       }}
                     >
                       <div
@@ -249,7 +272,7 @@ export function Navbar({
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
                 style={{
                   background: "transparent",
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid " + (isDark ? "#334155" : "#cbd5e1"),
                   borderRadius: "8px",
                   padding: "8px",
                   cursor: "pointer",
@@ -257,12 +280,19 @@ export function Navbar({
                   alignItems: "center",
                   justifyContent: "center",
                   color: isDark ? "#94a3b8" : "#475569",
+                  transition: "background 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = isDark ? "rgba(51,65,85,0.5)" : "rgba(241,245,249,0.5)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
                 }}
               >
                 {showMobileMenu ? <X size={20} /> : <Menu size={20} />}
               </button>
 
-              {/* Hamburger Menu Dropdown - Now has My Orders, Language, Theme, and Logout */}
+              {/* Hamburger Menu Dropdown */}
               {showMobileMenu && (
                 <>
                   <div
@@ -281,7 +311,7 @@ export function Navbar({
                       background: isDark ? "#1e293b" : "#ffffff",
                       borderRadius: "12px",
                       boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-                      border: "1px solid #cbd5e1",
+                      border: "1px solid " + (isDark ? "#334155" : "#cbd5e1"),
                       zIndex: 2001,
                       minWidth: "180px",
                       padding: "8px",
@@ -336,11 +366,11 @@ export function Navbar({
                     {/* Divider */}
                     <div style={{
                       height: "1px",
-                      background: "#cbd5e1",
+                      background: isDark ? "#334155" : "#cbd5e1",
                       margin: "8px 0",
                     }} />
 
-                    {/* Logout Button - Now in hamburger menu */}
+                    {/* Logout Button */}
                     <button
                       onClick={handleLogout}
                       style={{

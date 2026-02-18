@@ -8,6 +8,13 @@
   transition: background 0.35s, color 0.35s;
 }
 
+/* Ensure navbar stays on top */
+.navbar-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+}
+
 /* Modal animations */
 .modal-enter {
   animation: fadeIn 0.3s ease-out;
@@ -63,4 +70,11 @@
 /* Light mode overrides */
 [data-theme="light"] {
   color-scheme: light;
+}
+
+/* Ensure sticky positioning works */
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }

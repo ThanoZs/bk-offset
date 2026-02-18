@@ -79,23 +79,7 @@ function AppContent() {
   };
 
   return (
-    <div
-      style={{
-        fontFamily: T.fontBody,
-        minHeight: "100vh",
-        background: isDark
-          ? "linear-gradient(to bottom, rgba(2,6,23,0.92), rgba(2,6,23,0.95)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80')"
-          : "linear-gradient(to bottom, rgba(255,255,255,0.88), rgba(248,250,252,0.92)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80')",
-        backgroundSize: "cover",
-        backgroundAttachment: isMobile ? "scroll" : "fixed",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        color: c.text,
-        transition: "background 0.35s, color 0.35s",
-        height: "100%",
-        overflow: showMyOrders || showOrderForm || showAuth ? "hidden" : "auto",
-      }}
-    >
+    <>
       <Navbar
         isDark={isDark}
         toggleTheme={useThemeContext().toggleTheme}
@@ -106,33 +90,49 @@ function AppContent() {
         onMyOrdersClick={() => setShowMyOrders(true)}
         scrolled={scrolled}
       />
+      
+      <div
+        style={{
+          fontFamily: T.fontBody,
+          minHeight: "100vh",
+          background: isDark
+            ? "linear-gradient(to bottom, rgba(2,6,23,0.92), rgba(2,6,23,0.95)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80')"
+            : "linear-gradient(to bottom, rgba(255,255,255,0.88), rgba(248,250,252,0.92)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80')",
+          backgroundSize: "cover",
+          backgroundAttachment: isMobile ? "scroll" : "fixed",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          color: c.text,
+          transition: "background 0.35s, color 0.35s",
+        }}
+      >
+        <HeroSection
+          text={text}
+          isDark={isDark}
+          c={c}
+          isAuth={!!user}
+          isMobile={isMobile}
+          setShowAuth={setShowAuth}
+          setShowOrderForm={setShowOrderForm}
+        />
 
-      <HeroSection
-        text={text}
-        isDark={isDark}
-        c={c}
-        isAuth={!!user}
-        isMobile={isMobile}
-        setShowAuth={setShowAuth}
-        setShowOrderForm={setShowOrderForm}
-      />
+        <StatsSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
+        <FeaturesSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
+        <ProductsSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
+        <GallerySection text={text} isDark={isDark} c={c} isMobile={isMobile} />
+        <WebOffsetSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
+        <LocationSection text={text} c={c} isMobile={isMobile} />
 
-      <StatsSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
-      <FeaturesSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
-      <ProductsSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
-      <GallerySection text={text} isDark={isDark} c={c} isMobile={isMobile} />
-      <WebOffsetSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
-      <LocationSection text={text} c={c} isMobile={isMobile} />
+        <Footer isDark={isDark} isMobile={isMobile} />
 
-      <Footer isDark={isDark} isMobile={isMobile} />
+        <SocialMediaIcons
+          isDark={isDark}
+          isAuthenticated={!!user}
+          windowWidth={windowWidth}
+        />
+      </div>
 
-      <SocialMediaIcons
-        isDark={isDark}
-        isAuthenticated={!!user}
-        windowWidth={windowWidth}
-      />
-
-      {/* Order Form Modal */}
+      {/* Order Form Modal - Fixed close button */}
       {showOrderForm && (
         <div
           style={{
@@ -141,24 +141,30 @@ function AppContent() {
             left: "0",
             right: "0",
             bottom: "0",
-            background: isDark ? "rgba(2,6,23,0.95)" : "rgba(255,255,255,0.98)",
+            background: isDark ? "rgba(2,6,23,0.98)" : "rgba(255,255,255,0.98)",
             backdropFilter: "blur(10px)",
-            zIndex: 1998,
+            zIndex: 2000,
             overflowY: "auto",
-            padding: "20px",
             animation: "fadeIn 0.3s ease-out",
           }}
         >
-          <div style={{ maxWidth: "1000px", margin: "0 auto", position: "relative" }}>
+          {/* Fixed close button at the top */}
+          <div style={{
+            position: "sticky",
+            top: "20px",
+            zIndex: 2001,
+            display: "flex",
+            justifyContent: "flex-end",
+            padding: "0 20px",
+            maxWidth: "1000px",
+            margin: "0 auto",
+            pointerEvents: "none",
+          }}>
             <button
               onClick={() => setShowOrderForm(false)}
               style={{
-                position: "sticky",
-                top: "20px",
-                right: 0,
-                float: "right",
-                width: "40px",
-                height: "40px",
+                width: "44px",
+                height: "44px",
                 borderRadius: "50%",
                 background: "linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)",
                 border: "none",
@@ -167,21 +173,35 @@ function AppContent() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                boxShadow: "0 4px 12px rgba(14, 165, 233, 0.35)",
-                zIndex: 1999,
-                transition: "transform 0.2s",
+                boxShadow: "0 4px 20px rgba(14, 165, 233, 0.4)",
+                transition: "all 0.2s ease",
+                pointerEvents: "auto",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "scale(1.1)";
+                e.currentTarget.style.boxShadow = "0 6px 25px rgba(14, 165, 233, 0.5)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.boxShadow = "0 4px 20px rgba(14, 165, 233, 0.4)";
+              }}
             >
-              <X size={20} />
+              <X size={22} />
             </button>
+          </div>
+          
+          {/* Content */}
+          <div style={{
+            maxWidth: "1000px",
+            margin: "-30px auto 0",
+            padding: "0 20px 40px",
+          }}>
             <PrintingPressOrder />
           </div>
         </div>
       )}
 
-      {/* My Orders Modal - Fixed scrolling */}
+      {/* My Orders Modal */}
       {showMyOrders && (
         <div
           style={{
@@ -190,9 +210,9 @@ function AppContent() {
             left: "0",
             right: "0",
             bottom: "0",
-            background: "transparent", // Background is handled by MyOrders component
+            background: "transparent",
             zIndex: 1998,
-            overflowY: "auto", // This enables scrolling within the modal only
+            overflowY: "auto",
             animation: "slideUp 0.2s ease-out",
           }}
         >
@@ -202,7 +222,7 @@ function AppContent() {
 
       {/* Auth Modal */}
       {showAuth && <AuthModal isDark={isDark} onClose={() => setShowAuth(false)} />}
-    </div>
+    </>
   );
 }
 

@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Firebase Test</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"></script>
+</head>
+<body>
+    <h1>Firebase Configuration Test</h1>
+    <div id="result"></div>
+    
+    <script>
+        // Replace with your actual Firebase config
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        const resultDiv = document.getElementById('result');
+        
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            resultDiv.innerHTML = '<p style="color: green">✅ Firebase initialized successfully!</p>';
+            resultDiv.innerHTML += '<p>Auth Domain: ' + firebaseConfig.authDomain + '</p>';
+        } catch (error) {
+            resultDiv.innerHTML = '<p style="color: red">❌ Firebase initialization failed: ' + error.message + '</p>';
+        }
+    </script>
+</body>
+</html>

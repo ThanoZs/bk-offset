@@ -132,7 +132,7 @@ function AppContent() {
         />
       </div>
 
-      {/* Order Form Modal - Fixed close button */}
+      {/* Order Form Modal */}
       {showOrderForm && (
         <div
           style={{
@@ -148,7 +148,6 @@ function AppContent() {
             animation: "fadeIn 0.3s ease-out",
           }}
         >
-          {/* Fixed close button at the top */}
           <div style={{
             position: "sticky",
             top: "20px",
@@ -190,7 +189,6 @@ function AppContent() {
             </button>
           </div>
           
-          {/* Content */}
           <div style={{
             maxWidth: "1000px",
             margin: "-30px auto 0",

@@ -1,4 +1,12 @@
 ﻿import React, { createContext, useContext, useState, useEffect } from 'react';
+import { 
+  signInWithGoogle, 
+  signInWithEmail, 
+  signUpWithEmail,
+  signOutUser,
+  onAuthStateChange,
+  sendPasswordReset
+} from '../components/auth/firebase';
 
 const AuthContext = createContext();
 
@@ -8,61 +16,61 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check for saved user on initial load
   useEffect(() => {
-    const savedUser = localStorage.getItem('bk_user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
+    const unsubscribe = onAuthStateChange((firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          firstName: firebaseUser.displayName?.split(' ')[0] || 'User',
+          lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+          emailVerified: firebaseUser.emailVerified,
+          isAuthenticated: true,
+        });
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+    return unsubscribe;
   }, []);
 
-  const login = (email, password) => {
-    // In a real app, this would validate against a backend
-    // For demo purposes, we'll create a mock user
-    const mockUser = {
-      email: email,
-      firstName: "John",
-      lastName: "Doe",
-      isAuthenticated: true,
-      loginTime: new Date().toISOString(),
-    };
-    
-    localStorage.setItem('bk_user', JSON.stringify(mockUser));
-    setUser(mockUser);
-    return true;
+  const loginWithGoogle = async () => {
+    const { error } = await signInWithGoogle();
+    return { error };
   };
 
-  const logout = () => {
-    localStorage.removeItem('bk_user');
-    setUser(null);
+  const loginWithEmail = async (email, password) => {
+    const { error } = await signInWithEmail(email, password);
+    return { error };
   };
 
-  const register = (userData) => {
-    // In a real app, this would register with a backend
-    const newUser = {
-      ...userData,
-      isAuthenticated: true,
-      registeredAt: new Date().toISOString(),
-    };
-    
-    localStorage.setItem('bk_user', JSON.stringify(newUser));
-    setUser(newUser);
-    return true;
+  const registerWithEmail = async (email, password, firstName, lastName) => {
+    const { error } = await signUpWithEmail(email, password, firstName, lastName);
+    return { error };
   };
 
-  const value = {
-    user,
-    login,
-    logout,
-    register,
-    loading,
-    isAuthenticated: !!user,
+  const resetPassword = async (email) => {
+    const { error } = await sendPasswordReset(email);
+    return { error };
+  };
+
+  const logout = async () => {
+    await signOutUser();
   };
 
   return (
-    <AuthContext.Provider value={value}>
-      {children}
+    <AuthContext.Provider value={{
+      user,
+      loginWithGoogle,
+      loginWithEmail,
+      registerWithEmail,
+      resetPassword,
+      logout,
+      loading,
+      isAuthenticated: !!user,
+    }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

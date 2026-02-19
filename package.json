@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "printing-press-system",
   "private": true,
   "version": "0.0.0",
@@ -13,10 +13,11 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "firebase": "^10.8.0",
+    "jspdf": "^2.5.1",
     "lucide-react": "^0.263.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "jspdf": "^2.5.1"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

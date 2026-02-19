@@ -65,6 +65,18 @@ export function Navbar({
     console.log("View profile clicked");
   };
 
+  const handleLogoClick = () => {
+    // Scroll to top smoothly
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+    
+    // Close any open dropdowns
+    setShowProfile(false);
+    setShowMobileMenu(false);
+  };
+
   return (
     <nav
       style={{
@@ -89,8 +101,23 @@ export function Navbar({
         width: "100%",
       }}
     >
-      {/* Logo */}
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      {/* Logo - Clickable to go to home */}
+      <div 
+        onClick={handleLogoClick}
+        style={{ 
+          display: "flex", 
+          alignItems: "center", 
+          gap: "12px",
+          cursor: "pointer",
+          transition: "opacity 0.2s ease",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.opacity = "0.8";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.opacity = "1";
+        }}
+      >
         <img 
           src={logo}
           alt="BK Offset"

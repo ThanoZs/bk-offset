@@ -1,5 +1,5 @@
 ﻿import React, { useState } from "react";
-import { Phone, MessageCircle, User, ShoppingCart, Sparkles } from "lucide-react";
+import { Phone, MessageCircle, User, Sparkles } from "lucide-react";
 import { T } from "../../utils/designTokens";
 import { FloatingParticles } from "../common/FloatingParticles";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";
@@ -12,7 +12,6 @@ export function HeroSection({
   isAuth,
   isMobile,
   setShowAuth,
-  setShowOrderForm,
 }) {
   const [ref, isVisible] = useScrollAnimation();
 
@@ -155,35 +154,6 @@ export function HeroSection({
                 rel="noopener noreferrer"
                 isMobile={isMobile}
               />
-              <button
-                onClick={() => setShowOrderForm(true)}
-                style={{
-                  background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                  color: "#fff",
-                  border: "none",
-                  padding: isMobile ? "11px 24px" : "13px 30px",
-                  borderRadius: "12px",
-                  fontWeight: 700,
-                  fontSize: isMobile ? "14px" : "15px",
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "9px",
-                  boxShadow: "0 4px 16px rgba(245,158,11,0.35)",
-                  transition: "all 0.25s cubic-bezier(.4,0,.2,1)",
-                  fontFamily: T.fontBody,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-3px) scale(1.04)";
-                  e.currentTarget.style.boxShadow = "0 12px 28px rgba(245,158,11,0.45)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0) scale(1)";
-                  e.currentTarget.style.boxShadow = "0 4px 16px rgba(245,158,11,0.35)";
-                }}
-              >
-                <ShoppingCart size={17} /> Order Now
-              </button>
             </>
           ) : (
             <button

@@ -5,7 +5,6 @@ import {
   Moon,
   User,
   LogOut,
-  ShoppingBag,
   Menu,
   X,
   UserCircle,
@@ -22,7 +21,6 @@ export function Navbar({
   toggleLang,
   text,
   onAuthClick,
-  onMyOrdersClick,
   scrolled,
 }) {
   const { user, logout, isAuthenticated } = useAuth();
@@ -61,18 +59,14 @@ export function Navbar({
 
   const handleViewProfile = () => {
     setShowProfile(false);
-    // Add view profile logic here (e.g., open profile modal)
     console.log("View profile clicked");
   };
 
   const handleLogoClick = () => {
-    // Scroll to top smoothly
     window.scrollTo({
       top: 0,
       behavior: "smooth"
     });
-    
-    // Close any open dropdowns
     setShowProfile(false);
     setShowMobileMenu(false);
   };
@@ -319,7 +313,7 @@ export function Navbar({
                 {showMobileMenu ? <X size={20} /> : <Menu size={20} />}
               </button>
 
-              {/* Hamburger Menu Dropdown */}
+              {/* Hamburger Menu Dropdown - My Orders Removed */}
               {showMobileMenu && (
                 <>
                   <div
@@ -344,20 +338,6 @@ export function Navbar({
                       padding: "8px",
                     }}
                   >
-                    {/* My Orders */}
-                    <button
-                      onClick={() => {
-                        setShowMobileMenu(false);
-                        onMyOrdersClick();
-                      }}
-                      style={dropdownBtnStyle}
-                      onMouseEnter={dropdownBtnHover}
-                      onMouseLeave={dropdownBtnLeave}
-                    >
-                      <ShoppingBag size={18} color="#8b5cf6" />
-                      My Orders
-                    </button>
-
                     {/* Language Toggle */}
                     <button
                       onClick={() => {

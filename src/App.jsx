@@ -1,11 +1,9 @@
 ﻿import React, { useState, useEffect } from "react";
-import { X } from "lucide-react";
 import { T, th } from "./utils/designTokens";
 import { translations } from "./utils/translations";
 import { PHONE_NUMBER, WHATSAPP_LINK, SCROLL_THRESHOLD } from "./utils/constants";
 import { ThemeProvider, useThemeContext } from "./context/ThemeContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { OrdersProvider } from "./context/OrdersContext";
 
 // Layout Components
 import { Navbar } from "./components/layout/Navbar";
@@ -24,13 +22,8 @@ import { LocationSection } from "./components/sections/LocationSection";
 // Auth Component
 import { AuthModal } from "./components/auth/AuthModal";
 
-// Order Components
-import PrintingPressOrder from "./components/orders/PrintingPressOrder";
-import MyOrders from "./components/orders/MyOrders";
-
 // Import CSS
 import "./App.css";
-import "./components/orders/PrintingPressOrder.css";
 
 function AppContent() {
   const { isDark } = useThemeContext();
@@ -38,8 +31,6 @@ function AppContent() {
   const [lang, setLang] = useState(() => sessionStorage.getItem("bk_lang") || "en");
   const [scrolled, setScrolled] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
-  const [showOrderForm, setShowOrderForm] = useState(false);
-  const [showMyOrders, setShowMyOrders] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   const c = th(isDark);
@@ -48,7 +39,7 @@ function AppContent() {
 
   // Prevent body scroll when modals are open
   useEffect(() => {
-    if (showMyOrders || showOrderForm || showAuth) {
+    if (showAuth) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
@@ -57,7 +48,7 @@ function AppContent() {
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [showMyOrders, showOrderForm, showAuth]);
+  }, [showAuth]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > SCROLL_THRESHOLD);
@@ -87,7 +78,6 @@ function AppContent() {
         toggleLang={toggleLang}
         text={text}
         onAuthClick={() => setShowAuth(true)}
-        onMyOrdersClick={() => setShowMyOrders(true)}
         scrolled={scrolled}
       />
       
@@ -113,7 +103,6 @@ function AppContent() {
           isAuth={!!user}
           isMobile={isMobile}
           setShowAuth={setShowAuth}
-          setShowOrderForm={setShowOrderForm}
         />
 
         <StatsSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
@@ -132,92 +121,6 @@ function AppContent() {
         />
       </div>
 
-      {/* Order Form Modal */}
-      {showOrderForm && (
-        <div
-          style={{
-            position: "fixed",
-            top: "0",
-            left: "0",
-            right: "0",
-            bottom: "0",
-            background: isDark ? "rgba(2,6,23,0.98)" : "rgba(255,255,255,0.98)",
-            backdropFilter: "blur(10px)",
-            zIndex: 2000,
-            overflowY: "auto",
-            animation: "fadeIn 0.3s ease-out",
-          }}
-        >
-          <div style={{
-            position: "sticky",
-            top: "20px",
-            zIndex: 2001,
-            display: "flex",
-            justifyContent: "flex-end",
-            padding: "0 20px",
-            maxWidth: "1000px",
-            margin: "0 auto",
-            pointerEvents: "none",
-          }}>
-            <button
-              onClick={() => setShowOrderForm(false)}
-              style={{
-                width: "44px",
-                height: "44px",
-                borderRadius: "50%",
-                background: "linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)",
-                border: "none",
-                color: "#fff",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 4px 20px rgba(14, 165, 233, 0.4)",
-                transition: "all 0.2s ease",
-                pointerEvents: "auto",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "scale(1.1)";
-                e.currentTarget.style.boxShadow = "0 6px 25px rgba(14, 165, 233, 0.5)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-                e.currentTarget.style.boxShadow = "0 4px 20px rgba(14, 165, 233, 0.4)";
-              }}
-            >
-              <X size={22} />
-            </button>
-          </div>
-          
-          <div style={{
-            maxWidth: "1000px",
-            margin: "-30px auto 0",
-            padding: "0 20px 40px",
-          }}>
-            <PrintingPressOrder />
-          </div>
-        </div>
-      )}
-
-      {/* My Orders Modal */}
-      {showMyOrders && (
-        <div
-          style={{
-            position: "fixed",
-            top: "60px",
-            left: "0",
-            right: "0",
-            bottom: "0",
-            background: "transparent",
-            zIndex: 1998,
-            overflowY: "auto",
-            animation: "slideUp 0.2s ease-out",
-          }}
-        >
-          <MyOrders onBack={() => setShowMyOrders(false)} isDark={isDark} />
-        </div>
-      )}
-
       {/* Auth Modal */}
       {showAuth && <AuthModal isDark={isDark} onClose={() => setShowAuth(false)} />}
     </>
@@ -228,9 +131,7 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <OrdersProvider>
-          <AppContent />
-        </OrdersProvider>
+        <AppContent />
       </AuthProvider>
     </ThemeProvider>
   );

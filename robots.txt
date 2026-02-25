@@ -1,0 +1,4 @@
+﻿User-agent: *
+Allow: /
+
+Sitemap: https://thanozs.github.io/bk-offset/sitemap.xml

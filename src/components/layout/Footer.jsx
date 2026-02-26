@@ -222,7 +222,7 @@ const FOOTER_STYLES = `
 const SOCIAL = [
   { key: "fb",  href: "https://facebook.com",  Icon: Facebook,      hover: "#1877F2", label: "Facebook"  },
   { key: "ig",  href: "https://instagram.com", Icon: Instagram,     hover: "#E4405F", label: "Instagram" },
-  { key: "yt",  href: "https://youtube.com",   Icon: Youtube,       hover: "#FF0000", label: "YouTube"   },
+  { key: "yt",  href: "https://youtube.com/@b.k.offset?si=wwfxLPk27TfOcPa_",   Icon: Youtube,       hover: "#FF0000", label: "YouTube"   },
 ];
 
 export function Footer({ isDark, isMobile }) {
@@ -318,15 +318,15 @@ export function Footer({ isDark, isMobile }) {
 
               {isAuthenticated ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <a href="tel:+919999988888" className="ft-contact-link">
+                  <a href="tel:+919560959039" className="ft-contact-link">
                     <div className="ft-contact-link-icon" style={{ background: "rgba(14,165,233,0.12)" }}>
                       <Phone size={14} strokeWidth={1.75} color="#0ea5e9" />
                     </div>
-                    +91 99999 88888
+                    +91 95609 59039
                     <ArrowUpRight size={12} style={{ marginLeft: "auto", opacity: 0.4 }} />
                   </a>
                   <a
-                    href="https://wa.me/919999988888"
+                    href="https://wa.me/919560959039"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="ft-contact-link"
@@ -337,7 +337,7 @@ export function Footer({ isDark, isMobile }) {
                     WhatsApp
                     <ArrowUpRight size={12} style={{ marginLeft: "auto", opacity: 0.4 }} />
                   </a>
-                  <a href="mailto:info@bkoffsetprinting.com" className="ft-contact-link">
+                  <a href="mailto:rinkusharmarinku@gmail.com" className="ft-contact-link">
                     <div className="ft-contact-link-icon" style={{ background: "rgba(99,102,241,0.12)" }}>
                       <Mail size={14} strokeWidth={1.75} color="#6366f1" />
                     </div>

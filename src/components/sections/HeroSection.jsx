@@ -1,7 +1,5 @@
-﻿// HeroSection.jsx — Premium cinematic hero for BK Offset Printing
-
-import React, { useState, useEffect } from "react";
-import { Phone, MessageCircle, User, Sparkles, ArrowRight, Star } from "lucide-react";
+﻿import React, { useState, useEffect } from "react";
+import { Phone, MessageCircle, User, Sparkles, ArrowRight, Star, X } from "lucide-react";
 import { T } from "../../utils/designTokens";
 import { FloatingParticles } from "../common/FloatingParticles";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";
@@ -51,6 +49,10 @@ const HERO_STYLES = `
   }
   @keyframes hero-counter {
     from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes hero-slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
@@ -164,6 +166,51 @@ const HERO_STYLES = `
   .hero-btn:hover  { transform: translateY(-3px) scale(1.03); }
   .hero-btn:active { transform: scale(0.97); }
 
+  /* ── Learn More Modal ── */
+  .hero-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(10px);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: hero-fadeIn 0.3s ease-out;
+  }
+  .hero-modal-content {
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: var(--modal-bg);
+    border-radius: 24px;
+    padding: 40px;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+    animation: hero-slideDown 0.4s ease-out;
+  }
+  .hero-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--close-bg);
+    border: 1px solid var(--close-border);
+    color: var(--close-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .hero-modal-close:hover {
+    background: var(--close-hover-bg);
+    transform: scale(1.1);
+  }
+
   /* ── Orbs ── */
   .hero-orb {
     position: absolute;
@@ -203,6 +250,7 @@ const HERO_STYLES = `
     .hero-stat { padding: 0 18px; }
     .hero-stat-num { font-size: 22px; }
     .hero-stat + .hero-stat { border-color: rgba(255,255,255,0.09); }
+    .hero-modal-content { padding: 30px 20px; }
   }
 `;
 
@@ -218,6 +266,7 @@ const STATS = [
 ═══════════════════════════════════════════ */
 export function HeroSection({ text, isDark, c, isAuth, isMobile, setShowAuth }) {
   const [ref, isVisible] = useScrollAnimation();
+  const [showLearnMore, setShowLearnMore] = useState(false);
 
   return (
     <>
@@ -397,9 +446,9 @@ export function HeroSection({ text, isDark, c, isAuth, isMobile, setShowAuth }) 
                   <ArrowRight size={15} strokeWidth={2.5} />
                 </button>
 
-                {/* Ghost secondary */}
+                {/* Learn More Button */}
                 <button
-                  onClick={() => setShowAuth(true)}
+                  onClick={() => setShowLearnMore(true)}
                   className="hero-btn"
                   style={{
                     background: "transparent",
@@ -413,6 +462,7 @@ export function HeroSection({ text, isDark, c, isAuth, isMobile, setShowAuth }) 
                   }}
                 >
                   Learn More
+                  <ArrowRight size={15} strokeWidth={2.5} />
                 </button>
               </>
             )}
@@ -475,6 +525,160 @@ export function HeroSection({ text, isDark, c, isAuth, isMobile, setShowAuth }) 
           zIndex: 1,
         }} />
       </section>
+
+      {/* ── Learn More Modal ── */}
+      {showLearnMore && (
+        <div className="hero-modal-overlay" onClick={() => setShowLearnMore(false)}>
+          <div 
+            className="hero-modal-content" 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              "--modal-bg": isDark ? "#0f172a" : "#ffffff",
+              "--close-bg": isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
+              "--close-border": isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
+              "--close-color": isDark ? "#94a3b8" : "#64748b",
+              "--close-hover-bg": isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
+            }}
+          >
+            <button 
+              className="hero-modal-close"
+              onClick={() => setShowLearnMore(false)}
+            >
+              <X size={20} />
+            </button>
+
+            <h2 style={{
+              fontFamily: "'Instrument Serif', Georgia, serif",
+              fontSize: isMobile ? "28px" : "36px",
+              fontWeight: 400,
+              color: isDark ? "#f1f5f9" : "#0f172a",
+              marginBottom: 24,
+            }}>
+              About{" "}
+              <span style={{
+                background: "linear-gradient(135deg,#0ea5e9,#6366f1)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}>
+                BK Offset Printing
+              </span>
+            </h2>
+
+            <div style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: isMobile ? "15px" : "16px",
+              lineHeight: 1.8,
+              color: isDark ? "rgba(255,255,255,0.8)" : "#1e293b",
+            }}>
+              <p style={{ marginBottom: 20 }}>
+                <strong>BK Offset Printing</strong> has been a trusted name in the printing industry since 1995, serving publishers, authors, and businesses across Delhi with premium printing solutions.
+              </p>
+
+              <h3 style={{
+                fontSize: "18px",
+                fontWeight: 600,
+                color: "#0ea5e9",
+                marginBottom: 12,
+                marginTop: 24,
+              }}>
+                Our Services
+              </h3>
+
+              <ul style={{ marginBottom: 20, paddingLeft: 20 }}>
+                <li style={{ marginBottom: 8 }}><strong>Bulk Book Printing:</strong> High-volume printing for publishers, authors, and institutions. Textbooks, novels, catalogs, and manuals.</li>
+                <li style={{ marginBottom: 8 }}><strong>Thermal Gloss Lamination:</strong> Premium gloss finish using Fevicol-based adhesives that makes colours pop and protects your prints.</li>
+                <li style={{ marginBottom: 8 }}><strong>Matte Lamination:</strong> Sophisticated, non-reflective finish for premium covers that need to feel as good as they look.</li>
+                <li style={{ marginBottom: 8 }}><strong>Soft-Touch Lamination:</strong> Velvety, luxurious texture ideal for book covers, premium brochures, and collector's editions.</li>
+                <li style={{ marginBottom: 8 }}><strong>Title Printing:</strong> Custom title work with embossing, debossing, spot UV, and digital printing.</li>
+              </ul>
+
+              <h3 style={{
+                fontSize: "18px",
+                fontWeight: 600,
+                color: "#0ea5e9",
+                marginBottom: 12,
+                marginTop: 24,
+              }}>
+                Our Equipment
+              </h3>
+
+              <p style={{ marginBottom: 16 }}>
+                We operate world-class Heidelberg and Akiyama equipment, including:
+              </p>
+
+              <ul style={{ marginBottom: 20, paddingLeft: 20 }}>
+                <li>Heidelberg Speedmaster Multicolor (Flagship 4-colour press)</li>
+                <li>Akiyama 4-Colour Press with alcohol-damping system</li>
+                <li>Heidelberg Autoplate automated plate-loading system</li>
+                <li>Heidelberg SORDZ 2-Colour press (25×36 inches)</li>
+                <li>Industrial-grade thermal lamination machines</li>
+                <li>Automatic paper cutting machines with ±0.01mm accuracy</li>
+              </ul>
+
+              <h3 style={{
+                fontSize: "18px",
+                fontWeight: 600,
+                color: "#0ea5e9",
+                marginBottom: 12,
+                marginTop: 24,
+              }}>
+                Why Choose Us
+              </h3>
+
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+                gap: 16,
+                marginTop: 16,
+                marginBottom: 24,
+              }}>
+                <div style={{
+                  padding: 16,
+                  background: isDark ? "rgba(255,255,255,0.05)" : "rgba(14,165,233,0.05)",
+                  borderRadius: 12,
+                  border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(14,165,233,0.2)"}`,
+                }}>
+                  <div style={{ fontSize: 24, marginBottom: 8 }}>🎯</div>
+                  <h4 style={{ fontWeight: 600, marginBottom: 4 }}>30+ Years Experience</h4>
+                  <p style={{ fontSize: "14px", color: isDark ? "rgba(255,255,255,0.6)" : "#475569" }}>Trusted by thousands of businesses since 1995</p>
+                </div>
+                <div style={{
+                  padding: 16,
+                  background: isDark ? "rgba(255,255,255,0.05)" : "rgba(14,165,233,0.05)",
+                  borderRadius: 12,
+                  border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(14,165,233,0.2)"}`,
+                }}>
+                  <div style={{ fontSize: 24, marginBottom: 8 }}>⚡</div>
+                  <h4 style={{ fontWeight: 600, marginBottom: 4 }}>Fast Turnaround</h4>
+                  <p style={{ fontSize: "14px", color: isDark ? "rgba(255,255,255,0.6)" : "#475569" }}>Quick delivery without compromise on quality</p>
+                </div>
+                <div style={{
+                  padding: 16,
+                  background: isDark ? "rgba(255,255,255,0.05)" : "rgba(14,165,233,0.05)",
+                  borderRadius: 12,
+                  border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(14,165,233,0.2)"}`,
+                }}>
+                  <div style={{ fontSize: 24, marginBottom: 8 }}>🏆</div>
+                  <h4 style={{ fontWeight: 600, marginBottom: 4 }}>Premium Quality</h4>
+                  <p style={{ fontSize: "14px", color: isDark ? "rgba(255,255,255,0.6)" : "#475569" }}>Every print meets the highest standards</p>
+                </div>
+              </div>
+
+              <p style={{
+                fontStyle: "italic",
+                color: "#0ea5e9",
+                textAlign: "center",
+                marginTop: 24,
+                padding: 16,
+                borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(14,165,233,0.2)"}`,
+              }}>
+                "We welcome publishers, authors, and businesses for live demonstrations at our facility in Dilshad Garden."
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -14,8 +14,6 @@ import { SEO } from './components/common/SEO';
 
 // Section Components
 import { HeroSection } from "./components/sections/HeroSection";
-import { StatsSection } from "./components/sections/StatsSection";
-import { FeaturesSection } from "./components/sections/FeaturesSection";
 import { ProductsSection } from "./components/sections/ProductsSection";
 import { GallerySection } from "./components/sections/GallerySection";
 import { WebOffsetSection } from "./components/sections/WebOffsetSection";
@@ -111,9 +109,7 @@ function AppContent() {
           setShowAuth={setShowAuth}
         />
 
-        <StatsSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
-        <FeaturesSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
-        <ProductsSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
+                        <ProductsSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
         <GallerySection text={text} isDark={isDark} c={c} isMobile={isMobile} />
         <WebOffsetSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
         <LocationSection text={text} c={c} isMobile={isMobile} />
@@ -144,4 +140,5 @@ function App() {
 }
 
 export default App;
+
 

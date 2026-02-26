@@ -4,7 +4,7 @@ import { translations } from "./utils/translations";
 import { PHONE_NUMBER, WHATSAPP_LINK, SCROLL_THRESHOLD } from "./utils/constants";
 import { ThemeProvider, useThemeContext } from "./context/ThemeContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { SEO } from './components/common/SEO';
+// import { SEO } from './components/common/SEO';
 
 // Layout Components
 import { Navbar } from "./components/layout/Navbar";
@@ -20,15 +20,15 @@ import { ProductsSection } from "./components/sections/ProductsSection";
 import { GallerySection } from "./components/sections/GallerySection";
 import { WebOffsetSection } from "./components/sections/WebOffsetSection";
 import { LocationSection } from "./components/sections/LocationSection";
-import { SEO } from './components/common/SEO';
+// import { SEO } from './components/common/SEO';
 
 // Auth Component
 import { AuthModal } from "./components/auth/AuthModal";
-import { SEO } from './components/common/SEO';
+// import { SEO } from './components/common/SEO';
 
 // Import CSS
 import "./App.css";
-import { SEO } from './components/common/SEO';
+// import { SEO } from './components/common/SEO';
 
 function AppContent() {
   const { isDark } = useThemeContext();

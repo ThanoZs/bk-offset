@@ -20,7 +20,7 @@ export function SocialMediaIcons({ isDark, isAuthenticated, windowWidth }) {
       icon: <Instagram size={18} />,
       href: "https://instagram.com",
       label: "Instagram",
-      color: "#E4405F",
+      color: "#d640e4",
     },
     {
       icon: <Facebook size={18} />,

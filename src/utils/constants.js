@@ -1,6 +1,6 @@
 ﻿// Constants configuration
-export const PHONE_NUMBER = "+91-99999-88888";
-export const WHATSAPP_LINK = "https://wa.me/919999988888";
+export const PHONE_NUMBER = "+91-9560959039";
+export const WHATSAPP_LINK = "https://wa.me/919560959039";
 export const LOGO_PATH = "/BK-Offset/assets/BK_logo_png-DhjbvHGy.png";
 
 // Breakpoints

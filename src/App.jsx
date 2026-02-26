@@ -4,11 +4,13 @@ import { translations } from "./utils/translations";
 import { PHONE_NUMBER, WHATSAPP_LINK, SCROLL_THRESHOLD } from "./utils/constants";
 import { ThemeProvider, useThemeContext } from "./context/ThemeContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+// import { SEO } from './components/common/SEO';
 
 // Layout Components
 import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
 import { SocialMediaIcons } from "./components/common/SocialMediaIcons";
+import { SEO } from './components/common/SEO';
 
 // Section Components
 import { HeroSection } from "./components/sections/HeroSection";
@@ -18,12 +20,15 @@ import { ProductsSection } from "./components/sections/ProductsSection";
 import { GallerySection } from "./components/sections/GallerySection";
 import { WebOffsetSection } from "./components/sections/WebOffsetSection";
 import { LocationSection } from "./components/sections/LocationSection";
+// import { SEO } from './components/common/SEO';
 
 // Auth Component
 import { AuthModal } from "./components/auth/AuthModal";
+// import { SEO } from './components/common/SEO';
 
 // Import CSS
 import "./App.css";
+// import { SEO } from './components/common/SEO';
 
 function AppContent() {
   const { isDark } = useThemeContext();
@@ -71,6 +76,7 @@ function AppContent() {
 
   return (
     <>
+      <SEO title="BK Offset Printing - Premium Book & Commercial Printing Services in Delhi" description="Premium offset printing in Street no. 2, Zulfe Bengal, Dilshad Garden, Delhi. Specializing in book printing, visiting cards, brochures, and commercial printing since 1995." keywords="offset printing, book printing services, printing press near me, custom book printing, visiting cards, brochure printing, Delhi printing services" />
       <Navbar
         isDark={isDark}
         toggleTheme={useThemeContext().toggleTheme}
@@ -138,3 +144,4 @@ function App() {
 }
 
 export default App;
+

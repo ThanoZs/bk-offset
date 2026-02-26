@@ -337,7 +337,7 @@ export function Footer({ isDark, isMobile }) {
                     WhatsApp
                     <ArrowUpRight size={12} style={{ marginLeft: "auto", opacity: 0.4 }} />
                   </a>
-                  <a href="mailto:rinkusharmarinku@gmail.com" className="ft-contact-link">
+                  <a href="mailto:rinkusharmarinku54@gmail.com" className="ft-contact-link">
                     <div className="ft-contact-link-icon" style={{ background: "rgba(99,102,241,0.12)" }}>
                       <Mail size={14} strokeWidth={1.75} color="#6366f1" />
                     </div>

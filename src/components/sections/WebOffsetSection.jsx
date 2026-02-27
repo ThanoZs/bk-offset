@@ -171,6 +171,34 @@ const WO_STYLES = `
     background: var(--wo-grad);
   }
 
+  /* ── Card shimmer sweep (matches ps-card::before) ── */
+  .wo-card {
+    position: relative;
+    overflow: hidden;
+    transition:
+      background   0.35s ease,
+      border-color 0.3s ease,
+      box-shadow   0.4s cubic-bezier(.22,1,.36,1),
+      transform    0.4s cubic-bezier(.22,1,.36,1);
+  }
+  .wo-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      130deg,
+      transparent 0%,
+      rgba(255,255,255,0.07) 45%,
+      transparent 90%
+    );
+    transform: translateX(-110%) skewX(-10deg);
+    transition: transform 0.65s cubic-bezier(.22,1,.36,1);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .wo-card:hover::before { transform: translateX(210%) skewX(-10deg); }
+  .wo-card:hover { transform: translateY(-4px); }
+
   @media (max-width: 640px) {
     .wo-tab { padding: 8px 12px; font-size: 12px; }
     .wo-tab-icon { width: 22px; height: 22px; }
@@ -190,6 +218,7 @@ const TABS = [
 export function WebOffsetSection({ text, isDark, c, isMobile, isTablet }) {
   const [ref, isVisible] = useScrollAnimation();
   const [active, setActive] = useState("layers");
+  const [hov, setHov] = useState(false);
   const a = ACCENTS[active];
   const tab = TABS.find(t => t.key === active);
 
@@ -260,16 +289,27 @@ export function WebOffsetSection({ text, isDark, c, isMobile, isTablet }) {
 
           {/* ── Main card ── */}
           <div
+            className="wo-card"
+            onMouseEnter={() => setHov(true)}
+            onMouseLeave={() => setHov(false)}
             style={{
-              background: surfBg,
-              border: `1px solid ${borderCol}`,
+              background: hov
+                ? isDark ? "rgba(255,255,255,0.055)" : "rgba(255,255,255,1)"
+                : isDark ? "rgba(255,255,255,0.03)"  : "rgba(255,255,255,0.82)",
+              border: `1px solid ${hov
+                ? isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.10)"
+                : isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.075)"}`,
               borderRadius: 20,
-              backdropFilter: "blur(16px)",
-              WebkitBackdropFilter: "blur(16px)",
+              backdropFilter: "blur(14px)",
+              WebkitBackdropFilter: "blur(14px)",
               overflow: "hidden",
-              boxShadow: isDark
-                ? "0 2px 8px rgba(0,0,0,0.4)"
-                : "0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04)",
+              boxShadow: hov
+                ? isDark
+                  ? `0 28px 64px rgba(0,0,0,0.55), 0 0 0 1px ${a.faint}`
+                  : `0 20px 56px rgba(0,0,0,0.09), 0 0 0 1px ${a.faint}`
+                : isDark
+                ? "0 1px 3px rgba(0,0,0,0.4)"
+                : "0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.04)",
             }}
           >
             {/* ── Tab bar ── */}
@@ -278,9 +318,12 @@ export function WebOffsetSection({ text, isDark, c, isMobile, isTablet }) {
                 display: "flex",
                 gap: 4,
                 padding: "12px 14px",
-                borderBottom: `1px solid ${borderCol}`,
+                borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.075)"}`,
                 overflowX: "auto",
                 scrollbarWidth: "none",
+                background: isDark ? "rgba(255,255,255,0.025)" : "rgba(255,255,255,0.60)",
+                backdropFilter: "blur(14px)",
+                WebkitBackdropFilter: "blur(14px)",
               }}
             >
               {TABS.map(({ key, icon: Icon }) => {
@@ -333,11 +376,12 @@ export function WebOffsetSection({ text, isDark, c, isMobile, isTablet }) {
               <div
                 style={{
                   padding: isMobile ? "28px 24px" : "36px 40px",
-                  borderRight: isMobile ? "none" : `1px solid ${borderCol}`,
-                  borderBottom: isMobile ? `1px solid ${borderCol}` : "none",
+                  borderRight: isMobile ? "none" : `1px solid ${isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.075)"}`,
+                  borderBottom: isMobile ? `1px solid ${isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.075)"}` : "none",
                   display: "flex",
                   flexDirection: "column",
                   gap: 16,
+                  background: isDark ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.82)",
                 }}
               >
                 {/* Icon + title row */}
@@ -403,7 +447,10 @@ export function WebOffsetSection({ text, isDark, c, isMobile, isTablet }) {
               </div>
 
               {/* Right: list */}
-              <div style={{ padding: isMobile ? "24px" : "28px 32px" }}>
+              <div style={{
+                padding: isMobile ? "24px" : "28px 32px",
+                background: isDark ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.55)",
+              }}>
                 {/* Panel mini-header */}
                 <div style={{
                   display: "flex",

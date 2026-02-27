@@ -3,7 +3,7 @@ import { STORAGE_KEYS } from "../utils/constants";
 
 export function useTheme() {
   const [theme, setTheme] = useState(
-    () => sessionStorage.getItem(STORAGE_KEYS.THEME) || "light"
+    () => sessionStorage.getItem(STORAGE_KEYS.THEME) || "dark"
   );
 
   const toggleTheme = () => {

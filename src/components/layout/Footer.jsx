@@ -185,10 +185,9 @@ const FOOTER_STYLES = `
   /* ── Bottom bar ── */
   .ft-bottom {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
     padding-top: 20px;
     border-top: 1px solid rgba(255,255,255,0.06);
   }
@@ -197,6 +196,22 @@ const FOOTER_STYLES = `
     font-size: 12px;
     color: rgba(255,255,255,0.25);
     letter-spacing: 0.02em;
+    line-height: 1.6;
+  }
+
+  .ft-legal-notice {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    line-height: 1.5;
+    max-width: 100%;
+    padding: 10px 0 0;
+    border-top: 1px dashed rgba(255,255,255,0.1);
+    width: 100%;
+  }
+
+  .ft-legal-notice p {
+    margin: 4px 0;
+    opacity: 0.8;
   }
 
   .ft-made-with {
@@ -216,6 +231,19 @@ const FOOTER_STYLES = `
     display: inline-block;
     flex-shrink: 0;
   }
+
+  @media (min-width: 640px) {
+    .ft-bottom {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ft-legal-notice {
+      text-align: right;
+      border-top: none;
+      padding: 0;
+    }
+  }
 `;
 
 /* Social platforms config */
@@ -228,6 +256,7 @@ const SOCIAL = [
 export function Footer({ isDark, isMobile }) {
   const { isAuthenticated } = useAuth();
   const [hov, setHov] = useState(null);
+  const currentYear = new Date().getFullYear();
 
   return (
     <>
@@ -376,15 +405,26 @@ export function Footer({ isDark, isMobile }) {
             </div>
           </div>
 
-          {/* ── Bottom bar ── */}
+          {/* ── Bottom bar with Legal Notice ── */}
           <div className="ft-bottom">
-            <span className="ft-copyright">
-              © {new Date().getFullYear()} BK Offset Printing. All rights reserved.
-            </span>
-            <span className="ft-made-with">
-              <span className="ft-dot" />
-              Premium printing, Delhi
-            </span>
+            <div>
+              <div className="ft-copyright">
+                © {currentYear} BK Offset Printing. All Rights Reserved.
+              </div>
+              <div className="ft-made-with" style={{ marginTop: 4 }}>
+                <span className="ft-dot" />
+                Premium printing, Delhi
+              </div>
+            </div>
+            
+            {/* Legal Notice for Commercial Use */}
+            <div className="ft-legal-notice">
+              <p>© {currentYear} Keshav Sharma. All Rights Reserved.</p>
+              <p>Unauthorized commercial use or brand impersonation is strictly prohibited.</p>
+              <p style={{ fontSize: '10px', opacity: 0.5, marginTop: 6 }}>
+                License: CC BY-NC 4.0 — Credit required, no commercial use allowed.
+              </p>
+            </div>
           </div>
         </div>
       </footer>

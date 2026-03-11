@@ -1,4 +1,7 @@
-﻿import React, { useState, useEffect } from "react";
+﻿// Add this at the top of App.jsx temporarily
+import './debug';
+
+import React, { useState, useEffect } from "react";
 import { T, th } from "./utils/designTokens";
 import { translations } from "./utils/translations";
 import { PHONE_NUMBER, WHATSAPP_LINK, SCROLL_THRESHOLD } from "./utils/constants";

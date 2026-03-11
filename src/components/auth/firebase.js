@@ -1,11 +1,8 @@
-﻿// Import the functions you need
-import { initializeApp } from "firebase/app";
+﻿import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
   GoogleAuthProvider, 
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
@@ -16,14 +13,14 @@ import {
   fetchSignInMethodsForEmail
 } from "firebase/auth";
 
-// !!! REPLACE WITH YOUR ACTUAL FIREBASE CONFIG !!!
+// 🔒 USING ENVIRONMENT VARIABLES - Keys are now secure!
 const firebaseConfig = {
-  apiKey: "AIzaSyAVsOqwBt41VMBzk1re-OMzD06kLXoniOo",
-  authDomain: "printing-press-system.firebaseapp.com",
-  projectId: "printing-press-system",
-  storageBucket: "printing-press-system.firebasestorage.app",
-  messagingSenderId: "920502808043",
-  appId: "1:920502808043:web:cea7eb1783aac4a39a7dae"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
@@ -31,37 +28,30 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-console.log("✅ Firebase initialized");
+console.log("✅ Firebase initialized with environment variables");
 
-// GOOGLE SIGN IN - FIXED VERSION
+// ============================================
+// GOOGLE SIGN IN
+// ============================================
 export const signInWithGoogle = async () => {
   try {
-    console.log("🔄 Opening Google popup...");
-    
-    // Set a timeout to handle popup blocking
-    const popupPromise = signInWithPopup(auth, googleProvider);
-    
-    const result = await popupPromise;
-    console.log("✅ Success:", result.user.email);
+    const result = await signInWithPopup(auth, googleProvider);
+    console.log("✅ Google sign in successful:", result.user.email);
     return { user: result.user, error: null };
-    
   } catch (error) {
     console.error("❌ Error:", error.code, error.message);
     
-    // Handle specific errors
-    if (error.code === 'auth/popup-closed-by-user') {
-      return { user: null, error: "Please complete sign-in in the popup window" };
-    } else if (error.code === 'auth/popup-blocked') {
-      return { user: null, error: "Popup blocked. Please allow popups for this site." };
-    } else if (error.code === 'auth/cancelled-popup-request') {
-      return { user: null, error: "Sign-in cancelled" };
-    }
+    let message = "Sign-in failed";
+    if (error.code === 'auth/popup-closed-by-user') message = "Popup closed";
+    else if (error.code === 'auth/popup-blocked') message = "Popup blocked";
     
-    return { user: null, error: "Sign-in failed. Please try again." };
+    return { user: null, error: message };
   }
 };
 
-// Email sign up
+// ============================================
+// EMAIL SIGN UP
+// ============================================
 export const signUpWithEmail = async (email, password, firstName, lastName) => {
   try {
     const methods = await fetchSignInMethodsForEmail(auth, email);
@@ -80,7 +70,9 @@ export const signUpWithEmail = async (email, password, firstName, lastName) => {
   }
 };
 
-// Email sign in
+// ============================================
+// EMAIL SIGN IN
+// ============================================
 export const signInWithEmail = async (email, password) => {
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
@@ -96,7 +88,9 @@ export const signInWithEmail = async (email, password) => {
   }
 };
 
-// Password reset
+// ============================================
+// PASSWORD RESET
+// ============================================
 export const sendPasswordReset = async (email) => {
   try {
     await sendPasswordResetEmail(auth, email);
@@ -106,15 +100,39 @@ export const sendPasswordReset = async (email) => {
   }
 };
 
-// Sign out
+// ============================================
+// SIGN OUT
+// ============================================
 export const signOutUser = async () => {
-  await signOut(auth);
-  return { error: null };
+  try {
+    await signOut(auth);
+    return { error: null };
+  } catch (error) {
+    return { error: error.message };
+  }
 };
 
-// Auth state observer
+// ============================================
+// AUTH STATE OBSERVER
+// ============================================
 export const onAuthStateChange = (callback) => {
   return onAuthStateChanged(auth, callback);
+};
+
+// ============================================
+// TEST CONNECTION
+// ============================================
+export const testFirebaseConnection = () => {
+  try {
+    if (auth) {
+      console.log("✅ Firebase auth is configured");
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("❌ Firebase connection test failed:", error);
+    return false;
+  }
 };
 
 export { auth };

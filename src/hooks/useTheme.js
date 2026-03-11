@@ -16,5 +16,5 @@ export function useTheme() {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
-  return { theme, toggleTheme, isDark: theme === "dark" };
+  return { theme, toggleTheme, isDark: theme === "light" };
 }

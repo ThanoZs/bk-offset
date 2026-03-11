@@ -1,4 +1,4 @@
-﻿// Add this at the top of App.jsx temporarily
+// Add this at the top of App.jsx temporarily
 import './debug';
 
 import React, { useState, useEffect } from "react";
@@ -21,6 +21,7 @@ import { ProductsSection } from "./components/sections/ProductsSection";
 import { GallerySection } from "./components/sections/GallerySection";
 import { WebOffsetSection } from "./components/sections/WebOffsetSection";
 import { LocationSection } from "./components/sections/LocationSection";
+import { DotWave } from "./components/common/DotWave";
 // import { SEO } from './components/common/SEO';
 
 // Auth Component
@@ -92,27 +93,24 @@ function AppContent() {
         style={{
           fontFamily: T.fontBody,
           minHeight: "100vh",
-          background: isDark
-            ? "linear-gradient(to bottom, rgba(2,6,23,0.92), rgba(2,6,23,0.95)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80')"
-            : "linear-gradient(to bottom, rgba(255,255,255,0.88), rgba(248,250,252,0.92)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80')",
-          backgroundSize: "cover",
-          backgroundAttachment: isMobile ? "scroll" : "fixed",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
+          background: isDark ? "#020617" : "#FFFFFF",
           color: c.text,
           transition: "background 0.35s, color 0.35s",
         }}
       >
-        <HeroSection
-          text={text}
-          isDark={isDark}
-          c={c}
-          isAuth={!!user}
-          isMobile={isMobile}
-          setShowAuth={setShowAuth}
-        />
-
-                        <ProductsSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
+        {/* ── Hero + Products share the dot wave canvas ── */}
+        <div style={{ position: "relative" }}>
+          <DotWave isDark={isDark} />
+          <HeroSection
+            text={text}
+            isDark={isDark}
+            c={c}
+            isAuth={!!user}
+            isMobile={isMobile}
+            setShowAuth={setShowAuth}
+          />
+          <ProductsSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
+        </div>
         <GallerySection text={text} isDark={isDark} c={c} isMobile={isMobile} />
         <WebOffsetSection text={text} isDark={isDark} c={c} isMobile={isMobile} />
         <LocationSection text={text} c={c} isMobile={isMobile} />

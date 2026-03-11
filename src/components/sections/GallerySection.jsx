@@ -1,43 +1,53 @@
-﻿// GallerySection.jsx — Premium machine showcase for BK Offset Printing
+// GallerySection.jsx — CINEMATIC EXPLOSION GALLERY · BK Offset Printing
+// On scroll: central energy core charges → SHOCKWAVE → cards and header blast outward from explosion
 
-import React, { useState } from "react";
-import { Youtube, ArrowUpRight, Zap } from "lucide-react";
-import { T } from "../../utils/designTokens";
-import { SectionHeader } from "../common/SectionHeader";
-import { useScrollAnimation } from "../../hooks/useScrollAnimation";
+import React, { useState, useRef, useCallback, useEffect } from "react";
+import { Youtube, ArrowUpRight, Zap, X, Move } from "lucide-react";
 import { GALLERY_IMAGES } from "../../utils/constants";
 
-/* ─────────────────────────────────────────────
-   Machine data — maps index → details
-───────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════════ */
 const MACHINES = [
   {
     name: "Heidelberg Speedmaster Multicolor",
     category: "Offset Printing",
     tag: "Flagship",
     desc: "The Heidelberg Speedmaster — the world's most trusted multicolour press. Engineered for peak performance with cutting-edge Intellistart technology, delivering unmatched print quality at production speeds that set the industry standard.",
-    spec: "Up to 4-colour",
+    spec: "4-colour",
+    accent: "#0ea5e9",
+    glow: "rgba(14,165,233,0.7)",
+    grad: "linear-gradient(145deg,#030d1f 0%,#0a2a4a 60%,#0ea5e920 100%)",
   },
   {
     name: "Heidelberg Printing Machine",
     category: "Offset Printing",
     tag: "Industry Leader",
     desc: "State-of-the-art Heidelberg — a benchmark in precision engineering. From single-colour to complex multi-colour projects, automated controls, fast plate changes, and flawless registration deliver superior output trusted by professionals worldwide.",
-    spec: "Multi-colour output",
+    spec: "Multi-colour",
+    accent: "#6366f1",
+    glow: "rgba(99,102,241,0.7)",
+    grad: "linear-gradient(145deg,#08051e 0%,#151048 60%,#6366f120 100%)",
   },
   {
     name: "Akiyama 4-Colour Press",
     category: "Offset Printing",
     tag: "Alcohol-Damped",
     desc: "Akiyama alcohol-damped 4-colour press — size 19×26 inches. Alcohol damping system provides superior ink-water balance for exceptional dot gain control and vivid, consistent colour across the entire sheet.",
-    spec: "Size: 19×26 in",
+    spec: "19×26 in",
+    accent: "#10b981",
+    glow: "rgba(16,185,129,0.7)",
+    grad: "linear-gradient(145deg,#031209 0%,#082a16 60%,#10b98120 100%)",
   },
   {
     name: "Heidelberg Autoplate Machine",
     category: "Plate Making",
     tag: "Automated",
     desc: "Fully automated plate-loading system that eliminates manual handling errors. Reduces makeready time significantly, ensuring consistent plate registration and faster job turnaround for demanding print environments.",
-    spec: "Auto plate loading",
+    spec: "Auto-plate",
+    accent: "#f59e0b",
+    glow: "rgba(245,158,11,0.7)",
+    grad: "linear-gradient(145deg,#1a0e00 0%,#2e1c00 60%,#f59e0b20 100%)",
   },
   {
     name: "Heidelberg Speedmaster Multicolor",
@@ -45,560 +55,934 @@ const MACHINES = [
     tag: "Flagship",
     desc: "The Heidelberg Speedmaster — the world's most trusted multicolour press. Engineered for peak performance with cutting-edge Intellistart technology, delivering unmatched print quality at production speeds that set the industry standard.",
     spec: "Up to 4-colour",
+    accent: "#0ea5e9",
+    glow: "rgba(14,165,233,0.7)",
+    grad: "linear-gradient(145deg,#030d1f 0%,#0a2a4a 60%,#0ea5e920 100%)",
   },
   {
     name: "Heidelberg SORDZ 2-Colour",
     category: "Offset Printing",
     tag: "Ref. #1447",
     desc: "Heidelberg SORDZ 2-colour offset printing machine. Sheet size 25×36 inches — perfectly balanced for medium-format commercial work. Renowned for its robust build and consistent colour reproduction across long runs.",
-    spec: "Size: 25×36 in",
+    spec: "25×36 in",
+    accent: "#ec4899",
+    glow: "rgba(236,72,153,0.7)",
+    grad: "linear-gradient(145deg,#1a0310 0%,#38071f 60%,#ec489920 100%)",
   },
   {
     name: "Thermal Lamination Machine",
     category: "Lamination",
     tag: "High-Speed",
     desc: "Industrial-grade thermal lamination delivering flawless gloss and matte finishes using Fevicol-based adhesives. Handles high volumes with precision heat control for bubble-free, scratch-resistant results every time.",
-    spec: "±0.01mm accuracy",
+    spec: "±0.01mm",
+    accent: "#8b5cf6",
+    glow: "rgba(139,92,246,0.7)",
+    grad: "linear-gradient(145deg,#0d0518 0%,#1c0e38 60%,#8b5cf620 100%)",
   },
   {
     name: "Automatic Paper Cutting Machine",
     category: "Finishing",
     tag: "Ultra Precise",
     desc: "Automatic paper cutter delivering precise and flawless cuts at incredible speed. Ideal for high-volume printing and paper processing, this machine ensures efficiency and accuracy in every cut — streamlining workflow and maximising productivity.",
-    spec: "High-volume ready",
+    spec: "High-volume",
+    accent: "#f97316",
+    glow: "rgba(249,115,22,0.7)",
+    grad: "linear-gradient(145deg,#1a0700 0%,#2e1200 60%,#f9731620 100%)",
   },
 ];
 
-/* ─────────────────────────────────────────────
-   Styles
-───────────────────────────────────────────── */
-const GALLERY_STYLES = `
+/* ═══════════════════════════════════════════════════════════
+   EXPLOSION TARGET POSITIONS (Cards blast to these relative to centre)
+   Each card blasts to a unique chaotic angle & distance
+═══════════════════════════════════════════════════════════ */
+const INITIAL_BLAST_POSITIONS = [
+  { x: -52, y: -42, rot: -18 }, // TL
+  { x:   0, y: -56, rot:   4 }, // TC
+  { x:  52, y: -42, rot:  14 }, // TR
+  { x: -62, y:   0, rot: -10 }, // ML
+  { x:  62, y:   0, rot:  10 }, // MR
+  { x: -52, y:  44, rot:  16 }, // BL
+  { x:   0, y:  56, rot:  -6 }, // BC
+  { x:  52, y:  44, rot: -14 }, // BR
+];
+
+/* ═══════════════════════════════════════════════════════════
+   GRID TARGET POSITIONS (Where frames sit & cards snap to)
+   2 rows of 4 columns, left to right (Desktop)
+   4 rows of 2 columns (Mobile)
+═══════════════════════════════════════════════════════════ */
+const getFramePositions = (isMobile) => {
+  const W_gap = isMobile ? 160 : 190;
+  const H_gap = isMobile ? 220 : 240;
+  
+  if (isMobile) {
+    // 4 rows of 2 columns
+    return [
+      { x: -W_gap * 0.5, y: -H_gap * 1.5, rot: 0 }, { x: W_gap * 0.5, y: -H_gap * 1.5, rot: 0 },
+      { x: -W_gap * 0.5, y: -H_gap * 0.5, rot: 0 }, { x: W_gap * 0.5, y: -H_gap * 0.5, rot: 0 },
+      { x: -W_gap * 0.5, y:  H_gap * 0.5, rot: 0 }, { x: W_gap * 0.5, y:  H_gap * 0.5, rot: 0 },
+      { x: -W_gap * 0.5, y:  H_gap * 1.5, rot: 0 }, { x: W_gap * 0.5, y:  H_gap * 1.5, rot: 0 },
+    ];
+  }
+  
+  // 2 rows of 4 columns
+  return [
+    { x: -W_gap * 1.5, y: -H_gap/2, rot: 0 }, { x: -W_gap * 0.5, y: -H_gap/2, rot: 0 }, { x: W_gap * 0.5, y: -H_gap/2, rot: 0 }, { x: W_gap * 1.5, y: -H_gap/2, rot: 0 },
+    { x: -W_gap * 1.5, y:  H_gap/2, rot: 0 }, { x: -W_gap * 0.5, y:  H_gap/2, rot: 0 }, { x: W_gap * 0.5, y:  H_gap/2, rot: 0 }, { x: W_gap * 1.5, y:  H_gap/2, rot: 0 },
+  ];
+};
+
+/* ═══════════════════════════════════════════════════════════
+   STYLES
+═══════════════════════════════════════════════════════════ */
+const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
 
+  /* ── core animations ── */
+  @keyframes gl-charge {
+    0%   { transform:translate(-50%,-50%) scale(0.6);  opacity:0.3; box-shadow:0 0 0px   rgba(14,165,233,0); }
+    40%  { transform:translate(-50%,-50%) scale(1.1);  opacity:0.9; box-shadow:0 0 60px  rgba(14,165,233,0.8), 0 0 120px rgba(14,165,233,0.4); }
+    60%  { transform:translate(-50%,-50%) scale(0.92); opacity:1;   box-shadow:0 0 100px rgba(14,165,233,1),   0 0 200px rgba(14,165,233,0.6); }
+    80%  { transform:translate(-50%,-50%) scale(1.18); opacity:1;   box-shadow:0 0 160px rgba(14,165,233,1),   0 0 300px rgba(14,165,233,0.8); }
+    100% { transform:translate(-50%,-50%) scale(0);    opacity:0;   box-shadow:0 0 0     rgba(14,165,233,0); }
+  }
+  @keyframes gl-core-pulse {
+    0%,100% { transform:translate(-50%,-50%) scale(1);    box-shadow:0 0 40px rgba(14,165,233,0.5),0 0 80px rgba(14,165,233,0.25); }
+    50%     { transform:translate(-50%,-50%) scale(1.08); box-shadow:0 0 70px rgba(14,165,233,0.9),0 0 140px rgba(14,165,233,0.5); }
+  }
+  @keyframes gl-ring-expand {
+    0%   { transform:translate(-50%,-50%) scale(0); opacity:0.9; }
+    100% { transform:translate(-50%,-50%) scale(4); opacity:0; }
+  }
+  @keyframes gl-ring2-expand {
+    0%   { transform:translate(-50%,-50%) scale(0); opacity:0.7; }
+    100% { transform:translate(-50%,-50%) scale(6); opacity:0; }
+  }
+  @keyframes gl-spark {
+    0%   { transform:translate(-50%,-50%) rotate(var(--a)) translateX(0px)   scale(1); opacity:1; }
+    100% { transform:translate(-50%,-50%) rotate(var(--a)) translateX(200px) scale(0); opacity:0; }
+  }
+  
+  /* Header blast animation */
+  @keyframes gl-header-blast {
+    0%   { transform:translateY(30vh) scale(0.1); opacity:0; filter:blur(14px) brightness(3); }
+    15%  { filter:blur(6px) brightness(2); opacity:0.7; }
+    60%  { transform:translateY(-10px) scale(1.05); filter:blur(0) brightness(1); opacity:1; }
+    90%  { transform:translateY(5px) scale(0.98); opacity:1; }
+    100% { transform:translateY(0) scale(1); opacity:1; filter:blur(0) brightness(1); }
+  }
+
+  @keyframes gl-card-blast {
+    0%   { transform:translate(-50%,-50%) translate(0,0) rotate(0deg) scale(0.1); opacity:0; filter:blur(14px) brightness(3); }
+    15%  { filter:blur(6px) brightness(2); opacity:0.7; }
+    60%  { transform:translate(-50%,-50%) translate(calc(var(--bx)*0.85),calc(var(--by)*0.85)) rotate(calc(var(--br)*1.4deg)) scale(1.06); filter:blur(0) brightness(1); opacity:1; }
+    75%  { transform:translate(-50%,-50%) translate(calc(var(--bx)*1.05),calc(var(--by)*1.05)) rotate(calc(var(--br)*0.8deg)) scale(0.96); }
+    88%  { transform:translate(-50%,-50%) translate(calc(var(--bx)*0.97),calc(var(--by)*0.97)) rotate(calc(var(--br)*1.05deg)) scale(1.01); }
+    100% { transform:translate(-50%,-50%) translate(var(--bx),var(--by)) rotate(calc(var(--br)*1deg)) scale(1); opacity:1; filter:blur(0) brightness(1); }
+  }
+  @keyframes gl-card-idle {
+    0%,100% { transform:translate(-50%,-50%) translate(var(--bx),var(--by)) rotate(calc(var(--br)*1deg)) scale(1)    translateY(0px); }
+    50%     { transform:translate(-50%,-50%) translate(var(--bx),var(--by)) rotate(calc(var(--br)*1deg)) scale(1.01) translateY(-6px); }
+  }
   @keyframes gl-fadeUp {
-    from { opacity: 0; transform: translateY(28px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity:0; transform:translateY(28px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes gl-rotate-slow {
+    from { transform:translate(-50%,-50%) rotate(0deg); }
+    to   { transform:translate(-50%,-50%) rotate(360deg); }
+  }
+  @keyframes gl-counter-rotate {
+    from { transform:translate(-50%,-50%) rotate(0deg); }
+    to   { transform:translate(-50%,-50%) rotate(-360deg); }
+  }
+  @keyframes gl-breathe {
+    0%,100% { opacity:0.25; }
+    50%     { opacity:0.6; }
+  }
+  @keyframes gl-scanline {
+    0%   { top:-20%; }
+    100% { top:120%; }
+  }
+  @keyframes gl-shimmer {
+    0%   { transform:translateX(-110%) skewX(-10deg); }
+    100% { transform:translateX(210%)  skewX(-10deg); }
+  }
+  @keyframes gl-border-flow {
+    0%,100% { background-position:0%   50%; }
+    50%     { background-position:100% 50%; }
   }
 
-  @keyframes gl-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(255,0,0,0.4); }
-    50%       { box-shadow: 0 0 0 8px rgba(255,0,0,0); }
+  /* ── section ── */
+  .gl-section {
+    position:relative;
+    overflow:hidden;
+    background:#ffffff;
   }
 
-  /* ── Card ── */
-  .gl-card {
-    position: relative;
-    overflow: hidden;
-    border-radius: 16px;
-    cursor: pointer;
-    transition:
-      transform    0.4s cubic-bezier(.22,1,.36,1),
-      box-shadow   0.4s cubic-bezier(.22,1,.36,1),
-      border-color 0.3s ease;
+  /* ── explosion stage ── */
+  .gl-stage {
+    position:relative;
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
   }
 
-  /* Image zoom */
+  /* ── energy core ── */
+  .gl-core {
+    position:absolute;
+    left:50%; top:50%;
+    border-radius:50%;
+    background:radial-gradient(circle,#fff 0%,#7dd3fc 25%,#0ea5e9 55%,transparent 100%);
+    pointer-events:none;
+    z-index:30;
+  }
+  .gl-core.pulse   { animation:gl-core-pulse 2s ease-in-out infinite; }
+  .gl-core.charge  { animation:gl-charge 1s cubic-bezier(.22,1,.36,1) forwards; }
+  .gl-core.gone    { display:none; }
+
+  /* rotating dashed rings around core */
+  .gl-ring-orbit {
+    position:absolute;
+    left:50%; top:50%;
+    border-radius:50%;
+    border:1px dashed rgba(14,165,233,0.3);
+    pointer-events:none;
+    z-index:5;
+  }
+
+  /* shockwave rings */
+  .gl-shock {
+    position:absolute; left:50%; top:50%;
+    border-radius:50%;
+    border:3px solid rgba(14,165,233,0.9);
+    pointer-events:none; z-index:29;
+    display:none;
+  }
+  .gl-shock.fire  { display:block; animation:gl-ring-expand  0.8s cubic-bezier(.22,1,.36,1) forwards; }
+  .gl-shock2 {
+    position:absolute; left:50%; top:50%;
+    border-radius:50%;
+    border:2px solid rgba(14,165,233,0.5);
+    pointer-events:none; z-index:28;
+    display:none;
+  }
+  .gl-shock2.fire { display:block; animation:gl-ring2-expand 1.1s cubic-bezier(.22,1,.36,1) 0.1s forwards; }
+
+  /* spark lines */
+  .gl-spark {
+    position:absolute; left:50%; top:50%;
+    width:3px;
+    transform-origin:top center;
+    border-radius:2px;
+    pointer-events:none; z-index:28;
+    display:none;
+  }
+  .gl-spark.fire { display:block; animation:gl-spark 0.6s cubic-bezier(.22,1,.36,1) forwards; }
+
+  /* ── floating card ── */
+  .gl-card-float {
+    position:absolute;
+    left:50%; top:50%;
+    border-radius:16px;
+    overflow:hidden;
+    cursor:grab;
+    z-index:10;
+    transform:translate(-50%,-50%) scale(0);
+    opacity:0;
+    padding:1.5px;
+    user-select:none;
+    touch-action:none; /* Important for pointer events */
+    will-change: transform, z-index;
+    transition: transform 0.4s cubic-bezier(.175,.885,.32,1.275), box-shadow 0.4s ease;
+  }
+  .gl-card-float:active {
+    cursor:grabbing;
+  }
+  .gl-card-float.dragging {
+    z-index: 100 !important;
+    animation: none !important;
+    opacity: 1 !important;
+    transition: none; /* Disable transition while actively dragging */
+    transform: translate(-50%,-50%) translate(var(--bx),var(--by)) rotate(0deg) scale(1.1) !important;
+  }
+  .gl-card-float.snapped {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: translate(-50%,-50%) translate(var(--bx),var(--by)) rotate(var(--original-rot)) scale(1) !important;
+    box-shadow: 0 0 30px var(--ca-glow) !important;
+  }
+  .gl-card-float.snapped:hover {
+    opacity: 1 !important;
+    transform: translate(-50%,-50%) translate(var(--bx),var(--by)) rotate(0deg) scale(1.15) !important;
+    z-index: 50 !important;
+  }
+  .gl-card-float.blasting {
+    animation:gl-card-blast 1.1s cubic-bezier(.22,1,.36,1) var(--blast-delay) both;
+  }
+  .gl-card-float.floating:not(.dragging):not(.snapped) {
+    opacity:1;
+    transform:translate(-50%,-50%) translate(var(--bx),var(--by)) rotate(calc(var(--br)*1deg)) scale(1);
+    animation:gl-card-idle 4s ease-in-out var(--float-offset) infinite;
+  }
+  .gl-card-float.floating:not(.dragging):not(.snapped):hover {
+    transform: translate(-50%,-50%) translate(var(--bx),var(--by)) rotate(0deg) scale(1.15) !important;
+    z-index: 50 !important;
+    animation-play-state: paused;
+  }
+
+  /* animated gradient border */
+  .gl-card-float::before {
+    content:'';
+    position:absolute; inset:0;
+    border-radius:16px;
+    background:linear-gradient(270deg,var(--ca),var(--ca2),var(--ca),rgba(255,255,255,0.1));
+    background-size:400% 400%;
+    opacity:0;
+    transition:opacity 0.4s ease;
+    z-index:0;
+  }
+  .gl-card-float:hover::before, .gl-card-float.dragging::before {
+    opacity:1;
+    animation:gl-border-flow 2.5s ease infinite;
+  }
+
+  .gl-card-inner {
+    position:relative;
+    width:100%;
+    border-radius:15px;
+    overflow:hidden;
+    z-index:1;
+    transition:box-shadow 0.4s ease;
+  }
+  .gl-card-float:hover .gl-card-inner, .gl-card-float.dragging .gl-card-inner {
+    box-shadow:0 24px 60px rgba(0,0,0,0.7), 0 0 40px var(--ca-glow);
+  }
+
+  /* scanline */
+  .gl-card-inner::before {
+    content:''; position:absolute; left:0; right:0; top:-20%;
+    height:35%;
+    background:linear-gradient(to bottom,transparent,rgba(255,255,255,0.04),transparent);
+    pointer-events:none; z-index:6; opacity:0; transition:opacity 0.3s ease;
+  }
+  .gl-card-float:hover .gl-card-inner::before { opacity:1; animation:gl-scanline 2s linear infinite; }
+
+  /* image */
   .gl-card-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.55s cubic-bezier(.22,1,.36,1);
+    width:100%; height:160px; object-fit:cover; display:block;
+    transition:transform 0.6s cubic-bezier(.22,1,.36,1), filter 0.45s ease;
+    filter:saturate(0.9) brightness(1.0);
+    pointer-events:none;
   }
-  .gl-card:hover .gl-card-img {
-    transform: scale(1.08);
+  .gl-card-float:hover .gl-card-img, .gl-card-float.dragging .gl-card-img { transform:scale(1.1); filter:saturate(1.1) brightness(1.05); }
+
+  /* gradient overlays */
+  .gl-img-grad {
+    position:absolute; top:0; left:0; right:0; height:160px;
+    background:linear-gradient(to bottom,rgba(0,0,0,0.1),rgba(2,4,18,0.72));
+    pointer-events:none; z-index:2;
   }
 
-  /* Base gradient — always visible at bottom */
-  .gl-base-grad {
+  .gl-card-content { position:relative; padding:14px 14px 12px; z-index:3; pointer-events:none; }
+
+  .gl-cat-pill {
+    display:inline-block;
+    font-family:'DM Sans',sans-serif; font-size:9px; font-weight:700;
+    letter-spacing:0.14em; text-transform:uppercase;
+    padding:3px 9px; border-radius:99px;
+    background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);
+    color:var(--ca); margin-bottom:7px;
+    transition:background 0.3s ease, border-color 0.3s ease;
+  }
+  .gl-card-float:hover .gl-cat-pill { background:rgba(255,255,255,0.14); border-color:var(--ca); }
+
+  .gl-card-name {
+    font-family:'DM Sans',sans-serif;
+    font-size:15px; font-weight:500; letter-spacing:0; line-height:1.25;
+    color:#f8fafc; display:block; transition:color 0.3s ease; margin-bottom:8px;
+  }
+  .gl-card-float:hover .gl-card-name { color:#fff; }
+
+  .gl-card-spec {
+    display:flex; align-items:center; gap:5px;
+    font-family:'DM Sans',sans-serif; font-size:10px; font-weight:600;
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--ca); opacity:0.85;
+  }
+
+  .gl-card-bar {
+    position:absolute; bottom:0; left:0; right:0; height:2.5px;
+    background:linear-gradient(90deg,var(--ca),var(--ca2));
+    transform:scaleX(0); transform-origin:left;
+    transition:transform 0.45s cubic-bezier(.22,1,.36,1); z-index:7;
+  }
+  .gl-card-float:hover .gl-card-bar { transform:scaleX(1); }
+
+  /* ── magnet frame ── */
+  .gl-magnet-frame {
     position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to top,
-      rgba(2,6,23,0.82) 0%,
-      rgba(2,6,23,0.30) 45%,
-      transparent 75%
-    );
+    left: 50%; top: 50%;
+    border-radius: 16px;
+    border: 2px dashed rgba(255,255,255,0.2);
+    transform: translate(-50%,-50%) translate(var(--fx),var(--fy)) rotate(var(--fr));
+    opacity: 0;
     pointer-events: none;
-  }
-
-  /* Hover overlay — slides up */
-  .gl-hover-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to top,
-      rgba(2,6,23,0.96) 0%,
-      rgba(2,6,23,0.75) 55%,
-      rgba(2,6,23,0.30) 100%
-    );
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    pointer-events: none;
-  }
-  .gl-card:hover .gl-hover-overlay { opacity: 1; }
-
-  /* Category tag (top-left) */
-  .gl-tag {
-    position: absolute;
-    top: 14px; left: 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: rgba(14,165,233,0.18);
-    color: #7dd3fc;
-    border: 1px solid rgba(14,165,233,0.30);
-    backdrop-filter: blur(8px);
-    z-index: 3;
-    transition: background 0.3s ease, border-color 0.3s ease;
-  }
-  .gl-card:hover .gl-tag {
-    background: rgba(14,165,233,0.30);
-    border-color: rgba(14,165,233,0.55);
-  }
-
-  /* Index number (top-right) */
-  .gl-index {
-    position: absolute;
-    top: 14px; right: 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.25);
-    z-index: 3;
-    transition: color 0.3s ease;
-  }
-  .gl-card:hover .gl-index { color: rgba(255,255,255,0.55); }
-
-  /* Bottom info block */
-  .gl-info {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    padding: 20px 18px 18px;
-    z-index: 3;
-    transform: translateY(0);
-  }
-
-  .gl-machine-name {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-size: 18px;
-    font-weight: 400;
-    letter-spacing: -0.01em;
-    color: #f1f5f9;
-    line-height: 1.2;
-    margin-bottom: 4px;
-  }
-
-  .gl-spec-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 10.5px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    color: #38bdf8;
-    margin-bottom: 0;
-  }
-
-  /* Description — hidden until hover */
-  .gl-desc {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12.5px;
-    line-height: 1.65;
-    color: rgba(255,255,255,0.65);
-    margin-top: 10px;
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    transition:
-      max-height 0.45s cubic-bezier(.22,1,.36,1),
-      opacity    0.35s ease 0.05s,
-      margin-top 0.35s ease;
-  }
-  .gl-card:hover .gl-desc {
-    max-height: 120px;
-    opacity: 1;
-    margin-top: 10px;
-  }
-
-  /* Arrow icon */
-  .gl-arrow {
-    position: absolute;
-    bottom: 18px; right: 18px;
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: rgba(14,165,233,0.20);
-    border: 1px solid rgba(14,165,233,0.35);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #38bdf8;
-    opacity: 0;
-    transform: translateY(6px);
-    transition:
-      opacity   0.3s ease 0.1s,
-      transform 0.3s cubic-bezier(.34,1.56,.64,1) 0.1s,
-      background 0.2s ease;
-    z-index: 4;
-  }
-  .gl-card:hover .gl-arrow {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  .gl-arrow:hover {
-    background: rgba(14,165,233,0.40) !important;
-  }
-
-  /* ── Accent line ── */
-  .gl-card::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #0ea5e9, #6366f1);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.4s cubic-bezier(.22,1,.36,1);
     z-index: 5;
+    transition: opacity 0.3s ease, border-color 0.3s ease;
   }
-  .gl-card:hover::after { transform: scaleX(1); }
-
-  /* ── Featured card (spans 2 cols) ── */
-  .gl-featured {
-    grid-column: span 2;
+  .gl-magnet-frame.visible {
+    opacity: 1;
   }
-  .gl-featured .gl-machine-name { font-size: 22px; }
-
-  /* ── YT Quote ── */
-  .gl-yt-quote {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    margin-top: 40px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13.5px;
-    color: rgba(255,255,255,0.35);
-    letter-spacing: 0.01em;
-    flex-wrap: wrap;
-    text-align: center;
-    line-height: 1.6;
+  .gl-magnet-frame.highlight {
+    border-color: rgba(14,165,233,0.8);
+    background: rgba(14,165,233,0.1);
+    box-shadow: 0 0 20px rgba(14,165,233,0.3);
   }
 
-  .gl-yt-rule {
-    width: 36px; height: 1px;
-    background: rgba(255,255,255,0.12);
-    flex-shrink: 0;
-  }
-
-  .gl-yt-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    color: #FF0000;
-    font-weight: 600;
-    text-decoration: none;
-    border-bottom: 1px solid rgba(255,0,0,0.28);
-    padding-bottom: 1px;
-    transition:
-      color        0.2s ease,
-      border-color 0.2s ease,
-      gap          0.2s ease;
-  }
-  .gl-yt-link:hover {
-    color: #ff4d4d;
-    border-color: rgba(255,77,77,0.65);
-    gap: 6px;
-  }
-
-  /* Section eyebrow */
+  /* ── section header ── */
   .gl-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
+    display:inline-flex; align-items:center; gap:12px;
+    font-family:'DM Sans',sans-serif; font-size:10px; font-weight:700;
+    letter-spacing:0.2em; text-transform:uppercase;
   }
-  .gl-eyebrow::before, .gl-eyebrow::after {
-    content: '';
-    display: block;
-    width: 24px; height: 1px;
-    background: currentColor;
-    opacity: 0.55;
+  .gl-eyebrow .gl-line { display:block; height:1px; width:32px; background:currentColor; opacity:0.4; }
+
+  .gl-grad-text {
+    display:inline-block;
+    background-clip:text; -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent; color:transparent;
   }
 
-  @media (max-width: 640px) {
-    .gl-featured { grid-column: span 1; }
+  .gl-scroll-hint {
+    font-family:'DM Sans',sans-serif; font-size:11px; font-weight:600;
+    letter-spacing:0.16em; text-transform:uppercase;
+    color:#64748b;
+    animation:gl-breathe 2.5s ease-in-out infinite;
   }
+
+  .gl-yt-pill {
+    display:inline-flex; align-items:center; gap:7px;
+    padding:10px 22px; border-radius:99px;
+    background:rgba(255,0,0,0.10); border:1px solid rgba(255,0,0,0.22);
+    color:#ff4444; font-family:'DM Sans',sans-serif;
+    font-size:13px; font-weight:700; text-decoration:none;
+    transition:background 0.25s ease, transform 0.3s cubic-bezier(.34,1.56,.64,1), box-shadow 0.3s ease;
+  }
+  .gl-yt-pill:hover { background:rgba(255,0,0,0.22); transform:scale(1.05) translateY(-2px); box-shadow:0 8px 32px rgba(255,0,0,0.22); }
+
+  .gl-replay-btn {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:8px 18px; border-radius:99px;
+    background:rgba(0,0,0,0.05); border:1px solid rgba(0,0,0,0.10);
+    color:#64748b; font-family:'DM Sans',sans-serif;
+    font-size:11px; font-weight:600; letter-spacing:0.06em;
+    cursor:pointer; transition:background 0.25s ease, color 0.25s ease;
+  }
+  .gl-replay-btn:hover { background:rgba(0,0,0,0.10); color:#0f172a; }
+
+  /* ── details modal ── */
+  .gl-modal-backdrop {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(2, 4, 18, 0.85); backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; animation: modalFadeIn 0.3s forwards;
+  }
+  .gl-modal-box {
+    background: linear-gradient(145deg,#0d1123 0%,#060814 100%);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px; width: 90%; max-width: 420px;
+    overflow: hidden; position: relative;
+    transform: scale(0.9) translateY(30px); opacity: 0;
+    animation: modalSlideUp 0.5s cubic-bezier(.175,.885,.32,1.275) 0.05s forwards;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.4);
+  }
+  .gl-modal-close {
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; color: #fff;
+    cursor: pointer; z-index: 10; transition: all 0.2s ease;
+  }
+  .gl-modal-close:hover { background: rgba(255,255,255,0.25); transform: scale(1.15) rotate(90deg); }
+  .gl-modal-img {
+    width: 100%; height: 200px; object-fit: cover;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    pointer-events: none;
+  }
+  .gl-modal-content { padding: 24px; }
+  .gl-modal-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 26px; font-weight: 400; color: #fff; line-height: 1.1; margin-bottom: 10px;
+  }
+  .gl-modal-desc {
+    font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.65;
+    color: rgba(255,255,255,0.65); margin-bottom: 20px;
+  }
+
+  @keyframes modalFadeIn { to { opacity: 1; } }
+  @keyframes modalSlideUp { to { transform: scale(1) translateY(0); opacity: 1; } }
 `;
 
-/* ─────────────────────────────────────────────
-   GallerySection
-───────────────────────────────────────────── */
-export function GallerySection({ text, isDark, c, isMobile, isTablet }) {
-  const [ref, isVisible] = useScrollAnimation();
+const SPARK_ANGLES = [0,30,60,90,120,150,180,210,240,270,300,330];
+const SPARK_COLORS = [
+  "linear-gradient(to bottom,#fff,#38bdf8,transparent)",
+  "linear-gradient(to bottom,#fff,#6366f1,transparent)",
+  "linear-gradient(to bottom,#fff,#10b981,transparent)",
+];
 
+/* ═══════════════════════════════════════════════════════════
+   MAIN SECTION
+═══════════════════════════════════════════════════════════ */
+export function GallerySection({ isDark, c, isMobile, isTablet }) {
+  const sectionRef = useRef(null);
+  const [phase,     setPhase]     = useState("dormant");
+  const [shockFired,setShock]     = useState(false);
+  const [cardsBlast,setBlast]     = useState(false);
+  
+  // State for draggable cards
+  const [positions, setPositions] = useState(INITIAL_BLAST_POSITIONS.map(p => ({ ...p })));
+  const [dragIdx, setDragIdx] = useState(null);
+  const [snappedCards, setSnappedCards] = useState({}); // Record which cards have snapped to their frames
+  const dragStartRef = useRef({ x: 0, y: 0, oX: 0, oY: 0 });
+  const dragScreenRef = useRef({ x: 0, y: 0 }); // To detect clicks vs drags
+
+  // State for modal
+  const [selectedMachine, setSelectedMachine] = useState(null);
+
+  const timers = useRef([]);
   const images = GALLERY_IMAGES ?? [];
-  // Pad with placeholder if fewer images than machines
-  const getMachineSrc = (i) => images[i] ?? null;
+
+  /* ── Intersection Observer ── */
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting && phase === "dormant") setPhase("charging"); },
+      { threshold: 0.35 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [phase]);
+
+  /* ── Phase sequencer ── */
+  useEffect(() => {
+    if (phase === "charging") {
+      const t = setTimeout(() => setPhase("exploding"), 900);
+      timers.current.push(t);
+    }
+    if (phase === "exploding") {
+      setShock(true);
+      const t1 = setTimeout(() => setBlast(true),        200);
+      const t2 = setTimeout(() => setPhase("revealed"),  1400);
+      timers.current.push(t1, t2);
+    }
+    return () => timers.current.forEach(clearTimeout);
+  }, [phase]);
+
+  /* ── Replay ── */
+  const handleReset = useCallback(() => {
+    timers.current.forEach(clearTimeout);
+    setPositions(INITIAL_BLAST_POSITIONS.map(p => ({ ...p }))); // Reset positions
+    setSnappedCards({}); // Reset snap state
+    setPhase("dormant"); setShock(false); setBlast(false);
+    setTimeout(() => setPhase("charging"), 80);
+  }, []);
+
+  /* ── Dragging logic ── */
+  const handlePointerDown = (e, idx) => {
+    if (phase !== "revealed") return;
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Fallback scale based on isMobile assumption for pointer calculations
+    const scaleX = isMobile ? 1.1 : 1.6;
+    const scaleY = isMobile ? 1.0 : 1.3;
+
+    // Remove from snapped state on pick up
+    setSnappedCards(prev => {
+      const next = { ...prev };
+      delete next[idx];
+      return next;
+    });
+
+    setDragIdx(idx);
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      oX: positions[idx].x * scaleX,
+      oY: positions[idx].y * scaleY,
+    };
+    dragScreenRef.current = { x: e.clientX, y: e.clientY };
+    e.target.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e) => {
+    if (dragIdx === null) return;
+    
+    // Determine screen bounds (roughly based on viewport)
+    // The explosion container is centered, so coordinates are relative to center (0,0)
+    // We restrict dragging so cards don't leave the screen area.
+    const stageWidth = sectionRef.current?.offsetWidth || window.innerWidth;
+    const stageHeight = sectionRef.current?.offsetHeight || window.innerHeight;
+    const maxX = stageWidth / 2 - 80;
+    const maxY = stageHeight / 2 - 80;
+
+    const scaleX = isMobile ? 1.1 : 1.6;
+    const scaleY = isMobile ? 1.0 : 1.3;
+    
+    // Calculate new position directly in un-scaled units so styles work seamlessly
+    let dx = (dragStartRef.current.oX + (e.clientX - dragStartRef.current.x)) / scaleX;
+    let dy = (dragStartRef.current.oY + (e.clientY - dragStartRef.current.y)) / scaleY;
+
+    // Apply clamping constraint
+    dx = Math.max(-maxX / scaleX, Math.min(maxX / scaleX, dx));
+    // Provide a small allowance for the header at the top
+    dy = Math.max(-maxY / scaleY + 50, Math.min(maxY / scaleY, dy));
+
+    setPositions(prev => prev.map((p, i) => i === dragIdx ? { ...p, x: dx, y: dy } : p));
+    
+    // Check magnet distance to target frame — if close enough, snap automatically
+    const target = getFramePositions(isMobile)[dragIdx];
+    const distTarget = Math.hypot(dx - target.x, dy - target.y);
+    if (distTarget < 80) { // Hover Snap Radius
+      setPositions(prev => prev.map((p, i) => i === dragIdx ? { ...p, x: target.x, y: target.y } : p));
+      setSnappedCards(prev => ({ ...prev, [dragIdx]: true }));
+      setDragIdx(null);
+      try { e.target.releasePointerCapture(e.pointerId); } catch(err) {}
+    }
+  };
+
+  const handlePointerEnter = (idx) => {
+    if (phase !== "revealed" || dragIdx !== null || snappedCards[idx]) return;
+    
+    // Auto-snap exactly how the user asked: "if cursor touch the cards it will automatically get placed to its frame"
+    const target = getFramePositions(isMobile)[idx];
+    setPositions(prev => prev.map((p, i) => i === idx ? { ...p, x: target.x, y: target.y } : p));
+    setSnappedCards(prev => ({ ...prev, [idx]: true }));
+  };
+
+  const handlePointerUp = (e, machine, idx, src) => {
+    if (dragIdx !== null) {
+      try { e.target.releasePointerCapture(e.pointerId); } catch(err) {}
+      setDragIdx(null);
+      
+      // Determine if it was a click (not dragged much)
+      const distFromStart = Math.hypot(e.clientX - dragScreenRef.current.x, e.clientY - dragScreenRef.current.y);
+      if (distFromStart < 5) {
+         setSelectedMachine({ ...machine, src, idx });
+      }
+    }
+  };
+
+  const isExploded = phase === "exploding" || phase === "revealed";
+  const isRevealed = phase === "revealed";
+  const cardW = isMobile ? 155 : isTablet ? 185 : 215;
 
   return (
     <>
-      <style>{GALLERY_STYLES}</style>
+      <style>{STYLES}</style>
 
-      <section
-        ref={ref}
-        style={{
-          padding: isMobile ? "72px 20px" : "110px 40px",
-          background: isDark
+      <section ref={sectionRef} className="gl-section" style={{ 
+        padding:"0 0 100px", minHeight:"100vh",
+        background: isDark
             ? "linear-gradient(rgba(2,6,23,0.94), rgba(4,8,28,0.96)), url('https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=1920&q=80')"
             : "linear-gradient(rgba(240,249,255,0.90), rgba(236,246,255,0.92)), url('https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=1920&q=80')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: isMobile ? "scroll" : "fixed",
-          borderTop:    `1px solid ${c.border}`,
-          borderBottom: `1px solid ${c.border}`,
-        }}
-      >
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: isMobile ? "scroll" : "fixed",
+      }}>
 
-          {/* ── Header ── */}
+        {/* ── HEADER ── */}
+        <div style={{
+          textAlign:"center",
+          padding: isMobile ? "60px 20px 0" : "80px 48px 0",
+          opacity:   cardsBlast ? 1 : 0,
+          animation: cardsBlast ? "gl-header-blast 1.3s cubic-bezier(.22,1,.36,1) both" : "none",
+        }}>
+          <div className="gl-eyebrow" style={{ color:"#0ea5e9", justifyContent:"center", marginBottom:16 }}>
+            <span className="gl-line"/>Our Machinery<span className="gl-line"/>
+          </div>
+          <h2 style={{
+            fontFamily:"'Instrument Serif',Georgia,serif",
+            fontSize: isMobile ? "34px" : "54px",
+            fontWeight:400, letterSpacing:"-0.03em", lineHeight:1.05,
+            color: isDark ? "#f1f5f9" : "#0f172a", margin:"0 0 14px",
+          }}>
+            Built for{" "}
+            <span className="gl-grad-text" style={{ fontStyle:"italic", backgroundImage:"linear-gradient(135deg,#0ea5e9,#6366f1)" }}>
+              Precision
+            </span>
+          </h2>
+          <p style={{
+            fontFamily:"'DM Sans',sans-serif", fontSize:"14.5px",
+            color: isDark ? "rgba(255,255,255,0.42)" : "#64748b", maxWidth:480, margin:"0 auto", lineHeight:1.72,
+          }}>
+            World-class Heidelberg and Akiyama equipment — engineered for flawless output, maximum throughput, and zero compromise on quality.
+          </p>
+        </div>
+
+        {/* ══════════════════════════════════════
+            EXPLOSION STAGE
+        ══════════════════════════════════════ */}
+        <div className="gl-stage" style={{ height: isMobile ? "80vw" : "75vh", marginTop: cardsBlast ? -20 : 0 }}>
+
+          {/* ambient glow */}
+          <div style={{
+            position:"absolute", left:"50%", top:"50%",
+            transform:"translate(-50%,-50%)",
+            width:600, height:600, borderRadius:"50%",
+            background:"radial-gradient(circle,rgba(14,165,233,0.08) 0%,transparent 70%)",
+            pointerEvents:"none", zIndex:0,
+            opacity: isExploded ? 0.5 : 0.2, transition:"opacity 1s ease",
+          }}/>
+
+          {/* dot grid */}
+          <div style={{
+            position:"absolute", inset:0, pointerEvents:"none", zIndex:0,
+            backgroundImage:"radial-gradient(circle,rgba(255,255,255,0.05) 1px,transparent 1px)",
+            backgroundSize:"32px 32px",
+            maskImage:"radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%)",
+            WebkitMaskImage:"radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%)",
+          }}/>
+
+          {/* rotating rings — pre-explosion only */}
+          {!isExploded && (
+            <>
+              <div className="gl-ring-orbit" style={{
+                width:220, height:220, marginLeft:-110, marginTop:-110,
+                animation:"gl-rotate-slow 8s linear infinite",
+              }}/>
+              <div className="gl-ring-orbit" style={{
+                width:160, height:160, marginLeft:-80, marginTop:-80,
+                borderStyle:"dotted",
+                animation:"gl-counter-rotate 5s linear infinite",
+              }}/>
+            </>
+          )}
+
+          {/* ENERGY CORE */}
           <div
-            style={{
-              textAlign: "center",
-              marginBottom: isMobile ? 40 : 56,
-              opacity: isVisible ? 1 : 0,
-              animation: isVisible ? "gl-fadeUp 0.5s ease-out 0s both" : "none",
-            }}
+            className={`gl-core ${phase === "charging" ? "charge" : isExploded ? "gone" : "pulse"}`}
+            style={{ width: isMobile ? 80 : 120, height: isMobile ? 80 : 120 }}
           >
-            <div
-              className="gl-eyebrow"
-              style={{ color: "#0ea5e9", justifyContent: "center", marginBottom: 14 }}
-            >
-              Our Machinery
-            </div>
+            <div style={{
+              position:"absolute", inset:10, borderRadius:"50%",
+              background:"radial-gradient(circle,#fff 0%,rgba(56,189,248,0.6) 50%,transparent 100%)",
+            }}/>
+            <div style={{
+              position:"absolute", inset:-20, borderRadius:"50%",
+              background:"radial-gradient(circle,rgba(14,165,233,0.3) 0%,transparent 70%)",
+            }}/>
+          </div>
 
-            <h2
-              style={{
-                fontFamily: "'Instrument Serif', Georgia, serif",
-                fontSize: isMobile ? "34px" : "52px",
-                fontWeight: 400,
-                letterSpacing: "-0.025em",
-                lineHeight: 1.08,
-                color: isDark ? "#f1f5f9" : "#0f172a",
-                margin: "0 0 16px",
-              }}
-            >
-              Built for{" "}
-              <em
+          {/* SHOCKWAVE RINGS */}
+          <div className={`gl-shock  ${shockFired ? "fire" : ""}`} style={{ width: isMobile ? 80 : 120, height: isMobile ? 80 : 120 }}/>
+          <div className={`gl-shock2 ${shockFired ? "fire" : ""}`} style={{ width: isMobile ? 80 : 120, height: isMobile ? 80 : 120 }}/>
+
+          {/* SPARKS */}
+          {shockFired && SPARK_ANGLES.map((angle, i) => (
+            <div key={i} className="gl-spark fire" style={{
+              "--a":  `${angle}deg`,
+              height: `${45 + (i % 4) * 15}px`,
+              background: SPARK_COLORS[i % 3],
+              opacity: 0.5 + (i % 3) * 0.2,
+              animationDelay: `${i * 0.022}s`,
+            }}/>
+          ))}
+
+          {/* SCROLL HINT */}
+          {phase === "dormant" && (
+            <div style={{
+              position:"absolute", bottom:"18%", left:"50%", transform:"translateX(-50%)",
+              zIndex:20, whiteSpace:"nowrap",
+            }}>
+              <span className="gl-scroll-hint">↑ scroll to ignite</span>
+            </div>
+          )}
+
+          {/* ══════════════════════════════
+              MAGNET FRAMES & CARDS
+          ══════════════════════════════ */}
+          
+          {/* Target Frames */}
+          {MACHINES.map((m, idx) => {
+            const pos = getFramePositions(isMobile)[idx];
+            const fx = `${pos.x * (isMobile ? 1.1 : 1.6)}px`;
+            const fy = `${pos.y * (isMobile ? 1.0 : 1.3)}px`;
+            
+            // Show frames permanently once the explosion happens
+            const isVisible = isRevealed && !snappedCards[idx];
+            
+            return (
+              <div 
+                key={`frame-${idx}`} 
+                className={`gl-magnet-frame${isVisible ? " visible" : ""}`}
                 style={{
-                  fontStyle: "italic",
-                  background: "linear-gradient(135deg,#0ea5e9,#6366f1)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
+                  width: cardW,
+                  height: 320, // Match expected full card bounds
+                  "--fx": fx,
+                  "--fy": fy,
+                  "--fr": `${pos.rot}deg`,
+                }}
+              />
+            );
+          })}
+          
+          {/* Draggable Cards */}
+          {MACHINES.map((m, idx) => {
+            const isDragging = dragIdx === idx;
+            const isSnapped = snappedCards[idx];
+
+            const pos  = positions[idx];
+            const bx   = `${pos.x * (isMobile ? 1.1 : 1.6)}px`;
+            const by   = `${pos.y * (isMobile ? 1.0 : 1.3)}px`;
+            const originalRot = isSnapped ? "0deg" : `${INITIAL_BLAST_POSITIONS[idx].rot}deg`;
+            const delay= 0.04 + idx * 0.055;
+            const floatOff = `${idx * 0.6}s`;
+            const src  = images[idx] ?? null;
+
+            const ca2 = m.accent === "#0ea5e9" ? "#6366f1"
+                      : m.accent === "#6366f1" ? "#8b5cf6"
+                      : m.accent === "#10b981" ? "#06b6d4"
+                      : m.accent === "#f59e0b" ? "#f97316"
+                      : m.accent === "#ec4899" ? "#f43f5e"
+                      : m.accent === "#8b5cf6" ? "#6366f1"
+                      : m.accent === "#f97316" ? "#f59e0b"
+                      : "#0ea5e9";
+
+            return (
+              <div
+                key={idx}
+                onPointerDown={(e) => handlePointerDown(e, idx)}
+                onPointerMove={handlePointerMove}
+                onPointerEnter={() => handlePointerEnter(idx)}
+                onPointerUp={(e) => handlePointerUp(e, m, idx, src)}
+                onPointerCancel={(e) => handlePointerUp(e, m, idx, src)}
+                className={`gl-card-float${cardsBlast ? " blasting" : ""}${isRevealed ? " floating" : ""}${isDragging ? " dragging" : ""}${isSnapped ? " snapped" : ""}`}
+                style={{
+                  "--bx":          bx,
+                  "--by":          by,
+                  "--br":          isDragging ? 0 : pos.rot, // Stop rotating when dragging
+                  "--original-rot": originalRot,
+                  "--blast-delay": `${delay}s`,
+                  "--float-offset":floatOff,
+                  "--ca":          m.accent,
+                  "--ca2":         ca2,
+                  "--ca-glow":     m.glow,
+                  width:           cardW,
                 }}
               >
-                Precision
-              </em>
-            </h2>
-
-            <p
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: isMobile ? "14px" : "15px",
-                color: isDark ? "rgba(255,255,255,0.42)" : "#64748b",
-                maxWidth: 520,
-                margin: "0 auto",
-                lineHeight: 1.7,
-              }}
-            >
-              World-class Heidelberg and Akiyama equipment — engineered for
-              flawless output, maximum throughput, and zero compromise on quality.
-            </p>
-          </div>
-
-          {/* ── Masonry-style grid ── */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: isMobile
-                ? "1fr"
-                : isTablet
-                ? "repeat(2, 1fr)"
-                : "repeat(3, 1fr)",
-              gridAutoRows: isMobile ? "220px" : "260px",
-              gap: isMobile ? 14 : 18,
-            }}
-          >
-            {MACHINES.map((machine, idx) => {
-              // First card spans 2 cols on desktop for editorial asymmetry
-              const isFeatured = idx === 0 && !isMobile && !isTablet;
-              return (
-                <GalleryCard
-                  key={idx}
-                  machine={machine}
-                  src={getMachineSrc(idx)}
-                  index={idx + 1}
-                  isDark={isDark}
-                  isVisible={isVisible}
-                  delay={0.06 + idx * 0.06}
-                  isFeatured={isFeatured}
-                />
-              );
-            })}
-          </div>
-
-          {/* ── YouTube quote ── */}
-          <div
-            className="gl-yt-quote"
-            style={{
-              opacity: isVisible ? 1 : 0,
-              animation: isVisible ? "gl-fadeUp 0.5s ease-out 0.5s both" : "none",
-            }}
-          >
-            <span className="gl-yt-rule" />
-            <span>
-              Want to see these machines in action? Watch live demos on our{" "}
-              <a
-                href="https://youtube.com/@b.k.offset?si=Y3rb_e2Y9oTBsgw7"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="gl-yt-link"
-              >
-                <Youtube size={13} strokeWidth={2} />
-                YouTube channel
-                <ArrowUpRight size={11} strokeWidth={2.5} />
-              </a>
-            </span>
-            <span className="gl-yt-rule" />
-          </div>
-
+                <div className="gl-card-inner" style={{ background: m.grad }}>
+                  {/* image or fallback */}
+                  {src
+                    ? <img className="gl-card-img" src={src} alt={m.name} loading="lazy"/>
+                    : (
+                      <div style={{
+                        height:160, background:m.grad,
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                      }}>
+                        <div style={{
+                          width:56, height:56, borderRadius:14,
+                          background:`${m.accent}20`, border:`1px solid ${m.accent}40`,
+                          display:"flex", alignItems:"center", justifyContent:"center",
+                          color: m.accent, boxShadow:`0 0 24px ${m.glow}`,
+                        }}>
+                          <Zap size={24} strokeWidth={1.5}/>
+                        </div>
+                      </div>
+                    )
+                  }
+                  <div className="gl-img-grad"/>
+                  <div className="gl-card-bar"/>
+                  <div className="gl-card-content">
+                    <span className="gl-cat-pill">{m.category}</span>
+                    <span className="gl-card-name">{m.name}</span>
+                    <div className="gl-card-spec">
+                      <Zap size={9} strokeWidth={2.5}/>{m.spec}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
+
+        {/* ── BOTTOM: replay + YouTube ── */}
+        <div style={{
+          textAlign:"center", padding: isMobile ? "0 20px" : "0 48px",
+          opacity: isRevealed ? 1 : 0, transform: isRevealed ? "translateY(0)" : "translateY(20px)",
+          transition:"opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s",
+        }}>
+          <div style={{ marginBottom:24 }}>
+            <button className="gl-replay-btn" onClick={handleReset}>
+              <Zap size={11} strokeWidth={2.5}/> Replay explosion
+            </button>
+          </div>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:16, flexWrap:"wrap" }}>
+            <div style={{ width:40, height:1, background: isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.1)" }}/>
+            <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"13px", color: isDark ? "rgba(255,255,255,0.30)" : "#64748b" }}>
+              See these machines live —
+            </span>
+            <a href="https://youtube.com/@b.k.offset?si=Y3rb_e2Y9oTBsgw7" target="_blank" rel="noopener noreferrer" className="gl-yt-pill">
+              <span style={{ width:7, height:7, borderRadius:"50%", background:"#ff4444", boxShadow:"0 0 8px #ff4444", display:"inline-block" }}/>
+              Watch on YouTube
+              <ArrowUpRight size={13} strokeWidth={2.5}/>
+            </a>
+            <div style={{ width:40, height:1, background: isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.1)" }}/>
+          </div>
+        </div>
+
+        {/* ── DETAILS MODAL ── */}
+        {selectedMachine && (
+          <div className="gl-modal-backdrop" onPointerDown={() => setSelectedMachine(null)}>
+            <div className="gl-modal-box" onPointerDown={(e) => e.stopPropagation()}>
+              <button 
+                className="gl-modal-close" 
+                onClick={() => setSelectedMachine(null)}
+                aria-label="Close"
+              >
+                <X size={20} />
+              </button>
+              {selectedMachine.src && (
+                <img src={selectedMachine.src} alt={selectedMachine.name} className="gl-modal-img" />
+              )}
+              {!selectedMachine.src && (
+                <div style={{
+                  height: 200, background: selectedMachine.grad,
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  borderBottom: "1px solid rgba(255,255,255,0.05)"
+                }}>
+                  <Zap size={48} style={{ color: selectedMachine.accent, opacity: 0.5 }} />
+                </div>
+              )}
+              <div className="gl-modal-content">
+                <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+                  <span className="gl-cat-pill" style={{ margin: 0, '--ca': selectedMachine.accent }}>
+                    {selectedMachine.category}
+                  </span>
+                  <span className="gl-cat-pill" style={{ margin: 0, background: 'transparent' }}>
+                    {selectedMachine.tag}
+                  </span>
+                </div>
+                <h3 className="gl-modal-title">{selectedMachine.name}</h3>
+                <p className="gl-modal-desc">{selectedMachine.desc}</p>
+                
+                <div style={{
+                  display: 'inline-flex', padding: '10px 20px', 
+                  background: 'rgba(255,255,255,0.05)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)',
+                  color: selectedMachine.accent, fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700
+                }}>
+                  <Zap size={14} style={{ marginRight: 8 }}/> {selectedMachine.spec}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
       </section>
     </>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   GalleryCard
-───────────────────────────────────────────── */
-function GalleryCard({ machine, src, index, isDark, isVisible, delay, isFeatured }) {
-  const [hov, setHov] = useState(false);
-
-  /* Fallback gradient when no image available */
-  const FALLBACK_GRADIENTS = [
-    "linear-gradient(135deg,#0c1a3a,#0ea5e9)",
-    "linear-gradient(135deg,#1a0c3a,#6366f1)",
-    "linear-gradient(135deg,#0c2a1a,#10b981)",
-    "linear-gradient(135deg,#2a1a0c,#f59e0b)",
-    "linear-gradient(135deg,#2a0c1a,#ec4899)",
-    "linear-gradient(135deg,#0c1a2a,#0ea5e9)",
-    "linear-gradient(135deg,#1a2a0c,#84cc16)",
-    "linear-gradient(135deg,#2a200c,#f97316)",
-  ];
-
-  return (
-    <div
-      className={`gl-card${isFeatured ? " gl-featured" : ""}`}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        border: `1px solid ${hov ? "rgba(14,165,233,0.40)" : isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
-        boxShadow: hov
-          ? "0 24px 56px rgba(0,0,0,0.45), 0 0 0 1px rgba(14,165,233,0.15)"
-          : "0 2px 8px rgba(0,0,0,0.20)",
-        transform: hov ? "translateY(-6px)" : "translateY(0)",
-        opacity: isVisible ? 1 : 0,
-        animation: isVisible
-          ? `gl-fadeUp 0.55s ease-out ${delay}s both`
-          : "none",
-        background: src ? undefined : FALLBACK_GRADIENTS[index - 1] ?? "#0c1a3a",
-      }}
-    >
-      {/* Image */}
-      {src && (
-        <img
-          className="gl-card-img"
-          src={src}
-          alt={machine.name}
-          loading="lazy"
-        />
-      )}
-
-      {/* Fallback icon when no image */}
-      {!src && (
-        <div style={{
-          position: "absolute",
-          inset: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          opacity: 0.15,
-        }}>
-          <Zap size={64} color="#fff" strokeWidth={1} />
-        </div>
-      )}
-
-      {/* Always-visible bottom gradient */}
-      <div className="gl-base-grad" />
-
-      {/* Hover darkening overlay */}
-      <div className="gl-hover-overlay" />
-
-      {/* Category tag */}
-      <div className="gl-tag">{machine.category}</div>
-
-      {/* Index */}
-      <div className="gl-index">
-        {String(index).padStart(2, "0")}
-      </div>
-
-      {/* Info block */}
-      <div className="gl-info">
-        {/* Spec badge */}
-        <div className="gl-spec-badge">
-          <Zap size={10} strokeWidth={2.5} />
-          {machine.spec}
-        </div>
-
-        {/* Machine name */}
-        <div className="gl-machine-name">{machine.name}</div>
-
-        {/* Tag pill */}
-        <div style={{
-          display: "inline-block",
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: "10px",
-          fontWeight: 600,
-          letterSpacing: "0.08em",
-          padding: "2px 8px",
-          borderRadius: "999px",
-          background: "rgba(99,102,241,0.22)",
-          color: "#a5b4fc",
-          border: "1px solid rgba(99,102,241,0.30)",
-          marginTop: 5,
-        }}>
-          {machine.tag}
-        </div>
-
-        {/* Description — reveals on hover */}
-        <div className="gl-desc">{machine.desc}</div>
-      </div>
-
-      {/* Arrow icon */}
-      <div className="gl-arrow">
-        <ArrowUpRight size={14} strokeWidth={2.5} />
-      </div>
-    </div>
   );
 }

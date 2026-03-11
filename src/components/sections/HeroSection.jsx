@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Phone, MessageCircle, User, Sparkles, ArrowRight, Star, X } from "lucide-react";
 import { T } from "../../utils/designTokens";
 import { FloatingParticles } from "../common/FloatingParticles";
@@ -284,18 +284,13 @@ export function HeroSection({ text, isDark, c, isAuth, isMobile, setShowAuth }) 
           justifyContent: "center",
           padding: isMobile ? "100px 20px 60px" : "120px 40px 80px",
           textAlign: "center",
-          /* Dark-tinted photo bg */
-          background: isDark
-            ? `linear-gradient(160deg,rgba(4,10,28,0.92) 0%,rgba(2,8,22,0.95) 60%,rgba(6,14,34,0.93) 100%), url('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1920&q=80')`
-            : `linear-gradient(160deg,rgba(224,242,254,0.82) 0%,rgba(248,250,252,0.88) 60%,rgba(240,249,255,0.85) 100%), url('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1920&q=80')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          background: "transparent",
         }}
       >
         {/* ── Atmospheric orbs ── */}
         <div className="hero-orb" style={{
-          width: 600, height: 600,
-          top: "-200px", left: "10%",
+          width: isMobile ? 300 : 600, height: isMobile ? 300 : 600,
+          top: isMobile ? "-100px" : "-200px", left: "10%",
           background: isDark
             ? "radial-gradient(circle,rgba(14,165,233,0.18) 0%,transparent 70%)"
             : "radial-gradient(circle,rgba(14,165,233,0.14) 0%,transparent 70%)",
@@ -303,8 +298,8 @@ export function HeroSection({ text, isDark, c, isAuth, isMobile, setShowAuth }) 
           zIndex: 0,
         }} />
         <div className="hero-orb" style={{
-          width: 500, height: 500,
-          bottom: "-100px", right: "5%",
+          width: isMobile ? 250 : 500, height: isMobile ? 250 : 500,
+          bottom: isMobile ? "-50px" : "-100px", right: "5%",
           background: isDark
             ? "radial-gradient(circle,rgba(99,102,241,0.16) 0%,transparent 70%)"
             : "radial-gradient(circle,rgba(99,102,241,0.11) 0%,transparent 70%)",
@@ -312,8 +307,8 @@ export function HeroSection({ text, isDark, c, isAuth, isMobile, setShowAuth }) 
           zIndex: 0,
         }} />
         <div className="hero-orb" style={{
-          width: 320, height: 320,
-          top: "35%", right: "20%",
+          width: isMobile ? 180 : 320, height: isMobile ? 180 : 320,
+          top: "35%", right: isMobile ? "5%" : "20%",
           background: isDark
             ? "radial-gradient(circle,rgba(56,189,248,0.10) 0%,transparent 70%)"
             : "radial-gradient(circle,rgba(56,189,248,0.08) 0%,transparent 70%)",
@@ -323,15 +318,6 @@ export function HeroSection({ text, isDark, c, isAuth, isMobile, setShowAuth }) 
 
         {/* Scanline */}
         <div className="hero-scan" />
-
-        {/* Dot grid */}
-        <div style={{
-          position: "absolute", inset: 0,
-          backgroundImage: `radial-gradient(circle,${isDark ? "rgba(14,165,233,0.07)" : "rgba(14,165,233,0.09)"} 1px,transparent 1px)`,
-          backgroundSize: "36px 36px",
-          pointerEvents: "none",
-          zIndex: 0,
-        }} />
 
         <FloatingParticles isDark={isDark} count={isMobile ? 20 : 35} />
 

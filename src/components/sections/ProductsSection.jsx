@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { BookOpen, Sparkles, Layers, Type, Heart, ArrowUpRight, Zap } from "lucide-react";
 import { T } from "../../utils/designTokens";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";
@@ -62,6 +62,117 @@ const STYLES = `
     100% { background-position: 0% 50%; }
   }
 
+  @keyframes ps-printer-warmup {
+    0% { filter: brightness(1) saturate(1); }
+    50% { filter: brightness(1.2) saturate(1.2) drop-shadow(0 0 20px var(--c-accent)); }
+    100% { filter: brightness(1) saturate(1); }
+  }
+
+  @keyframes ps-printer-vibrate {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(0.5px, 0.5px); }
+    50% { transform: translate(-0.5px, 0.5px); }
+    75% { transform: translate(0.5px, -0.5px); }
+  }
+
+  .ps-printer-vibrating {
+    animation: ps-printer-vibrate 0.1s linear infinite;
+  }
+
+  @keyframes ps-card-deal {
+    0% { 
+      transform: 
+        translateY(var(--dynamic-start-y, -130px)) 
+        translateX(var(--dynamic-start-x, 0)) 
+        scale(0.75) 
+        rotateZ(var(--deal-rotation, 15deg)) 
+        rotateY(var(--deal-rotate-y, 35deg));
+      opacity: 0;
+      box-shadow: 0 60px 100px -20px rgba(0,0,0,0.4);
+    }
+    30% {
+      opacity: 1;
+      box-shadow: 0 40px 70px -15px rgba(0,0,0,0.3);
+    }
+    100% { 
+      transform: 
+        translateY(0) 
+        translateX(0) 
+        scale(1) 
+        rotateZ(0deg)
+        rotateY(0deg);
+      opacity: 1;
+      box-shadow: none; 
+    }
+  }
+
+  @keyframes ps-print-line {
+    0% { transform: scaleX(0); left: 0; }
+    50% { transform: scaleX(1); left: 0; }
+    100% { transform: scaleX(0); left: 100%; }
+  }
+
+  .ps-printer-body {
+    position: relative;
+    background: var(--printer-bg, #0f172a);
+    border: 1px solid var(--printer-border, rgba(255,255,255,0.18));
+    border-radius: var(--pr-radius, 20px 20px 10px 10px);
+    padding: 60px 40px 40px;
+    box-shadow: 
+      0 40px 80px -20px rgba(0,0,0,0.4),
+      0 20px 40px -10px rgba(0,0,0,0.2),
+      0 0 0 1px var(--printer-outer-border, rgba(255,255,255,0.08));
+    z-index: 10;
+    overflow: visible;
+  }
+
+  .ps-printer-body::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 10%; right: 10%;
+    height: 4px;
+    background: #000;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.05);
+    border-radius: 4px 4px 0 0;
+  }
+
+  .ps-printer-slot {
+    position: relative;
+    height: 18px;
+    background: #000;
+    border-radius: var(--sl-radius, 0 0 12px 12px);
+    z-index: 9;
+    /* Inner shadow for "depth" */
+    box-shadow: 
+      inset 0 4px 8px rgba(0,0,0,0.8),
+      0 8px 24px rgba(0,0,0,0.4);
+    overflow: hidden;
+  }
+
+  .ps-printer-scan-line {
+    position: absolute;
+    top: 50%; left: 0; width: 100%; height: 2px;
+    background: var(--ps-grad);
+    box-shadow: 0 0 10px var(--c-accent);
+    transform-origin: left;
+    animation: ps-print-line 2s infinite ease-in-out;
+  }
+
+  .ps-cards-emergence-zone {
+    position: relative;
+    padding-top: var(--em-pad-t, 25px);
+    padding-bottom: var(--em-pad-b, 0px);
+    z-index: 1;
+    /* Sharper mask - cards become visible much earlier */
+    mask-image: var(--em-mask, linear-gradient(to bottom, transparent 0px, black 15px));
+    -webkit-mask-image: var(--em-mask, linear-gradient(to bottom, transparent 0px, black 15px));
+    perspective: 2000px;
+  }
+
+  .ps-card-emerging {
+    animation: ps-card-emerge 1s cubic-bezier(.22, 1, .36, 1) both;
+  }
+
   /* ─── Section eyebrow ─── */
   .ps-eyebrow {
     display:inline-flex; align-items:center; gap:12px;
@@ -120,11 +231,14 @@ const STYLES = `
     border-radius:19px;
     overflow:hidden;
     z-index:1;
+    border: 1px solid rgba(255,255,255,0.18); /* Match printer body exactly */
     transition:
       box-shadow 0.45s cubic-bezier(.22,1,.36,1),
       transform  0.45s cubic-bezier(.22,1,.36,1);
     will-change:transform;
     transform-style:preserve-3d;
+    /* Subtle internal highlight for 3D volume */
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
   }
 
   /* lift on hover handled by JS for 3D tilt */
@@ -330,6 +444,91 @@ const STYLES = `
   }
 `;
 
+function PrinterHeader({ isDark, isVisible, primary, c, isMobile, grad, isVibrating }) {
+  return (
+    <>
+      <div 
+        className={`ps-printer-body ${isVibrating ? 'ps-printer-vibrating' : ''}`}
+        style={{
+          maxWidth: 800,
+          margin: "0 auto",
+          "--printer-bg": isDark ? "#0f172a" : "#ffffff",
+          "--printer-border": isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.08)",
+          "--printer-outer-border": isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
+          animation: isVisible ? "ps-printer-warmup 2s ease-in-out" : "none",
+        }}
+      >
+        <div style={{
+          position:"relative", zIndex:2,
+          textAlign:"center",
+          opacity: isVisible ? 1 : 0,
+          transition: "opacity 1s ease",
+        }}>
+          <div className="ps-eyebrow" style={{ color:primary, marginBottom:20, justifyContent:"center" }}>
+            <span style={{ display:"block", height:1, width:32, background:"currentColor", opacity:0.5 }} />
+            <span style={{ margin: "0 12px" }}>What we offer</span>
+            <span style={{ display:"block", height:1, width:32, background:"currentColor", opacity:0.5 }} />
+          </div>
+          <h2 style={{
+            fontFamily:"'Instrument Serif',Georgia,serif",
+            fontSize: isMobile ? "32px" : "56px",
+            fontWeight:400,
+            letterSpacing:"-0.03em",
+            lineHeight:1.05,
+            color:c.text,
+            margin:"0 0 32px",
+          }}>
+            Our Printing{" "}
+            <span style={{
+              fontStyle:"italic",
+              display:"inline-block",
+              background:grad,
+              backgroundClip:"text",
+              WebkitBackgroundClip:"text",
+              WebkitTextFillColor:"transparent",
+              color:"transparent",
+            }}>
+              Services
+            </span>
+          </h2>
+          <div className="ps-intro" style={{
+            display:"inline-block", maxWidth:580, textAlign:"left",
+            padding:"16px 22px 16px 28px",
+            background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.028)",
+            border:`1px solid ${isDark ? "rgba(255,255,255,0.09)" : "rgba(0,0,0,0.075)"}`,
+            borderRadius:12,
+          }}>
+            <p style={{
+              margin:0,
+              fontFamily:"'DM Sans',sans-serif",
+              fontSize: isMobile ? "13px" : "14px",
+              lineHeight:1.75,
+              color: c.textMid ?? c.textDim,
+            }}>
+              Specialising in high-quality bulk book printing and professional
+              lamination services. We use premium Fevicol-based adhesives,
+              serving publishers, authors, and businesses across Delhi.
+            </p>
+          </div>
+        </div>
+        <div style={{ position: "absolute", top: 20, right: 20, display: "flex", gap: 6 }}>
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: isVisible ? "#22c55e" : "#ef4444", boxShadow: isVisible ? "0 0 8px #22c55e" : "none" }} />
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#64748b" }} />
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 760, margin: "0 auto", position: "relative", zIndex: 9 }}>
+        <div className="ps-printer-slot" style={{
+          marginTop: isMobile ? 0 : -10,
+          marginBottom: isMobile ? -10 : 0,
+        }}>
+          <div className="ps-printer-scan-line" style={{ animationDelay: "1s" }} />
+        </div>
+      </div>
+    </>
+  );
+}
+
 /* ═══════════════════════════════════════════════════════
    DATA
 ═══════════════════════════════════════════════════════ */
@@ -401,15 +600,50 @@ const PRODUCTS = [
 ═══════════════════════════════════════════════════════ */
 export function ProductsSection({ isDark, c, isMobile, isTablet }) {
   const [ref, isVisible] = useScrollAnimation();
+  const gridRef = useRef(null);
+  const [slotCenter, setSlotCenter] = useState(0);
+  const [showPreview, setShowPreview] = useState(false);
+  const [extractingCount, setExtractingCount] = useState(0);
+
+  // Measure slot center relative to the grid
+  useEffect(() => {
+    if (isVisible && gridRef.current) {
+      // Faster warmup/measurement
+      const timer = setTimeout(() => {
+        const rect = gridRef.current.getBoundingClientRect();
+        setSlotCenter(rect.width / 2);
+        setShowPreview(true);
+      }, 300); 
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible]);
+
   const primary = T.primary ?? "#0ea5e9";
   const grad    = T.grad    ?? "linear-gradient(135deg,#0ea5e9,#6366f1)";
 
   const cols = isMobile ? 1 : isTablet ? 2 : 3;
 
+  const handleExtractionStart = useCallback(() => {
+    setExtractingCount(prev => prev + 1);
+  }, []);
+
+  const handleExtractionEnd = useCallback(() => {
+    setExtractingCount(prev => Math.max(0, prev - 1));
+  }, []);
+
   return (
     <>
       <style>{STYLES}</style>
-      <style>{`:root{--ps-grad:${grad};}`}</style>
+      <style>{`
+        :root {
+          --ps-grad: ${grad};
+          --pr-radius: 24px 24px 10px 10px;
+          --sl-radius: 0 0 12px 12px;
+          --em-mask: linear-gradient(to bottom, transparent 0px, black 15px);
+          --em-pad-t: 25px;
+          --em-pad-b: 0px;
+        }
+      `}</style>
 
       <section
         ref={ref}
@@ -433,92 +667,59 @@ export function ProductsSection({ isDark, c, isMobile, isTablet }) {
           pointerEvents:"none", zIndex:0,
         }} />
 
-        {/* ── HEADER ── */}
-        <div style={{
-          position:"relative", zIndex:2,
-          textAlign:"center",
-          marginBottom: isMobile ? 52 : 80,
-          opacity:    isVisible ? 1 : 0,
-          animation:  isVisible ? "ps-fadeUp 0.6s ease-out both" : "none",
+        {/* ── PRINTER UI (Always at Top) ── */}
+        <PrinterHeader 
+          isDark={isDark} 
+          isVisible={isVisible} 
+          primary={primary} 
+          c={c} 
+          isMobile={isMobile} 
+          grad={grad} 
+          isVibrating={isMobile && extractingCount > 0} 
+        />
+
+        {/* ── CARD GRID (EMERGENCE ZONE) ── */}
+        <div className="ps-cards-emergence-zone" style={{
+          marginTop: -2,
+          marginBottom: 0,
+          paddingBottom: isMobile ? 20 : 60,
         }}>
+          <div 
+            ref={gridRef}
+            style={{
+              display:"grid",
+              gridTemplateColumns:`repeat(${cols},1fr)`,
+              gap: isMobile ? 14 : 18,
+              gridAutoRows: isMobile ? "auto" : "1fr",
+              visibility: slotCenter > 0 ? "visible" : "hidden",
+            }}
+          >
+            {(isMobile ? [...PRODUCTS].reverse() : PRODUCTS).map((p, idx) => {
+              const orderMap = { 0: 0, 3: 1, 2: 2, 4: 3, 1: 4 };
+              const sequencePos = isMobile ? idx : (orderMap[idx] ?? idx);
+              const col = idx % cols;
+              const centerIdx = (cols - 1) / 2;
+              const dealRotation = (col - centerIdx) * 12;
 
-          {/* eyebrow */}
-          <div className="ps-eyebrow" style={{
-            color:primary, marginBottom:20, justifyContent:"center",
-          }}>
-            <span className="line"/>
-            What we offer
-            <span className="line"/>
+              return (
+                <AnimatedCard
+                  key={p.title}
+                  {...p}
+                  index={idx + 1}
+                  isDark={isDark}
+                  c={c}
+                  isMobile={isMobile}
+                  isVisible={isVisible && slotCenter > 0}
+                  delay={0.5 + sequencePos * 0.3} 
+                  slotCenter={slotCenter}
+                  gridRef={gridRef}
+                  dealRotation={dealRotation}
+                  onExtractionStart={handleExtractionStart}
+                  onExtractionEnd={handleExtractionEnd}
+                />
+              );
+            })}
           </div>
-
-          {/* headline */}
-          <h2 style={{
-            fontFamily:"'Instrument Serif',Georgia,serif",
-            fontSize: isMobile ? "38px" : "62px",
-            fontWeight:400,
-            letterSpacing:"-0.03em",
-            lineHeight:1.05,
-            color:c.text,
-            margin:"0 0 32px",
-          }}>
-            Our Printing{" "}
-            <span style={{
-              fontStyle:"italic",
-              display:"inline-block",
-              background:grad,
-              backgroundClip:"text",
-              WebkitBackgroundClip:"text",
-              WebkitTextFillColor:"transparent",
-              color:"transparent",
-            }}>
-              Services
-            </span>
-          </h2>
-
-          {/* intro block — original style with gradient left bar */}
-          <div className="ps-intro" style={{
-            display:"inline-block", maxWidth:580, textAlign:"left",
-            padding:"16px 22px 16px 28px",
-            background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.028)",
-            border:`1px solid ${isDark ? "rgba(255,255,255,0.09)" : "rgba(0,0,0,0.075)"}`,
-            borderRadius:12,
-          }}>
-            <p style={{
-              margin:0,
-              fontFamily:"'DM Sans',sans-serif",
-              fontSize: isMobile ? "13.5px" : "14.5px",
-              lineHeight:1.75,
-              color: c.textMid ?? c.textDim,
-            }}>
-              Specialising in high-quality bulk book printing and professional
-              lamination services. We use premium Fevicol-based adhesives,
-              serving publishers, authors, and businesses across Delhi.
-            </p>
-          </div>
-
-        </div>
-
-        {/* ── CARD GRID ── */}
-        <div style={{
-          position:"relative", zIndex:2,
-          display:"grid",
-          gridTemplateColumns:`repeat(${cols},1fr)`,
-          gap: isMobile ? 14 : 18,
-          /* uniform row height */
-          gridAutoRows: isMobile ? "auto" : "1fr",
-        }}>
-          {PRODUCTS.map((p, idx) => (
-            <AnimatedCard
-              key={p.title}
-              {...p}
-              index={idx + 1}
-              isDark={isDark}
-              c={c}
-              isMobile={isMobile}
-              isVisible={isVisible}
-              delay={0.08 + idx * 0.08}
-            />
-          ))}
         </div>
       </section>
     </>
@@ -531,12 +732,57 @@ export function ProductsSection({ isDark, c, isMobile, isTablet }) {
 function AnimatedCard({
   title, desc, icon: Icon, features,
   accent, accentLight, accentBorder, glow2, glowBg,
-  index, isDark, c, isMobile, isVisible, delay,
+  index, isDark, c, isMobile, isVisible, delay, slotCenter, gridRef, dealRotation,
+  onExtractionStart, onExtractionEnd
 }) {
   const outerRef  = useRef(null);
   const innerRef  = useRef(null);
   const glowRef   = useRef(null);
   const [hov, setHov] = useState(false);
+  const [offsets, setOffsets] = useState({ x: 0, y: 0 });
+
+  // Handle Vibration / Haptics on Extraction
+  useEffect(() => {
+    if (isVisible && isMobile && onExtractionStart && onExtractionEnd) {
+      const timer = setTimeout(() => {
+        // Trigger haptic feedback
+        if ("vibrate" in navigator) {
+          // A short pulse followed by a longer subtle buzz for "sliding"
+          navigator.vibrate([20, 30, 25]);
+        }
+        
+        onExtractionStart();
+        
+        // Vibration lasts roughly for the emergence phase (500ms)
+        const endTimer = setTimeout(() => {
+          onExtractionEnd();
+        }, 550);
+        
+        return () => clearTimeout(endTimer);
+      }, delay * 1000); // delay is in seconds
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible, isMobile, delay, onExtractionStart, onExtractionEnd]);
+
+  // Calculate the horizontal and vertical distance to the slot center
+  useEffect(() => {
+    if (outerRef.current && gridRef.current && slotCenter > 0) {
+      const cardRect = outerRef.current.getBoundingClientRect();
+      const gridRect = gridRef.current.getBoundingClientRect();
+      
+      const cardMidX = (cardRect.left + cardRect.right) / 2 - gridRect.left;
+      const startX = slotCenter - cardMidX;
+      
+      // Calculate Y offset to move card to the slot position
+      const gridTop = gridRect.top;
+      const cardTop = cardRect.top;
+      
+      const startY = gridTop - cardTop - 130;
+      
+      setOffsets({ x: startX, y: startY });
+    }
+  }, [slotCenter, gridRef]);
 
   /* ── 3D magnetic tilt ── */
   const handleMouseMove = useCallback((e) => {
@@ -571,18 +817,18 @@ function AnimatedCard({
       innerRef.current.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0px)";
   }, []);
 
-  /* base card colours */
+  /* base card colors with multi-layered depth - matching printer body */
   const cardBg = isDark
-    ? "rgba(15,23,42,0.80)"
-    : "rgba(255,255,255,0.88)";
+    ? "rgba(15,23,42,0.95)"
+    : "rgba(255,255,255,0.98)";
 
   const cardShadow = hov
     ? isDark
-      ? `0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px ${accentLight}, 0 0 60px ${accent}18`
-      : `0 24px 64px rgba(0,0,0,0.10), 0 0 0 1px ${accentLight}, 0 0 40px ${accent}12`
+      ? `0 60px 100px -20px rgba(0,0,0,0.8), 0 30px 60px -10px rgba(0,0,0,0.6), 0 0 0 1px ${accentLight}, 0 0 60px ${accent}25`
+      : `0 50px 90px -15px rgba(0,0,0,0.2), 0 25px 50px -8px rgba(0,0,0,0.15), 0 0 0 1px ${accentLight}, 0 0 45px ${accent}18`
     : isDark
-    ? "0 2px 8px rgba(0,0,0,0.5)"
-    : "0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.05)";
+      ? "0 40px 80px -20px rgba(0,0,0,0.6), 0 20px 40px -10px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)"
+      : "0 25px 50px -12px rgba(0,0,0,0.1), 0 10px 20px -8px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)";
 
   return (
     <div
@@ -597,11 +843,15 @@ function AnimatedCard({
         "--c-accent-light":  accentLight,
         "--c-accent-border": accentBorder,
         "--c-glow-bg":       glowBg,
+        "--dynamic-start-x": `${offsets.x}px`,
+        "--dynamic-start-y": `${offsets.y}px`,
+        "--deal-rotation":   `${dealRotation}deg`,
+        "--deal-rotate-y":   `${isMobile ? 0 : 35}deg`,
         /* enforce same height for all cards */
         height: "100%",
         opacity:   isVisible ? 1 : 0,
         animation: isVisible
-          ? `ps-fadeUp 0.6s cubic-bezier(.22,1,.36,1) ${delay}s both`
+          ? `ps-card-deal 1.1s cubic-bezier(.17, .67, .41, .99) ${delay}s both`
           : "none",
       }}
     >
@@ -612,8 +862,8 @@ function AnimatedCard({
           height:"100%",
           background:           cardBg,
           boxShadow:            cardShadow,
-          backdropFilter:       "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
+          backdropFilter:       "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
           transition: hov ? "box-shadow 0.4s ease" : "box-shadow 0.4s ease, transform 0.5s cubic-bezier(.22,1,.36,1)",
         }}
       >
@@ -655,8 +905,8 @@ function AnimatedCard({
           {/* ── TITLE ── */}
           <h3 style={{
             fontFamily:"'Instrument Serif',Georgia,serif",
-            fontSize:"19px", fontWeight:400,
-            letterSpacing:"-0.01em", lineHeight:1.22,
+            fontSize:"21px", fontWeight:500,
+            letterSpacing:"-0.01em", lineHeight:1.15,
             color:c.text, margin:"0 0 10px",
           }}>
             {title}

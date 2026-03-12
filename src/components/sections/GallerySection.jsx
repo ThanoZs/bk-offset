@@ -112,16 +112,17 @@ const INITIAL_BLAST_POSITIONS = [
    4 rows of 2 columns (Mobile)
 ═══════════════════════════════════════════════════════════ */
 const getFramePositions = (isMobile) => {
-  const W_gap = isMobile ? 160 : 190;
-  const H_gap = isMobile ? 220 : 240;
+  const W_gap = isMobile ? 175 : 190;
+  const H_gap = isMobile ? 335 : 240;
   
   if (isMobile) {
     // 4 rows of 2 columns
+    // 4 rows of 2 columns — Shifted so they explode downwards from the top origin
     return [
-      { x: -W_gap * 0.5, y: -H_gap * 1.5, rot: 0 }, { x: W_gap * 0.5, y: -H_gap * 1.5, rot: 0 },
-      { x: -W_gap * 0.5, y: -H_gap * 0.5, rot: 0 }, { x: W_gap * 0.5, y: -H_gap * 0.5, rot: 0 },
-      { x: -W_gap * 0.5, y:  H_gap * 0.5, rot: 0 }, { x: W_gap * 0.5, y:  H_gap * 0.5, rot: 0 },
-      { x: -W_gap * 0.5, y:  H_gap * 1.5, rot: 0 }, { x: W_gap * 0.5, y:  H_gap * 1.5, rot: 0 },
+      { x: -W_gap * 0.5, y: 0, rot: 0 },         { x: W_gap * 0.5, y: 0, rot: 0 },
+      { x: -W_gap * 0.5, y: H_gap, rot: 0 },     { x: W_gap * 0.5, y: H_gap, rot: 0 },
+      { x: -W_gap * 0.5, y: H_gap * 2, rot: 0 }, { x: W_gap * 0.5, y: H_gap * 2, rot: 0 },
+      { x: -W_gap * 0.5, y: H_gap * 3, rot: 0 }, { x: W_gap * 0.5, y: H_gap * 3, rot: 0 },
     ];
   }
   
@@ -233,7 +234,7 @@ const STYLES = `
   /* ── energy core ── */
   .gl-core {
     position:absolute;
-    left:50%; top:50%;
+    left:50%; top:var(--gl-v-center, 50%);
     border-radius:50%;
     background:radial-gradient(circle,#fff 0%,#7dd3fc 25%,#0ea5e9 55%,transparent 100%);
     pointer-events:none;
@@ -246,7 +247,7 @@ const STYLES = `
   /* rotating dashed rings around core */
   .gl-ring-orbit {
     position:absolute;
-    left:50%; top:50%;
+    left:50%; top:var(--gl-v-center, 50%);
     border-radius:50%;
     border:1px dashed rgba(14,165,233,0.3);
     pointer-events:none;
@@ -255,7 +256,7 @@ const STYLES = `
 
   /* shockwave rings */
   .gl-shock {
-    position:absolute; left:50%; top:50%;
+    position:absolute; left:50%; top:var(--gl-v-center, 50%);
     border-radius:50%;
     border:3px solid rgba(14,165,233,0.9);
     pointer-events:none; z-index:29;
@@ -263,7 +264,7 @@ const STYLES = `
   }
   .gl-shock.fire  { display:block; animation:gl-ring-expand  0.8s cubic-bezier(.22,1,.36,1) forwards; }
   .gl-shock2 {
-    position:absolute; left:50%; top:50%;
+    position:absolute; left:50%; top:var(--gl-v-center, 50%);
     border-radius:50%;
     border:2px solid rgba(14,165,233,0.5);
     pointer-events:none; z-index:28;
@@ -273,7 +274,7 @@ const STYLES = `
 
   /* spark lines */
   .gl-spark {
-    position:absolute; left:50%; top:50%;
+    position:absolute; left:50%; top:var(--gl-v-center, 50%);
     width:3px;
     transform-origin:top center;
     border-radius:2px;
@@ -285,7 +286,7 @@ const STYLES = `
   /* ── floating card ── */
   .gl-card-float {
     position:absolute;
-    left:50%; top:50%;
+    left:50%; top:var(--gl-v-center, 50%);
     border-radius:16px;
     overflow:hidden;
     cursor:grab;
@@ -423,9 +424,9 @@ const STYLES = `
   /* ── magnet frame ── */
   .gl-magnet-frame {
     position: absolute;
-    left: 50%; top: 50%;
+    left: 50%; top: var(--gl-v-center, 50%);
     border-radius: 16px;
-    border: 2px dashed rgba(255,255,255,0.2);
+    border: 2px dashed var(--frame-color, rgba(255,255,255,0.2));
     transform: translate(-50%,-50%) translate(var(--fx),var(--fy)) rotate(var(--fr));
     opacity: 0;
     pointer-events: none;
@@ -561,7 +562,7 @@ export function GallerySection({ isDark, c, isMobile, isTablet }) {
     if (!el) return;
     const obs = new IntersectionObserver(
       ([e]) => { if (e.isIntersecting && phase === "dormant") setPhase("charging"); },
-      { threshold: 0.35 }
+      { threshold: isMobile ? 0.05 : 0.35 }
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -581,6 +582,27 @@ export function GallerySection({ isDark, c, isMobile, isTablet }) {
     }
     return () => timers.current.forEach(clearTimeout);
   }, [phase]);
+
+  /* ── Auto-snap logic after reveal ── */
+  useEffect(() => {
+    if (phase === "revealed") {
+      const t = setTimeout(() => {
+        const targets = getFramePositions(isMobile);
+        setPositions(prev => prev.map((p, i) => ({
+          ...p,
+          x: targets[i].x,
+          y: targets[i].y,
+        })));
+        
+        const snaps = {};
+        MACHINES.forEach((_, i) => snaps[i] = true);
+        setSnappedCards(snaps);
+      }, 300); // 0.3s pause after explosion settles
+      
+      timers.current.push(t);
+      return () => clearTimeout(t);
+    }
+  }, [phase, isMobile]);
 
   /* ── Replay ── */
   const handleReset = useCallback(() => {
@@ -693,12 +715,13 @@ export function GallerySection({ isDark, c, isMobile, isTablet }) {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: isMobile ? "scroll" : "fixed",
+        "--frame-color": isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)",
       }}>
 
         {/* ── HEADER ── */}
         <div style={{
           textAlign:"center",
-          padding: isMobile ? "60px 20px 0" : "80px 48px 0",
+          padding: isMobile ? "60px 20px 40px" : "80px 48px 0",
           opacity:   cardsBlast ? 1 : 0,
           animation: cardsBlast ? "gl-header-blast 1.3s cubic-bezier(.22,1,.36,1) both" : "none",
         }}>
@@ -727,7 +750,11 @@ export function GallerySection({ isDark, c, isMobile, isTablet }) {
         {/* ══════════════════════════════════════
             EXPLOSION STAGE
         ══════════════════════════════════════ */}
-        <div className="gl-stage" style={{ height: isMobile ? "80vw" : "75vh", marginTop: cardsBlast ? -20 : 0 }}>
+        <div className="gl-stage" style={{ 
+          height: isMobile ? "1400px" : "90vh", 
+          marginTop: cardsBlast ? -20 : 0,
+          "--gl-v-center": isMobile ? "200px" : "50%"
+        }}>
 
           {/* ambient glow */}
           <div style={{
@@ -813,8 +840,8 @@ export function GallerySection({ isDark, c, isMobile, isTablet }) {
             const fx = `${pos.x * (isMobile ? 1.1 : 1.6)}px`;
             const fy = `${pos.y * (isMobile ? 1.0 : 1.3)}px`;
             
-            // Show frames permanently once the explosion happens
-            const isVisible = isRevealed && !snappedCards[idx];
+            // Show frames permanently once the explosion happens — ONLY on mobile as requested
+            const isVisible = isRevealed && !snappedCards[idx] && isMobile;
             
             return (
               <div 
@@ -839,7 +866,7 @@ export function GallerySection({ isDark, c, isMobile, isTablet }) {
             const pos  = positions[idx];
             const bx   = `${pos.x * (isMobile ? 1.1 : 1.6)}px`;
             const by   = `${pos.y * (isMobile ? 1.0 : 1.3)}px`;
-            const originalRot = isSnapped ? "0deg" : `${INITIAL_BLAST_POSITIONS[idx].rot}deg`;
+            const originalRot = isSnapped || isMobile ? "0deg" : `${INITIAL_BLAST_POSITIONS[idx].rot}deg`;
             const delay= 0.04 + idx * 0.055;
             const floatOff = `${idx * 0.6}s`;
             const src  = images[idx] ?? null;
@@ -865,7 +892,7 @@ export function GallerySection({ isDark, c, isMobile, isTablet }) {
                 style={{
                   "--bx":          bx,
                   "--by":          by,
-                  "--br":          isDragging ? 0 : pos.rot, // Stop rotating when dragging
+                  "--br":          isDragging || isMobile ? 0 : pos.rot, // Stop rotating when dragging or on mobile
                   "--original-rot": originalRot,
                   "--blast-delay": `${delay}s`,
                   "--float-offset":floatOff,

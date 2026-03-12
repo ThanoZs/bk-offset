@@ -447,7 +447,7 @@ const STYLES = `
 function PrinterHeader({ isDark, isVisible, primary, c, isMobile, grad, isVibrating }) {
   return (
     <>
-      <div 
+      <div
         className={`ps-printer-body ${isVibrating ? 'ps-printer-vibrating' : ''}`}
         style={{
           maxWidth: 800,
@@ -459,50 +459,50 @@ function PrinterHeader({ isDark, isVisible, primary, c, isMobile, grad, isVibrat
         }}
       >
         <div style={{
-          position:"relative", zIndex:2,
-          textAlign:"center",
+          position: "relative", zIndex: 2,
+          textAlign: "center",
           opacity: isVisible ? 1 : 0,
           transition: "opacity 1s ease",
         }}>
-          <div className="ps-eyebrow" style={{ color:primary, marginBottom:20, justifyContent:"center" }}>
-            <span style={{ display:"block", height:1, width:32, background:"currentColor", opacity:0.5 }} />
+          <div className="ps-eyebrow" style={{ color: primary, marginBottom: 20, justifyContent: "center" }}>
+            <span style={{ display: "block", height: 1, width: 32, background: "currentColor", opacity: 0.5 }} />
             <span style={{ margin: "0 12px" }}>What we offer</span>
-            <span style={{ display:"block", height:1, width:32, background:"currentColor", opacity:0.5 }} />
+            <span style={{ display: "block", height: 1, width: 32, background: "currentColor", opacity: 0.5 }} />
           </div>
           <h2 style={{
-            fontFamily:"'Instrument Serif',Georgia,serif",
+            fontFamily: "'Instrument Serif',Georgia,serif",
             fontSize: isMobile ? "32px" : "56px",
-            fontWeight:400,
-            letterSpacing:"-0.03em",
-            lineHeight:1.05,
-            color:c.text,
-            margin:"0 0 32px",
+            fontWeight: 400,
+            letterSpacing: "-0.03em",
+            lineHeight: 1.05,
+            color: c.text,
+            margin: "0 0 32px",
           }}>
             Our Printing{" "}
             <span style={{
-              fontStyle:"italic",
-              display:"inline-block",
-              background:grad,
-              backgroundClip:"text",
-              WebkitBackgroundClip:"text",
-              WebkitTextFillColor:"transparent",
-              color:"transparent",
+              fontStyle: "italic",
+              display: "inline-block",
+              background: grad,
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              color: "transparent",
             }}>
               Services
             </span>
           </h2>
           <div className="ps-intro" style={{
-            display:"inline-block", maxWidth:580, textAlign:"left",
-            padding:"16px 22px 16px 28px",
+            display: "inline-block", maxWidth: 580, textAlign: "left",
+            padding: "16px 22px 16px 28px",
             background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.028)",
-            border:`1px solid ${isDark ? "rgba(255,255,255,0.09)" : "rgba(0,0,0,0.075)"}`,
-            borderRadius:12,
+            border: `1px solid ${isDark ? "rgba(255,255,255,0.09)" : "rgba(0,0,0,0.075)"}`,
+            borderRadius: 12,
           }}>
             <p style={{
-              margin:0,
-              fontFamily:"'DM Sans',sans-serif",
+              margin: 0,
+              fontFamily: "'DM Sans',sans-serif",
               fontSize: isMobile ? "13px" : "14px",
-              lineHeight:1.75,
+              lineHeight: 1.75,
               color: c.textMid ?? c.textDim,
             }}>
               Specialising in high-quality bulk book printing and professional
@@ -613,13 +613,13 @@ export function ProductsSection({ isDark, c, isMobile, isTablet }) {
         const rect = gridRef.current.getBoundingClientRect();
         setSlotCenter(rect.width / 2);
         setShowPreview(true);
-      }, 300); 
+      }, 300);
       return () => clearTimeout(timer);
     }
   }, [isVisible]);
 
   const primary = T.primary ?? "#0ea5e9";
-  const grad    = T.grad    ?? "linear-gradient(135deg,#0ea5e9,#6366f1)";
+  const grad = T.grad ?? "linear-gradient(135deg,#0ea5e9,#6366f1)";
 
   const cols = isMobile ? 1 : isTablet ? 2 : 3;
 
@@ -649,9 +649,9 @@ export function ProductsSection({ isDark, c, isMobile, isTablet }) {
         ref={ref}
         style={{
           position: "relative",
-          padding:  isMobile ? "80px 18px 100px" : "120px 48px 140px",
+          padding: isMobile ? "80px 18px 100px" : "120px 48px 140px",
           maxWidth: 1280,
-          margin:   "0 auto",
+          margin: "0 auto",
           overflow: "hidden",
         }}
       >
@@ -660,22 +660,22 @@ export function ProductsSection({ isDark, c, isMobile, isTablet }) {
 
         {/* large blurred orb — ambient glow */}
         <div style={{
-          position:"absolute", top:"0%", left:"50%",
-          transform:"translateX(-50%)",
-          width:700, height:340,
-          background:`radial-gradient(ellipse, ${primary}14 0%, transparent 70%)`,
-          pointerEvents:"none", zIndex:0,
+          position: "absolute", top: "0%", left: "50%",
+          transform: "translateX(-50%)",
+          width: 700, height: 340,
+          background: `radial-gradient(ellipse, ${primary}14 0%, transparent 70%)`,
+          pointerEvents: "none", zIndex: 0,
         }} />
 
         {/* ── PRINTER UI (Always at Top) ── */}
-        <PrinterHeader 
-          isDark={isDark} 
-          isVisible={isVisible} 
-          primary={primary} 
-          c={c} 
-          isMobile={isMobile} 
-          grad={grad} 
-          isVibrating={isMobile && extractingCount > 0} 
+        <PrinterHeader
+          isDark={isDark}
+          isVisible={isVisible}
+          primary={primary}
+          c={c}
+          isMobile={isMobile}
+          grad={grad}
+          isVibrating={isMobile && extractingCount > 0}
         />
 
         {/* ── CARD GRID (EMERGENCE ZONE) ── */}
@@ -684,11 +684,11 @@ export function ProductsSection({ isDark, c, isMobile, isTablet }) {
           marginBottom: 0,
           paddingBottom: isMobile ? 20 : 60,
         }}>
-          <div 
+          <div
             ref={gridRef}
             style={{
-              display:"grid",
-              gridTemplateColumns:`repeat(${cols},1fr)`,
+              display: "grid",
+              gridTemplateColumns: `repeat(${cols},1fr)`,
               gap: isMobile ? 14 : 18,
               gridAutoRows: isMobile ? "auto" : "1fr",
               visibility: slotCenter > 0 ? "visible" : "hidden",
@@ -710,7 +710,7 @@ export function ProductsSection({ isDark, c, isMobile, isTablet }) {
                   c={c}
                   isMobile={isMobile}
                   isVisible={isVisible && slotCenter > 0}
-                  delay={0.5 + sequencePos * 0.3} 
+                  delay={0.5 + sequencePos * 0.3}
                   slotCenter={slotCenter}
                   gridRef={gridRef}
                   dealRotation={dealRotation}
@@ -735,9 +735,9 @@ function AnimatedCard({
   index, isDark, c, isMobile, isVisible, delay, slotCenter, gridRef, dealRotation,
   onExtractionStart, onExtractionEnd
 }) {
-  const outerRef  = useRef(null);
-  const innerRef  = useRef(null);
-  const glowRef   = useRef(null);
+  const outerRef = useRef(null);
+  const innerRef = useRef(null);
+  const glowRef = useRef(null);
   const [hov, setHov] = useState(false);
   const [offsets, setOffsets] = useState({ x: 0, y: 0 });
 
@@ -750,17 +750,17 @@ function AnimatedCard({
           // A short pulse followed by a longer subtle buzz for "sliding"
           navigator.vibrate([20, 30, 25]);
         }
-        
+
         onExtractionStart();
-        
+
         // Vibration lasts roughly for the emergence phase (500ms)
         const endTimer = setTimeout(() => {
           onExtractionEnd();
         }, 550);
-        
+
         return () => clearTimeout(endTimer);
       }, delay * 1000); // delay is in seconds
-      
+
       return () => clearTimeout(timer);
     }
   }, [isVisible, isMobile, delay, onExtractionStart, onExtractionEnd]);
@@ -770,16 +770,16 @@ function AnimatedCard({
     if (outerRef.current && gridRef.current && slotCenter > 0) {
       const cardRect = outerRef.current.getBoundingClientRect();
       const gridRect = gridRef.current.getBoundingClientRect();
-      
+
       const cardMidX = (cardRect.left + cardRect.right) / 2 - gridRect.left;
       const startX = slotCenter - cardMidX;
-      
+
       // Calculate Y offset to move card to the slot position
       const gridTop = gridRect.top;
       const cardTop = cardRect.top;
-      
+
       const startY = gridTop - cardTop - 130;
-      
+
       setOffsets({ x: startX, y: startY });
     }
   }, [slotCenter, gridRef]);
@@ -790,27 +790,27 @@ function AnimatedCard({
     const rect = outerRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const cx = rect.width  / 2;
+    const cx = rect.width / 2;
     const cy = rect.height / 2;
     const dx = (x - cx) / cx;   // -1 to 1
     const dy = (y - cy) / cy;
 
     const tiltX = dy * -10;   // degrees
-    const tiltY = dx *  10;
+    const tiltY = dx * 10;
 
     innerRef.current.style.transform =
       `perspective(900px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateZ(8px)`;
 
     /* move radial glow with cursor */
     if (glowRef.current) {
-      const pct_x = (x / rect.width)  * 100;
+      const pct_x = (x / rect.width) * 100;
       const pct_y = (y / rect.height) * 100;
       glowRef.current.style.setProperty("--mx", `${pct_x}%`);
       glowRef.current.style.setProperty("--my", `${pct_y}%`);
     }
   }, []);
 
-  const handleMouseEnter = useCallback(() => setHov(true),  []);
+  const handleMouseEnter = useCallback(() => setHov(true), []);
   const handleMouseLeave = useCallback(() => {
     setHov(false);
     if (innerRef.current)
@@ -838,18 +838,18 @@ function AnimatedCard({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       style={{
-        "--c-accent":        accent,
-        "--c-glow2":         glow2,
-        "--c-accent-light":  accentLight,
+        "--c-accent": accent,
+        "--c-glow2": glow2,
+        "--c-accent-light": accentLight,
         "--c-accent-border": accentBorder,
-        "--c-glow-bg":       glowBg,
+        "--c-glow-bg": glowBg,
         "--dynamic-start-x": `${offsets.x}px`,
         "--dynamic-start-y": `${offsets.y}px`,
-        "--deal-rotation":   `${dealRotation}deg`,
-        "--deal-rotate-y":   `${isMobile ? 0 : 35}deg`,
+        "--deal-rotation": `${dealRotation}deg`,
+        "--deal-rotate-y": `${isMobile ? 0 : 35}deg`,
         /* enforce same height for all cards */
         height: "100%",
-        opacity:   isVisible ? 1 : 0,
+        opacity: isVisible ? 1 : 0,
         animation: isVisible
           ? `ps-card-deal 1.1s cubic-bezier(.17, .67, .41, .99) ${delay}s both`
           : "none",
@@ -859,10 +859,10 @@ function AnimatedCard({
         ref={innerRef}
         className="ps-card-inner"
         style={{
-          height:"100%",
-          background:           cardBg,
-          boxShadow:            cardShadow,
-          backdropFilter:       "blur(12px)",
+          height: "100%",
+          background: cardBg,
+          boxShadow: cardShadow,
+          backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
           transition: hov ? "box-shadow 0.4s ease" : "box-shadow 0.4s ease, transform 0.5s cubic-bezier(.22,1,.36,1)",
         }}
@@ -871,26 +871,26 @@ function AnimatedCard({
         <div
           ref={glowRef}
           className="ps-card-glow"
-          style={{ "--mx":"50%", "--my":"0%" }}
+          style={{ "--mx": "50%", "--my": "0%" }}
         />
 
         {/* coloured bottom bar */}
         <div className="ps-card-bar" />
 
-        <div className="ps-card-content" style={{ height:"100%", boxSizing:"border-box" }}>
+        <div className="ps-card-content" style={{ height: "100%", boxSizing: "border-box" }}>
 
           {/* ── TOP ROW: icon only ── */}
-          <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:20 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20 }}>
             {/* icon */}
             <div
               className="ps-icon-wrap"
               style={{
-                width:52, height:52, borderRadius:15,
+                width: 52, height: 52, borderRadius: 15,
                 background: hov ? accent : accentLight,
-                display:"flex", alignItems:"center", justifyContent:"center",
+                display: "flex", alignItems: "center", justifyContent: "center",
                 color: hov ? "#fff" : accent,
                 boxShadow: hov ? `0 10px 28px ${accent}55` : "none",
-                flexShrink:0,
+                flexShrink: 0,
               }}
             >
               <Icon size={22} strokeWidth={1.7} />
@@ -899,26 +899,26 @@ function AnimatedCard({
             </div>
 
             {/* arrow only, no stat/number */}
-            <ArrowUpRight className="ps-arrow" size={17} strokeWidth={2} style={{ color:c.textDim, flexShrink:0, marginTop:4 }} />
+            <ArrowUpRight className="ps-arrow" size={17} strokeWidth={2} style={{ color: c.textDim, flexShrink: 0, marginTop: 4 }} />
           </div>
 
           {/* ── TITLE ── */}
           <h3 style={{
-            fontFamily:"'Instrument Serif',Georgia,serif",
-            fontSize:"21px", fontWeight:500,
-            letterSpacing:"-0.01em", lineHeight:1.15,
-            color:c.text, margin:"0 0 10px",
+            fontFamily: "'Instrument Serif',Georgia,serif",
+            fontSize: "21px", fontWeight: 500,
+            letterSpacing: "-0.01em", lineHeight: 1.15,
+            color: c.text, margin: "0 0 10px",
           }}>
             {title}
           </h3>
 
           {/* ── DESCRIPTION ── */}
           <p className="ps-desc" style={{
-            fontSize:"13px",
+            fontSize: "13px",
             color: c.textDim,
-            lineHeight:1.72,
-            margin:"0 0 20px",
-            flex:1,
+            lineHeight: 1.72,
+            margin: "0 0 20px",
+            flex: 1,
           }}>
             {desc}
           </p>
@@ -928,33 +928,33 @@ function AnimatedCard({
             background: hov
               ? `linear-gradient(90deg,${accent}55,${glow2}33,transparent)`
               : isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)",
-            marginBottom:16,
-          }}/>
+            marginBottom: 16,
+          }} />
 
           {/* ── FEATURES ── */}
           <div>
             <div style={{
-              display:"flex", alignItems:"center", gap:6, marginBottom:10,
+              display: "flex", alignItems: "center", gap: 6, marginBottom: 10,
             }}>
-              <Zap size={9} style={{ color:accent }} strokeWidth={2.5} />
+              <Zap size={9} style={{ color: accent }} strokeWidth={2.5} />
               <span style={{
-                fontFamily:"'DM Sans',sans-serif",
-                fontSize:"9px", fontWeight:700, letterSpacing:"0.16em",
-                textTransform:"uppercase", color:accent,
+                fontFamily: "'DM Sans',sans-serif",
+                fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em",
+                textTransform: "uppercase", color: accent,
               }}>
                 Includes
               </span>
             </div>
 
-            <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
               {features.map((f, i) => (
                 <span
                   key={i}
                   className="ps-tag"
                   style={{
-                    background:   isDark ? "rgba(255,255,255,0.07)" : accentLight,
-                    color:        isDark ? "rgba(255,255,255,0.58)"  : `${accent}cc`,
-                    border:       `1px solid ${isDark ? "rgba(255,255,255,0.09)" : accentBorder}`,
+                    background: isDark ? "rgba(255,255,255,0.07)" : accentLight,
+                    color: isDark ? "rgba(255,255,255,0.58)" : `${accent}cc`,
+                    border: `1px solid ${isDark ? "rgba(255,255,255,0.09)" : accentBorder}`,
                   }}
                 >
                   {f}

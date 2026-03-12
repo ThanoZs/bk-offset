@@ -314,11 +314,13 @@ const STYLES = `
     opacity: 1 !important;
     transform: translate(-50%,-50%) translate(var(--bx),var(--by)) rotate(var(--original-rot)) scale(1) !important;
     box-shadow: 0 0 30px var(--ca-glow) !important;
+    cursor: pointer;
   }
   .gl-card-float.snapped:hover {
     opacity: 1 !important;
     transform: translate(-50%,-50%) translate(var(--bx),var(--by)) rotate(0deg) scale(1.15) !important;
     z-index: 50 !important;
+    cursor: pointer;
   }
   .gl-card-float.blasting {
     animation:gl-card-blast 1.1s cubic-bezier(.22,1,.36,1) var(--blast-delay) both;
@@ -616,6 +618,8 @@ export function GallerySection({ isDark, c, isMobile, isTablet }) {
   /* ── Dragging logic ── */
   const handlePointerDown = (e, idx) => {
     if (phase !== "revealed") return;
+    // Don't allow dragging a card that's already snapped into its grid position
+    if (snappedCards[idx]) return;
     e.preventDefault();
     e.stopPropagation();
     
@@ -679,6 +683,9 @@ export function GallerySection({ isDark, c, isMobile, isTablet }) {
 
   const handlePointerEnter = (idx) => {
     if (phase !== "revealed" || dragIdx !== null || snappedCards[idx]) return;
+    // If all cards are already snapped, don't allow hover-snap
+    const allSnapped = Object.keys(snappedCards).length >= MACHINES.length;
+    if (allSnapped) return;
     
     // Auto-snap exactly how the user asked: "if cursor touch the cards it will automatically get placed to its frame"
     const target = getFramePositions(isMobile)[idx];
@@ -696,6 +703,9 @@ export function GallerySection({ isDark, c, isMobile, isTablet }) {
       if (distFromStart < 5) {
          setSelectedMachine({ ...machine, src, idx });
       }
+    } else if (snappedCards[idx]) {
+      // Card is snapped (no drag was initiated), treat as a click to open details
+      setSelectedMachine({ ...machine, src, idx });
     }
   };
 

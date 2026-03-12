@@ -27,13 +27,13 @@ export function DotWave({ isDark }) {
     const particles = [];
     const PARTICLE_COUNT = isMobile ? 180 : 550; // Reduced for mobile
     const PERSPECTIVE = 1000;
-    const BASE_RADIUS = isMobile ? 180 : 350; // Optimized radius for mobile
+    const BASE_RADIUS = isMobile ? 240 : 460; // Zoomed in ~30% for bigger overall animation
 
     // Chasing center (moves slowly toward mouse)
     const currentCenter = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     
     // Physics constants
-    const REPULSION_RADIUS = isMobile ? 120 : 250; 
+    const REPULSION_RADIUS = isMobile ? 150 : 300; 
     const REPULSION_STRENGTH = isMobile ? 1.0 : 1.2;
     const SPRING_STRENGTH = 0.04;
     const DAMPING = 0.93;
@@ -63,8 +63,8 @@ export function DotWave({ isDark }) {
         this.vx = 0; this.vy = 0; this.vz = 0;
 
         // Style
-        this.dashLen = 5 + Math.random() * 8;
-        this.thickness = 1.1 + Math.random() * 0.7;
+        this.dashLen = 7 + Math.random() * 11;
+        this.thickness = 1.3 + Math.random() * 0.9;
         this.alphaBase = 0.35 + Math.random() * 0.55;
         
         // Dynamic Hue based on relative home position (Diagonal Rainbow)

@@ -136,7 +136,8 @@ export function DotWave({ isDark }) {
     let rotX = 0, rotY = 0;
 
     function loop() {
-      if (!W || !H) return;
+      raf.current = requestAnimationFrame(loop);
+      if (!W || !H || !ctx) return;
       ctx.clearRect(0, 0, W, H);
 
       tick += 0.015;
@@ -167,27 +168,37 @@ export function DotWave({ isDark }) {
       const my = mouse.current.y - currentCenter.y;
       const mz = 150; 
 
-      // Sort by depth for painter's
-      const sorted = [...particles].sort((a, b) => b.z - a.z);
+      // Sort by depth for painter's algorithm (dense to sparse)
+      // Sorting in-place to avoid object creation every frame
+      particles.sort((a, b) => b.z - a.z);
 
-      for (const p of sorted) {
-        p.update(mx, my, mz, breathing, rotX, rotY, stretchX, stretchY);
+      for (const p of particles) {
+        try {
+          p.update(mx, my, mz, breathing, rotX, rotY, stretchX, stretchY);
 
-        const scale = PERSPECTIVE / (PERSPECTIVE + p.z);
-        const x2d = currentCenter.x + p.x * scale;
-        const y2d = currentCenter.y + p.y * scale;
+          const scale = PERSPECTIVE / (PERSPECTIVE + p.z);
+          
+          // Skip if particle is behind camera or scale is invalid
+          if (scale <= 0 || isNaN(scale) || !isFinite(scale)) continue;
 
-        // Drawing
-        const alpha = Math.max(0, p.alphaBase * scale * (p.z > -BASE_RADIUS ? 1 : 0.6));
-        const radius = p.radius * scale;
+          const x2d = currentCenter.x + p.x * scale;
+          const y2d = currentCenter.y + p.y * scale;
 
-        ctx.fillStyle = `hsla(${p.hue}, 80%, ${isDark ? 70 : 50}%, ${alpha})`;
-        ctx.beginPath();
-        ctx.arc(x2d, y2d, radius, 0, Math.PI * 2);
-        ctx.fill();
+          // Drawing
+          const alpha = Math.max(0, p.alphaBase * scale * (p.z > -BASE_RADIUS ? 1 : 0.6));
+          const radius = Math.max(0, p.radius * scale);
+
+          if (alpha <= 0 || radius <= 0) continue;
+
+          ctx.fillStyle = `hsla(${p.hue}, 80%, ${isDark ? 70 : 50}%, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(x2d, y2d, radius, 0, Math.PI * 2);
+          ctx.fill();
+        } catch (err) {
+          // Log once and ignore to keep loop running
+          console.error("Particle update error:", err);
+        }
       }
-
-      raf.current = requestAnimationFrame(loop);
     }
 
     const onMove = (e) => {

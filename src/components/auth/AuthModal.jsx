@@ -1,7 +1,19 @@
-﻿import React, { useState } from "react";
+/**
+ * AuthModal.jsx — Secure authentication portal for BK Offset Printing.
+ * Supports Google SSO, email/password login, and new account registration.
+ */
+
+import React, { useState } from "react";
 import { User, Mail, Lock, X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
+/**
+ * AuthModal — Centered overlay for managing user login/signup states.
+ * 
+ * @param {Object} props
+ * @param {boolean} props.isDark - Theme mode for dynamic color adaptation.
+ * @param {Function} props.onClose - Callback to dismiss the modal.
+ */
 export function AuthModal({ isDark, onClose }) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
@@ -14,6 +26,9 @@ export function AuthModal({ isDark, onClose }) {
   
   const { loginWithGoogle, loginWithEmail, registerWithEmail, resetPassword } = useAuth();
 
+  /**
+   * handleGoogle — Initiates OAuth flow via Firebase.
+   */
   const handleGoogle = async () => {
     setError("");
     setLoading(true);
@@ -28,12 +43,16 @@ export function AuthModal({ isDark, onClose }) {
     }
   };
 
+  /**
+   * handleSubmit — Processes traditional email/password credentials.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     
     if (isLogin) {
+      // Basic validation for existing users
       if (!email || !password) {
         setError("Enter email and password");
         setLoading(false);
@@ -48,6 +67,7 @@ export function AuthModal({ isDark, onClose }) {
         onClose();
       }
     } else {
+      // Extended validation for new registration
       if (!email || !password || !firstName || !lastName) {
         setError("Fill all fields");
         setLoading(false);
@@ -61,65 +81,44 @@ export function AuthModal({ isDark, onClose }) {
         setLoading(false);
       } else {
         setSuccess("Account created! Check your email.");
+        // Clear forms on successful registration
         setEmail("");
         setPassword("");
         setFirstName("");
         setLastName("");
+        // Transition back to login view after short delay
         setTimeout(() => setIsLogin(true), 2000);
       }
     }
   };
 
   return (
-    <div style={{
-      position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)",
-      backdropFilter: "blur(5px)", zIndex: 2000,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      padding: "20px",
-    }}>
-      <div style={{
-        background: isDark ? "#1e293b" : "#fff",
-        borderRadius: "16px", padding: "32px",
-        width: "100%", maxWidth: "400px",
-        position: "relative",
-      }}>
-        <button onClick={onClose} style={{
-          position: "absolute", top: "16px", right: "16px",
-          background: "none", border: "none", cursor: "pointer",
-          color: isDark ? "#94a3b8" : "#64748b",
-        }}>
+    <div style={styles.backdrop}>
+      <div style={styles.modalBox(isDark)}>
+        {/* Close Interaction */}
+        <button onClick={onClose} style={styles.closeBtn(isDark)}>
           <X size={20} />
         </button>
 
-        <div style={{ textAlign: "center", marginBottom: "24px" }}>
-          <div style={{
-            width: "64px", height: "64px", borderRadius: "50%",
-            background: "linear-gradient(135deg, #0284c7, #06b6d4)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 16px",
-          }}>
+        {/* Brand/Identity Header */}
+        <div style={styles.header}>
+          <div style={styles.avatarPill}>
             <User size={32} color="#fff" />
           </div>
-          <h2 style={{ color: isDark ? "#f1f5f9" : "#0f172a" }}>
+          <h2 style={styles.title(isDark)}>
             {isLogin ? "Welcome Back" : "Create Account"}
           </h2>
         </div>
 
-        {success && <div style={{ background: "#d4edda", color: "#155724", padding: "12px", borderRadius: "8px", marginBottom: "16px", textAlign: "center" }}>{success}</div>}
-        {error && <div style={{ background: "#fee2e2", color: "#ef4444", padding: "12px", borderRadius: "8px", marginBottom: "16px", textAlign: "center" }}>{error}</div>}
+        {/* Feedback Messages */}
+        {success && <div style={styles.successBox}>{success}</div>}
+        {error && <div style={styles.errorBox}>{error}</div>}
 
+        {/* SSO Strategy — Google */}
         <button
           onClick={handleGoogle}
           disabled={loading}
-          style={{
-            width: "100%", padding: "12px",
-            background: "#fff", border: "1px solid #cbd5e1",
-            borderRadius: "8px", fontSize: "14px", fontWeight: 600,
-            color: "#475569", cursor: loading ? "not-allowed" : "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            gap: "10px", marginBottom: "20px",
-            opacity: loading ? 0.5 : 1,
-          }}
+          style={styles.googleBtn(loading)}
         >
           <svg width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -130,44 +129,58 @@ export function AuthModal({ isDark, onClose }) {
           Continue with Google
         </button>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
-          <div style={{ flex: 1, height: "1px", background: "#cbd5e1" }} />
-          <span style={{ color: "#94a3b8" }}>or</span>
-          <div style={{ flex: 1, height: "1px", background: "#cbd5e1" }} />
+        {/* Divider */}
+        <div style={styles.divider}>
+          <div style={styles.dividerLine} />
+          <span style={styles.dividerText}>or</span>
+          <div style={styles.dividerLine} />
         </div>
 
+        {/* Primary Credential Form */}
         <form onSubmit={handleSubmit}>
           {!isLogin && (
             <>
-              <input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} disabled={loading} style={{ width: "100%", padding: "10px", border: "1px solid #cbd5e1", borderRadius: "8px", marginBottom: "16px", background: isDark ? "#0f172a" : "#fff", color: isDark ? "#f1f5f9" : "#0f172a" }} required />
-              <input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} disabled={loading} style={{ width: "100%", padding: "10px", border: "1px solid #cbd5e1", borderRadius: "8px", marginBottom: "16px", background: isDark ? "#0f172a" : "#fff", color: isDark ? "#f1f5f9" : "#0f172a" }} required />
+              <input 
+                type="text" placeholder="First Name" 
+                value={firstName} onChange={(e) => setFirstName(e.target.value)} 
+                disabled={loading} style={styles.input(isDark, loading)} required 
+              />
+              <input 
+                type="text" placeholder="Last Name" 
+                value={lastName} onChange={(e) => setLastName(e.target.value)} 
+                disabled={loading} style={styles.input(isDark, loading)} required 
+              />
             </>
           )}
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} style={{ width: "100%", padding: "10px", border: "1px solid #cbd5e1", borderRadius: "8px", marginBottom: "16px", background: isDark ? "#0f172a" : "#fff", color: isDark ? "#f1f5f9" : "#0f172a" }} required />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} style={{ width: "100%", padding: "10px", border: "1px solid #cbd5e1", borderRadius: "8px", marginBottom: "16px", background: isDark ? "#0f172a" : "#fff", color: isDark ? "#f1f5f9" : "#0f172a" }} required />
+          <input 
+            type="email" placeholder="Email" 
+            value={email} onChange={(e) => setEmail(e.target.value)} 
+            disabled={loading} style={styles.input(isDark, loading)} required 
+          />
+          <input 
+            type="password" placeholder="Password" 
+            value={password} onChange={(e) => setPassword(e.target.value)} 
+            disabled={loading} style={styles.input(isDark, loading)} required 
+          />
 
           {isLogin && (
-            <button type="button" onClick={() => {}} style={{ background: "none", border: "none", color: "#0284c7", cursor: "pointer", fontSize: "13px", marginBottom: "16px", display: "block", textAlign: "right", width: "100%" }}>
+            <button type="button" onClick={() => {}} style={styles.forgotBtn}>
               Forgot Password?
             </button>
           )}
 
-          <button type="submit" disabled={loading} style={{
-            width: "100%", padding: "12px",
-            background: loading ? "#cbd5e1" : "linear-gradient(135deg, #0284c7, #06b6d4)",
-            color: loading ? "#64748b" : "#fff",
-            border: "none", borderRadius: "8px",
-            fontSize: "16px", fontWeight: 600,
-            cursor: loading ? "not-allowed" : "pointer",
-            marginBottom: "16px",
-          }}>
+          <button type="submit" disabled={loading} style={styles.submitBtn(loading)}>
             {loading ? "Processing..." : (isLogin ? "Sign In" : "Create Account")}
           </button>
         </form>
 
-        <p style={{ textAlign: "center", color: isDark ? "#94a3b8" : "#64748b" }}>
+        {/* Toggle between states */}
+        <p style={styles.footerText(isDark)}>
           {isLogin ? "No account? " : "Have an account? "}
-          <button onClick={() => { setIsLogin(!isLogin); setError(""); setSuccess(""); }} style={{ background: "none", border: "none", color: "#0284c7", cursor: "pointer", fontWeight: 600 }}>
+          <button 
+            onClick={() => { setIsLogin(!isLogin); setError(""); setSuccess(""); }} 
+            style={styles.toggleBtn}
+          >
             {isLogin ? "Register" : "Sign In"}
           </button>
         </p>
@@ -175,3 +188,71 @@ export function AuthModal({ isDark, onClose }) {
     </div>
   );
 }
+
+/* ─── Consolidated Styles ────────────────────────────────── */
+
+const styles = {
+  backdrop: {
+    position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)",
+    backdropFilter: "blur(5px)", zIndex: 2000,
+    display: "flex", alignItems: "center", justifyContent: "center",
+    padding: "20px",
+  },
+  modalBox: (isDark) => ({
+    background: isDark ? "#1e293b" : "#fff",
+    borderRadius: "16px", padding: "32px",
+    width: "100%", maxWidth: "400px",
+    position: "relative",
+    boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
+  }),
+  closeBtn: (isDark) => ({
+    position: "absolute", top: "16px", right: "16px",
+    background: "none", border: "none", cursor: "pointer",
+    color: isDark ? "#94a3b8" : "#64748b",
+    transition: "color 0.2s ease",
+  }),
+  header: { textAlign: "center", marginBottom: "24px" },
+  avatarPill: {
+    width: "64px", height: "64px", borderRadius: "50%",
+    background: "linear-gradient(135deg, #0284c7, #06b6d4)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    margin: "0 auto 16px",
+    boxShadow: "0 10px 15px -3px rgba(2, 132, 199, 0.3)",
+  },
+  title: (isDark) => ({ color: isDark ? "#f1f5f9" : "#0f172a", margin: 0 }),
+  successBox: { background: "#d4edda", color: "#155724", padding: "12px", borderRadius: "8px", marginBottom: "16px", textAlign: "center", fontSize: "14px" },
+  errorBox: { background: "#fee2e2", color: "#ef4444", padding: "12px", borderRadius: "8px", marginBottom: "16px", textAlign: "center", fontSize: "14px" },
+  googleBtn: (loading) => ({
+    width: "100%", padding: "12px",
+    background: "#fff", border: "1px solid #cbd5e1",
+    borderRadius: "8px", fontSize: "14px", fontWeight: 600,
+    color: "#475569", cursor: loading ? "not-allowed" : "pointer",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    gap: "10px", marginBottom: "20px",
+    opacity: loading ? 0.5 : 1,
+    transition: "background 0.2s ease",
+  }),
+  divider: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" },
+  dividerLine: { flex: 1, height: "1px", background: "#cbd5e1" },
+  dividerText: { color: "#94a3b8", fontSize: "12px", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.05em" },
+  input: (isDark, loading) => ({
+    width: "100%", padding: "10px", border: "1px solid #cbd5e1", 
+    borderRadius: "8px", marginBottom: "16px", 
+    background: isDark ? "#0f172a" : "#fff", 
+    color: isDark ? "#f1f5f9" : "#0f172a",
+    opacity: loading ? 0.7 : 1,
+  }),
+  forgotBtn: { background: "none", border: "none", color: "#0284c7", cursor: "pointer", fontSize: "13px", marginBottom: "16px", display: "block", textAlign: "right", width: "100%" },
+  submitBtn: (loading) => ({
+    width: "100%", padding: "12px",
+    background: loading ? "#cbd5e1" : "linear-gradient(135deg, #0284c7, #06b6d4)",
+    color: loading ? "#64748b" : "#fff",
+    border: "none", borderRadius: "8px",
+    fontSize: "16px", fontWeight: 600,
+    cursor: loading ? "not-allowed" : "pointer",
+    marginBottom: "16px",
+    transition: "transform 0.1s ease",
+  }),
+  footerText: (isDark) => ({ textAlign: "center", color: isDark ? "#94a3b8" : "#64748b", fontSize: "14px" }),
+  toggleBtn: { background: "none", border: "none", color: "#0284c7", cursor: "pointer", fontWeight: 600, marginLeft: "4px" },
+};

@@ -1,4 +1,4 @@
-﻿// Navbar.jsx — Premium editorial navbar for BK Offset Printing
+// Navbar.jsx — Premium editorial navbar for BK Offset Printing
 
 import React, { useState } from "react";
 import {
@@ -15,7 +15,263 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/Logo/BK_logo_png.png";
 
-/* ─── Injected styles ───────────────────────────────────── */
+/**
+ * Navbar — Premium editorial navbar for BK Offset Printing.
+ * Features theme toggling, language switching, and user authentication state management.
+ */
+export function Navbar({
+  isDark,
+  toggleTheme,
+  lang,
+  toggleLang,
+  text,
+  onAuthClick,
+  scrolled,
+}) {
+  const { user, logout, isAuthenticated } = useAuth();
+  
+  // Local state for UI toggles
+  const [showProfile,    setShowProfile]    = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+  /**
+   * handleLogout — Cleans up UI state and triggers auth logout.
+   */
+  const handleLogout = () => {
+    setShowProfile(false);
+    setShowMobileMenu(false);
+    logout();
+  };
+
+  /**
+   * handleLogoClick — Scrolls to top and closes open menus.
+   */
+  const handleLogoClick = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setShowProfile(false);
+    setShowMobileMenu(false);
+  };
+
+  // ── Shared colour tokens for dynamic styling
+  const borderCol = isDark ? "rgba(255,255,255,0.09)" : "rgba(0,0,0,0.08)";
+  const textCol   = isDark ? "rgba(255,255,255,0.92)" : "#0f172a";
+  const dimCol    = isDark ? "rgba(255,255,255,0.45)" : "#64748b";
+  const hoverBg   = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.045)";
+
+  const dropdownBg  = isDark ? "#0f172a" : "#ffffff";
+  const dropBorder  = isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.08)";
+  const dropShadow  = isDark
+    ? "0 20px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)"
+    : "0 16px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)";
+
+  return (
+    <>
+      <style>{NAV_STYLES}</style>
+
+      <nav
+        className={`nb-root${scrolled ? " nb-scrolled-shadow" : ""}`}
+        style={styles.nav(isDark, scrolled, borderCol)}
+      >
+        {/* ── Brand Logo & Identity ── */}
+        <div className="nb-logo" onClick={handleLogoClick} role="button" tabIndex={0}
+          onKeyDown={(e) => e.key === "Enter" && handleLogoClick()}>
+          <img
+            className="nb-logo-img"
+            src={logo}
+            alt="BK Offset"
+            onError={(e) => { e.target.style.display = "none"; }}
+          />
+          <div>
+            <div className="nb-brand-name" style={{ color: textCol }}>
+              BK Offset
+            </div>
+            <div className="nb-brand-sub" style={{ color: dimCol }}>
+              Printing Press
+            </div>
+          </div>
+        </div>
+
+        {/* ── Navigation Header Controls ── */}
+        <div style={styles.controlsWrapper}>
+
+          {/* ── Public Visitor Controls ── */}
+          {!isAuthenticated ? (
+            <>
+              {/* Language Selector */}
+              <button
+                className="nb-icon-btn"
+                onClick={toggleLang}
+                title={lang === "en" ? "हिंदी में बदलें" : "Switch to English"}
+                style={styles.iconBtn(borderCol, dimCol)}
+                onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; e.currentTarget.style.color = textCol; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = dimCol; }}
+              >
+                <Globe size={16} strokeWidth={1.75} />
+              </button>
+
+              {/* Visual Theme Selector */}
+              <button
+                className="nb-icon-btn"
+                onClick={toggleTheme}
+                title={isDark ? "Light mode" : "Dark mode"}
+                style={styles.iconBtn(borderCol, dimCol)}
+                onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; e.currentTarget.style.color = textCol; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = dimCol; }}
+              >
+                {isDark
+                  ? <Sun  size={16} strokeWidth={1.75} />
+                  : <Moon size={16} strokeWidth={1.75} />}
+              </button>
+
+              {/* Visual Divider */}
+              <div style={styles.verticalDivider(borderCol)} />
+
+              {/* Login / Authentication Trigger */}
+              <button className="nb-signin" onClick={onAuthClick}>
+                <User size={14} strokeWidth={2} />
+                Sign In
+              </button>
+            </>
+          ) : (
+            <>
+              {/* ── Authenticated User Layout ── */}
+
+              {/* Desktop Profile Pill */}
+              <div style={styles.relativeBlock}>
+                <button
+                  className="nb-avatar-pill"
+                  onClick={() => { setShowProfile(!showProfile); setShowMobileMenu(false); }}
+                  style={styles.avatarPill(showProfile, borderCol, hoverBg, textCol)}
+                >
+                  <div className="nb-avatar-ring">
+                    {user?.firstName?.charAt(0)?.toUpperCase() || "U"}
+                  </div>
+                  <span className="nb-avatar-name" style={{ color: textCol }}>
+                    {user?.firstName || "User"}
+                  </span>
+                  <ChevronDown
+                    size={13}
+                    strokeWidth={2}
+                    style={styles.chevronIcon(showProfile, dimCol)}
+                  />
+                </button>
+
+                {/* Profile Overview Dropdown */}
+                {showProfile && (
+                  <>
+                    <div style={styles.dropdownOverlay} onClick={() => setShowProfile(false)} />
+                    <div
+                      className="nb-dropdown"
+                      style={styles.dropdown(dropdownBg, dropBorder, dropShadow)}
+                    >
+                      {/* User Metadata Header */}
+                      <div style={styles.dropdownHeader(dropBorder)}>
+                        <div style={styles.dropdownHeaderContent}>
+                          <div className="nb-avatar-ring" style={styles.dropdownAvatar}>
+                            {user?.firstName?.charAt(0)?.toUpperCase() || "U"}
+                          </div>
+                          <div>
+                            <div style={styles.dropdownUserName(textCol)}>
+                              {user?.firstName} {user?.lastName}
+                            </div>
+                            <div style={styles.dropdownUserEmail(dimCol)}>{user?.email}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Dropdown Action Links */}
+                      <div style={styles.dropdownPadding}>
+                        <button
+                          className="nb-dropdown-btn"
+                          style={{ color: textCol }}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
+                          onClick={() => setShowProfile(false)}
+                        >
+                          <UserCircle size={16} strokeWidth={1.75} color="#0ea5e9" />
+                          View Profile
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Visual Divider for Mobile/Desktop differentiation */}
+              <div style={styles.mobileDivider(borderCol)} />
+
+              {/* Unified Hamburger / Mobile Action Menu */}
+              <div style={styles.relativeBlock}>
+                <button
+                  className="nb-icon-btn"
+                  onClick={() => { setShowMobileMenu(!showMobileMenu); setShowProfile(false); }}
+                  style={styles.menuTrigger(showMobileMenu, textCol, dimCol, borderCol, hoverBg)}
+                >
+                  {showMobileMenu
+                    ? <X    size={17} strokeWidth={2} />
+                    : <Menu size={17} strokeWidth={2} />}
+                </button>
+
+                {showMobileMenu && (
+                  <>
+                    <div style={styles.dropdownOverlay} onClick={() => setShowMobileMenu(false)} />
+                    <div
+                      className="nb-dropdown"
+                      style={styles.mobileMenuDropdown(dropdownBg, dropBorder, dropShadow)}
+                    >
+                      {/* Interactive Preferences */}
+                      <button
+                        className="nb-dropdown-btn"
+                        style={{ color: textCol }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
+                        onClick={() => { toggleLang(); setShowMobileMenu(false); }}
+                      >
+                        <Globe size={15} strokeWidth={1.75} color="#0ea5e9" />
+                        {lang === "en" ? "हिंदी में बदलें" : "Switch to English"}
+                      </button>
+
+                      <button
+                        className="nb-dropdown-btn"
+                        style={{ color: textCol }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
+                        onClick={() => { toggleTheme(); setShowMobileMenu(false); }}
+                      >
+                        {isDark
+                          ? <Sun  size={15} strokeWidth={1.75} color="#f59e0b" />
+                          : <Moon size={15} strokeWidth={1.75} color="#6366f1" />}
+                        {isDark ? "Light Mode" : "Dark Mode"}
+                      </button>
+
+                      {/* Component Break */}
+                      <div className="nb-sep" style={{ background: dropBorder }} />
+
+                      {/* Final Account Control */}
+                      <button
+                        className="nb-dropdown-btn"
+                        style={styles.logoutBtn}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.07)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
+                        onClick={handleLogout}
+                      >
+                        <LogOut size={15} strokeWidth={1.75} color="#ef4444" />
+                        Logout
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </nav>
+    </>
+  );
+}
+
+/* ─── Consolidated Styles ────────────────────────────────── */
+
 const NAV_STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
 
@@ -23,7 +279,6 @@ const NAV_STYLES = `
     font-family: 'DM Sans', sans-serif;
   }
 
-  /* ── Top accent bar ── */
   .nb-root::before {
     content: '';
     position: absolute;
@@ -40,7 +295,6 @@ const NAV_STYLES = `
     100% { background-position: 200% center; }
   }
 
-  /* ── Logo hover ── */
   .nb-logo {
     display: flex;
     align-items: center;
@@ -82,7 +336,6 @@ const NAV_STYLES = `
     opacity: 0.42;
   }
 
-  /* ── Icon button ── */
   .nb-icon-btn {
     width: 36px;
     height: 36px;
@@ -104,7 +357,6 @@ const NAV_STYLES = `
     transform: translateY(-1px);
   }
 
-  /* ── Sign In button ── */
   .nb-signin {
     display: inline-flex;
     align-items: center;
@@ -130,7 +382,6 @@ const NAV_STYLES = `
   }
   .nb-signin:active { transform: scale(0.97); }
 
-  /* ── Avatar pill ── */
   .nb-avatar-pill {
     display: flex;
     align-items: center;
@@ -166,7 +417,6 @@ const NAV_STYLES = `
     font-weight: 500;
   }
 
-  /* ── Dropdown ── */
   .nb-dropdown {
     position: absolute;
     top: calc(100% + 10px);
@@ -200,301 +450,120 @@ const NAV_STYLES = `
     transition: background 0.15s ease;
   }
 
-  /* ── Divider in dropdown ── */
   .nb-sep {
     height: 1px;
     margin: 5px 8px;
   }
 
-  /* ── Scrolled glow ── */
   .nb-scrolled-shadow {
     box-shadow: 0 1px 0 rgba(255,255,255,0.06),
                 0 8px 32px rgba(0,0,0,0.18);
   }
 `;
 
-export function Navbar({
-  isDark,
-  toggleTheme,
-  lang,
-  toggleLang,
-  text,
-  onAuthClick,
-  scrolled,
-}) {
-  const { user, logout, isAuthenticated } = useAuth();
-  const [showProfile,    setShowProfile]    = useState(false);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-
-  const handleLogout = () => {
-    setShowProfile(false);
-    setShowMobileMenu(false);
-    logout();
-  };
-
-  const handleLogoClick = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    setShowProfile(false);
-    setShowMobileMenu(false);
-  };
-
-  // ── Shared colour tokens
-  const borderCol = isDark ? "rgba(255,255,255,0.09)" : "rgba(0,0,0,0.08)";
-  const textCol   = isDark ? "rgba(255,255,255,0.92)" : "#0f172a";
-  const dimCol    = isDark ? "rgba(255,255,255,0.45)" : "#64748b";
-  const hoverBg   = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.045)";
-
-  const dropdownBg  = isDark ? "#0f172a" : "#ffffff";
-  const dropBorder  = isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.08)";
-  const dropShadow  = isDark
-    ? "0 20px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)"
-    : "0 16px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)";
-
-  return (
-    <>
-      <style>{NAV_STYLES}</style>
-
-      <nav
-        className={`nb-root${scrolled ? " nb-scrolled-shadow" : ""}`}
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 2000,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 28px",
-          height: 60,
-          background: isDark
-            ? "rgba(2,6,23,0.92)"
-            : "rgba(255,255,255,0.92)",
-          backdropFilter: "blur(18px) saturate(1.5)",
-          WebkitBackdropFilter: "blur(18px) saturate(1.5)",
-          borderBottom: `1px solid ${scrolled ? borderCol : "transparent"}`,
-          transition: "background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease",
-        }}
-      >
-        {/* ── Logo ── */}
-        <div className="nb-logo" onClick={handleLogoClick} role="button" tabIndex={0}
-          onKeyDown={(e) => e.key === "Enter" && handleLogoClick()}>
-          <img
-            className="nb-logo-img"
-            src={logo}
-            alt="BK Offset"
-            onError={(e) => { e.target.style.display = "none"; }}
-          />
-          <div>
-            <div className="nb-brand-name" style={{ color: textCol }}>
-              BK Offset
-            </div>
-            <div className="nb-brand-sub" style={{ color: dimCol }}>
-              Printing Press
-            </div>
-          </div>
-        </div>
-
-        {/* ── Right controls ── */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-
-          {/* ── Not authenticated ── */}
-          {!isAuthenticated ? (
-            <>
-              {/* Lang toggle */}
-              <button
-                className="nb-icon-btn"
-                onClick={toggleLang}
-                title={lang === "en" ? "हिंदी में बदलें" : "Switch to English"}
-                style={{
-                  color: dimCol,
-                  border: `1px solid ${borderCol}`,
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; e.currentTarget.style.color = textCol; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = dimCol; }}
-              >
-                <Globe size={16} strokeWidth={1.75} />
-              </button>
-
-              {/* Theme toggle */}
-              <button
-                className="nb-icon-btn"
-                onClick={toggleTheme}
-                title={isDark ? "Light mode" : "Dark mode"}
-                style={{
-                  color: dimCol,
-                  border: `1px solid ${borderCol}`,
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; e.currentTarget.style.color = textCol; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = dimCol; }}
-              >
-                {isDark
-                  ? <Sun  size={16} strokeWidth={1.75} />
-                  : <Moon size={16} strokeWidth={1.75} />}
-              </button>
-
-              {/* Spacer rule */}
-              <div style={{ width: 1, height: 22, background: borderCol, margin: "0 4px" }} />
-
-              {/* Sign In */}
-              <button className="nb-signin" onClick={onAuthClick}>
-                <User size={14} strokeWidth={2} />
-                Sign In
-              </button>
-            </>
-          ) : (
-            <>
-              {/* ── Authenticated ── */}
-
-              {/* Avatar pill */}
-              <div style={{ position: "relative" }}>
-                <button
-                  className="nb-avatar-pill"
-                  onClick={() => { setShowProfile(!showProfile); setShowMobileMenu(false); }}
-                  style={{
-                    border: `1px solid ${showProfile ? "rgba(14,165,233,0.40)" : borderCol}`,
-                    background: showProfile ? hoverBg : "transparent",
-                    color: textCol,
-                  }}
-                >
-                  <div className="nb-avatar-ring">
-                    {user?.firstName?.charAt(0)?.toUpperCase() || "U"}
-                  </div>
-                  <span className="nb-avatar-name" style={{ color: textCol }}>
-                    {user?.firstName || "User"}
-                  </span>
-                  <ChevronDown
-                    size={13}
-                    strokeWidth={2}
-                    style={{
-                      color: dimCol,
-                      transform: showProfile ? "rotate(180deg)" : "rotate(0deg)",
-                      transition: "transform 0.25s ease",
-                    }}
-                  />
-                </button>
-
-                {showProfile && (
-                  <>
-                    <div style={{ position: "fixed", inset: 0, zIndex: 1999 }}
-                      onClick={() => setShowProfile(false)} />
-                    <div
-                      className="nb-dropdown"
-                      style={{ background: dropdownBg, border: `1px solid ${dropBorder}`, boxShadow: dropShadow }}
-                    >
-                      {/* User info header */}
-                      <div style={{
-                        padding: "14px 16px 12px",
-                        borderBottom: `1px solid ${dropBorder}`,
-                      }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                          <div className="nb-avatar-ring" style={{ width: 34, height: 34, fontSize: 13 }}>
-                            {user?.firstName?.charAt(0)?.toUpperCase() || "U"}
-                          </div>
-                          <div>
-                            <div style={{ fontSize: 13.5, fontWeight: 600, color: textCol, lineHeight: 1.2 }}>
-                              {user?.firstName} {user?.lastName}
-                            </div>
-                            <div style={{ fontSize: 11, color: dimCol, marginTop: 2 }}>{user?.email}</div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div style={{ padding: "6px 6px" }}>
-                        <button
-                          className="nb-dropdown-btn"
-                          style={{ color: textCol }}
-                          onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
-                          onClick={() => setShowProfile(false)}
-                        >
-                          <UserCircle size={16} strokeWidth={1.75} color="#0ea5e9" />
-                          View Profile
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Divider */}
-              <div style={{ width: 1, height: 22, background: borderCol, margin: "0 2px" }} />
-
-              {/* Menu button */}
-              <div style={{ position: "relative" }}>
-                <button
-                  className="nb-icon-btn"
-                  onClick={() => { setShowMobileMenu(!showMobileMenu); setShowProfile(false); }}
-                  style={{
-                    color: showMobileMenu ? textCol : dimCol,
-                    border: `1px solid ${showMobileMenu ? "rgba(14,165,233,0.40)" : borderCol}`,
-                    background: showMobileMenu ? hoverBg : "transparent",
-                  }}
-                >
-                  {showMobileMenu
-                    ? <X    size={17} strokeWidth={2} />
-                    : <Menu size={17} strokeWidth={2} />}
-                </button>
-
-                {showMobileMenu && (
-                  <>
-                    <div style={{ position: "fixed", inset: 0, zIndex: 1999 }}
-                      onClick={() => setShowMobileMenu(false)} />
-                    <div
-                      className="nb-dropdown"
-                      style={{
-                        background: dropdownBg,
-                        border: `1px solid ${dropBorder}`,
-                        boxShadow: dropShadow,
-                        padding: "6px 6px",
-                      }}
-                    >
-                      {/* Lang */}
-                      <button
-                        className="nb-dropdown-btn"
-                        style={{ color: textCol }}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
-                        onClick={() => { toggleLang(); setShowMobileMenu(false); }}
-                      >
-                        <Globe size={15} strokeWidth={1.75} color="#0ea5e9" />
-                        {lang === "en" ? "हिंदी में बदलें" : "Switch to English"}
-                      </button>
-
-                      {/* Theme */}
-                      <button
-                        className="nb-dropdown-btn"
-                        style={{ color: textCol }}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
-                        onClick={() => { toggleTheme(); setShowMobileMenu(false); }}
-                      >
-                        {isDark
-                          ? <Sun  size={15} strokeWidth={1.75} color="#f59e0b" />
-                          : <Moon size={15} strokeWidth={1.75} color="#6366f1" />}
-                        {isDark ? "Light Mode" : "Dark Mode"}
-                      </button>
-
-                      {/* Divider */}
-                      <div className="nb-sep" style={{ background: dropBorder }} />
-
-                      {/* Logout */}
-                      <button
-                        className="nb-dropdown-btn"
-                        style={{ color: "#ef4444" }}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.07)"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
-                        onClick={handleLogout}
-                      >
-                        <LogOut size={15} strokeWidth={1.75} color="#ef4444" />
-                        Logout
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      </nav>
-    </>
-  );
-}
+const styles = {
+  nav: (isDark, scrolled, borderCol) => ({
+    position: "sticky",
+    top: 0,
+    zIndex: 2000,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "0 28px",
+    height: 60,
+    background: isDark
+      ? "rgba(2,6,23,0.92)"
+      : "rgba(255,255,255,0.92)",
+    backdropFilter: "blur(18px) saturate(1.5)",
+    WebkitBackdropFilter: "blur(18px) saturate(1.5)",
+    borderBottom: `1px solid ${scrolled ? borderCol : "transparent"}`,
+    transition: "background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease",
+  }),
+  controlsWrapper: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+  },
+  iconBtn: (borderCol, dimCol) => ({
+    color: dimCol,
+    border: `1px solid ${borderCol}`,
+  }),
+  verticalDivider: (borderCol) => ({
+    width: 1,
+    height: 22,
+    background: borderCol,
+    margin: "0 4px",
+  }),
+  relativeBlock: {
+    position: "relative",
+  },
+  avatarPill: (showProfile, borderCol, hoverBg, textCol) => ({
+    border: `1px solid ${showProfile ? "rgba(14,165,233,0.40)" : borderCol}`,
+    background: showProfile ? hoverBg : "transparent",
+    color: textCol,
+  }),
+  chevronIcon: (showProfile, dimCol) => ({
+    color: dimCol,
+    transform: showProfile ? "rotate(180deg)" : "rotate(0deg)",
+    transition: "transform 0.25s ease",
+  }),
+  dropdownOverlay: {
+    position: "fixed",
+    inset: 0,
+    zIndex: 1999,
+  },
+  dropdown: (dropdownBg, dropBorder, dropShadow) => ({
+    background: dropdownBg,
+    border: `1px solid ${dropBorder}`,
+    boxShadow: dropShadow,
+  }),
+  dropdownHeader: (dropBorder) => ({
+    padding: "14px 16px 12px",
+    borderBottom: `1px solid ${dropBorder}`,
+  }),
+  dropdownHeaderContent: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 6,
+  },
+  dropdownAvatar: {
+    width: 34,
+    height: 34,
+    fontSize: 13,
+  },
+  dropdownUserName: (textCol) => ({
+    fontSize: 13.5,
+    fontWeight: 600,
+    color: textCol,
+    lineHeight: 1.2,
+  }),
+  dropdownUserEmail: (dimCol) => ({
+    fontSize: 11,
+    color: dimCol,
+    marginTop: 2,
+  }),
+  dropdownPadding: {
+    padding: "6px 6px",
+  },
+  mobileDivider: (borderCol) => ({
+    width: 1,
+    height: 22,
+    background: borderCol,
+    margin: "0 2px",
+  }),
+  menuTrigger: (showMobileMenu, textCol, dimCol, borderCol, hoverBg) => ({
+    color: showMobileMenu ? textCol : dimCol,
+    border: `1px solid ${showMobileMenu ? "rgba(14,165,233,0.40)" : borderCol}`,
+    background: showMobileMenu ? hoverBg : "transparent",
+  }),
+  mobileMenuDropdown: (dropdownBg, dropBorder, dropShadow) => ({
+    background: dropdownBg,
+    border: `1px solid ${dropBorder}`,
+    boxShadow: dropShadow,
+    padding: "6px 6px",
+  }),
+  logoutBtn: {
+    color: "#ef4444",
+  },
+};

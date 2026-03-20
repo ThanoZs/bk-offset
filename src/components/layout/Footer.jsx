@@ -1,4 +1,4 @@
-﻿// Footer.jsx — Premium editorial footer for BK Offset Printing
+// Footer.jsx — Premium editorial footer for BK Offset Printing
 
 import React, { useState } from "react";
 import {
@@ -9,7 +9,162 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/Logo/BK_logo_png.png";
 
-/* ─── Injected styles ───────────────────────────────────── */
+/**
+ * Footer — Premium editorial footer for BK Offset Printing.
+ * Consists of brand info, contact details (auth-gated), and location information.
+ */
+export function Footer({ isDark, isMobile }) {
+  const { isAuthenticated } = useAuth();
+  const [hov, setHov] = useState(null);
+  const currentYear = new Date().getFullYear();
+
+  return (
+    <>
+      <style>{FOOTER_STYLES}</style>
+
+      {/* Top gradient separator bar */}
+      <div className="ft-top-border" />
+
+      <footer
+        className="ft-root"
+        style={styles.root(isMobile)}
+      >
+        <div style={styles.innerContainer}>
+          {/* Main Grid: Brand, Contact, and Location columns */}
+          <div style={styles.mainGrid(isMobile)}>
+            
+            {/* Column 1: Brand Identity & Social Links */}
+            <div>
+              <div style={styles.brandWrapper}>
+                <img
+                  className="ft-logo-img"
+                  src={logo}
+                  alt="BK Offset"
+                  onError={(e) => { e.target.style.display = "none"; }}
+                />
+                <div>
+                  <div className="ft-brand-name">BK Offset</div>
+                  <div className="ft-brand-tagline">Printing Press · Since 1995</div>
+                </div>
+              </div>
+
+              <p style={styles.brandDescription}>
+                Delhi's trusted name for bulk book printing and premium lamination services — quality you can feel, precision you can count on.
+              </p>
+
+              {/* Social Media Links Row */}
+              <div style={styles.socialRow}>
+                {SOCIAL.map(({ key, href, Icon, hover, label }) => (
+                  <a
+                    key={key}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="ft-social-btn"
+                    style={styles.socialBtn(hov === key, hover)}
+                    onMouseEnter={() => setHov(key)}
+                    onMouseLeave={() => setHov(null)}
+                  >
+                    <Icon size={16} strokeWidth={1.75} />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Column 2: Contact Details — visible only to authenticated users */}
+            <div>
+              <div className="ft-section-head">Contact</div>
+
+              {isAuthenticated ? (
+                <div style={styles.contactList}>
+                  <a href="tel:+919560959039" className="ft-contact-link">
+                    <div className="ft-contact-link-icon" style={styles.iconBox("#0ea5e9")}>
+                      <Phone size={14} strokeWidth={1.75} color="#0ea5e9" />
+                    </div>
+                    +91 95609 59039
+                    <ArrowUpRight size={12} style={styles.arrowIcon} />
+                  </a>
+                  <a
+                    href="https://wa.me/919560959039"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ft-contact-link"
+                  >
+                    <div className="ft-contact-link-icon" style={styles.iconBox("#25d366")}>
+                      <MessageCircle size={14} strokeWidth={1.75} color="#25d366" />
+                    </div>
+                    WhatsApp
+                    <ArrowUpRight size={12} style={styles.arrowIcon} />
+                  </a>
+                  <a href="mailto:rinkusharmarinku54@gmail.com" className="ft-contact-link">
+                    <div className="ft-contact-link-icon" style={styles.iconBox("#6366f1")}>
+                      <Mail size={14} strokeWidth={1.75} color="#6366f1" />
+                    </div>
+                    Email us
+                    <ArrowUpRight size={12} style={styles.arrowIcon} />
+                  </a>
+                </div>
+              ) : (
+                <p style={styles.authPrompt}>
+                  Sign in to view contact details and get in touch with our team.
+                </p>
+              )}
+            </div>
+
+            {/* Column 3: Physical Location & Business Hours */}
+            <div>
+              <div className="ft-section-head">Find Us</div>
+
+              <div style={styles.infoStack}>
+                <div className="ft-info-row">
+                  <MapPin size={14} strokeWidth={1.75} className="ft-info-icon" color="#0ea5e9" style={styles.infoIconAlign} />
+                  <span>
+                    Street No. 2, Zulfe Bengal<br />
+                    Dilshad Garden, Delhi — 110095
+                  </span>
+                </div>
+
+                <div className="ft-info-row">
+                  <Clock size={14} strokeWidth={1.75} className="ft-info-icon" color="#6366f1" style={styles.infoIconAlign} />
+                  <span>
+                    Mon – Sun: 9:00 AM – 7:00 PM<br />
+                    Tuesday: Closed
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Bar: Copyright and Legal Disclaimers */}
+          <div className="ft-bottom">
+            <div>
+              <div className="ft-copyright">
+                © {currentYear} BK Offset Printing. All Rights Reserved.
+              </div>
+              <div className="ft-made-with" style={styles.accentText}>
+                <span className="ft-dot" />
+                Premium printing, Delhi
+              </div>
+            </div>
+            
+            {/* Legal Notice relating to authorship and commercial use */}
+            <div className="ft-legal-notice">
+              <p>© {currentYear} Keshav Sharma. All Rights Reserved.</p>
+              <p>Unauthorized commercial use or brand impersonation is strictly prohibited.</p>
+              <p style={styles.licenseInfo}>
+                License: CC BY-NC 4.0 — Credit required, no commercial use allowed.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </>
+  );
+}
+
+/* ─── Consolidated Styles ────────────────────────────────── */
+
 const FOOTER_STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
 
@@ -19,7 +174,6 @@ const FOOTER_STYLES = `
     overflow: hidden;
   }
 
-  /* Background grid texture */
   .ft-root::before {
     content: '';
     position: absolute;
@@ -31,7 +185,6 @@ const FOOTER_STYLES = `
     pointer-events: none;
   }
 
-  /* Top gradient vignette over the grid */
   .ft-root::after {
     content: '';
     position: absolute;
@@ -41,7 +194,6 @@ const FOOTER_STYLES = `
     pointer-events: none;
   }
 
-  /* ── Brand block ── */
   .ft-logo-img {
     width: 52px;
     height: 52px;
@@ -74,7 +226,6 @@ const FOOTER_STYLES = `
     margin-top: 4px;
   }
 
-  /* ── Section heading ── */
   .ft-section-head {
     font-family: 'DM Sans', sans-serif;
     font-size: 10px;
@@ -94,7 +245,6 @@ const FOOTER_STYLES = `
     background: rgba(255,255,255,0.07);
   }
 
-  /* ── Info row (address / hours) ── */
   .ft-info-row {
     display: flex;
     align-items: flex-start;
@@ -111,7 +261,6 @@ const FOOTER_STYLES = `
     opacity: 0.55;
   }
 
-  /* ── Social icon ── */
   .ft-social-btn {
     width: 38px;
     height: 38px;
@@ -136,7 +285,6 @@ const FOOTER_STYLES = `
     transform: translateY(-4px) scale(1.05);
   }
 
-  /* ── Contact link ── */
   .ft-contact-link {
     display: flex;
     align-items: center;
@@ -170,7 +318,6 @@ const FOOTER_STYLES = `
     flex-shrink: 0;
   }
 
-  /* ── Gradient top border ── */
   .ft-top-border {
     height: 1px;
     background: linear-gradient(90deg,
@@ -182,7 +329,6 @@ const FOOTER_STYLES = `
     margin-bottom: 0;
   }
 
-  /* ── Bottom bar ── */
   .ft-bottom {
     display: flex;
     flex-direction: column;
@@ -222,7 +368,6 @@ const FOOTER_STYLES = `
     gap: 4px;
   }
 
-  /* ── Grad dot accent ── */
   .ft-dot {
     width: 6px;
     height: 6px;
@@ -246,188 +391,86 @@ const FOOTER_STYLES = `
   }
 `;
 
-/* Social platforms config */
+const styles = {
+  root: (isMobile) => ({
+    background: "#020617",
+    color: "#cbd5e1",
+    padding: isMobile ? "56px 22px 28px" : "72px 48px 32px",
+  }),
+  innerContainer: {
+    position: "relative",
+    zIndex: 1,
+    maxWidth: 1100,
+    margin: "0 auto",
+  },
+  mainGrid: (isMobile) => ({
+    display: "grid",
+    gridTemplateColumns: isMobile ? "1fr" : "1.6fr 1fr 1fr",
+    gap: isMobile ? 44 : 56,
+    marginBottom: isMobile ? 40 : 56,
+    alignItems: "start",
+  }),
+  brandWrapper: {
+    display: "flex",
+    alignItems: "center",
+    gap: 14,
+    marginBottom: 18,
+  },
+  brandDescription: {
+    fontSize: 13.5,
+    lineHeight: 1.75,
+    color: "rgba(255,255,255,0.38)",
+    maxWidth: 280,
+    marginBottom: 22,
+  },
+  socialRow: {
+    display: "flex",
+    gap: 8,
+    flexWrap: "wrap",
+  },
+  socialBtn: (isHov, hoverColor) => ({
+    background: isHov ? `${hoverColor}22` : "rgba(255,255,255,0.06)",
+    borderColor: isHov ? `${hoverColor}55` : "rgba(255,255,255,0.09)",
+    color: isHov ? hoverColor : "rgba(255,255,255,0.45)",
+    boxShadow: isHov ? `0 6px 18px ${hoverColor}33` : "none",
+  }),
+  contactList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+  },
+  iconBox: (color) => ({
+    background: `${color}1e`,
+  }),
+  arrowIcon: {
+    marginLeft: "auto",
+    opacity: 0.4,
+  },
+  authPrompt: {
+    fontSize: 13,
+    color: "rgba(255,255,255,0.28)",
+    lineHeight: 1.65,
+  },
+  infoStack: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 14,
+  },
+  infoIconAlign: {
+    marginTop: 3,
+  },
+  accentText: {
+    marginTop: 4,
+  },
+  licenseInfo: {
+    fontSize: "10px",
+    opacity: 0.5,
+    marginTop: 6,
+  },
+};
+
 const SOCIAL = [
   { key: "fb",  href: "https://facebook.com",  Icon: Facebook,      hover: "#1877F2", label: "Facebook"  },
   { key: "ig",  href: "https://instagram.com", Icon: Instagram,     hover: "#E4405F", label: "Instagram" },
   { key: "yt",  href: "https://youtube.com/@b.k.offset?si=wwfxLPk27TfOcPa_",   Icon: Youtube,       hover: "#FF0000", label: "YouTube"   },
 ];
-
-export function Footer({ isDark, isMobile }) {
-  const { isAuthenticated } = useAuth();
-  const [hov, setHov] = useState(null);
-  const currentYear = new Date().getFullYear();
-
-  return (
-    <>
-      <style>{FOOTER_STYLES}</style>
-
-      {/* Top gradient separator */}
-      <div className="ft-top-border" />
-
-      <footer
-        className="ft-root"
-        style={{
-          background: "#020617",
-          color: "#cbd5e1",
-          padding: isMobile ? "56px 22px 28px" : "72px 48px 32px",
-        }}
-      >
-        <div
-          style={{
-            position: "relative",
-            zIndex: 1,
-            maxWidth: 1100,
-            margin: "0 auto",
-          }}
-        >
-          {/* ── Main grid ── */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: isMobile ? "1fr" : "1.6fr 1fr 1fr",
-              gap: isMobile ? 44 : 56,
-              marginBottom: isMobile ? 40 : 56,
-              alignItems: "start",
-            }}
-          >
-            {/* ── Col 1: Brand ── */}
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18 }}>
-                <img
-                  className="ft-logo-img"
-                  src={logo}
-                  alt="BK Offset"
-                  onError={(e) => { e.target.style.display = "none"; }}
-                />
-                <div>
-                  <div className="ft-brand-name">BK Offset</div>
-                  <div className="ft-brand-tagline">Printing Press · Since 1995</div>
-                </div>
-              </div>
-
-              <p style={{
-                fontSize: 13.5,
-                lineHeight: 1.75,
-                color: "rgba(255,255,255,0.38)",
-                maxWidth: 280,
-                marginBottom: 22,
-              }}>
-                Delhi's trusted name for bulk book printing and premium lamination services — quality you can feel, precision you can count on.
-              </p>
-
-              {/* Social row */}
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {SOCIAL.map(({ key, href, Icon, hover, label }) => (
-                  <a
-                    key={key}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={label}
-                    className="ft-social-btn"
-                    style={{
-                      background: hov === key ? `${hover}22` : "rgba(255,255,255,0.06)",
-                      borderColor: hov === key ? `${hover}55` : "rgba(255,255,255,0.09)",
-                      color: hov === key ? hover : "rgba(255,255,255,0.45)",
-                      boxShadow: hov === key ? `0 6px 18px ${hover}33` : "none",
-                    }}
-                    onMouseEnter={() => setHov(key)}
-                    onMouseLeave={() => setHov(null)}
-                  >
-                    <Icon size={16} strokeWidth={1.75} />
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            {/* ── Col 2: Contact (auth-gated) ── */}
-            <div>
-              <div className="ft-section-head">Contact</div>
-
-              {isAuthenticated ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <a href="tel:+919560959039" className="ft-contact-link">
-                    <div className="ft-contact-link-icon" style={{ background: "rgba(14,165,233,0.12)" }}>
-                      <Phone size={14} strokeWidth={1.75} color="#0ea5e9" />
-                    </div>
-                    +91 95609 59039
-                    <ArrowUpRight size={12} style={{ marginLeft: "auto", opacity: 0.4 }} />
-                  </a>
-                  <a
-                    href="https://wa.me/919560959039"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ft-contact-link"
-                  >
-                    <div className="ft-contact-link-icon" style={{ background: "rgba(37,211,102,0.12)" }}>
-                      <MessageCircle size={14} strokeWidth={1.75} color="#25d366" />
-                    </div>
-                    WhatsApp
-                    <ArrowUpRight size={12} style={{ marginLeft: "auto", opacity: 0.4 }} />
-                  </a>
-                  <a href="mailto:rinkusharmarinku54@gmail.com" className="ft-contact-link">
-                    <div className="ft-contact-link-icon" style={{ background: "rgba(99,102,241,0.12)" }}>
-                      <Mail size={14} strokeWidth={1.75} color="#6366f1" />
-                    </div>
-                    Email us
-                    <ArrowUpRight size={12} style={{ marginLeft: "auto", opacity: 0.4 }} />
-                  </a>
-                </div>
-              ) : (
-                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.28)", lineHeight: 1.65 }}>
-                  Sign in to view contact details and get in touch with our team.
-                </p>
-              )}
-            </div>
-
-            {/* ── Col 3: Location & Hours ── */}
-            <div>
-              <div className="ft-section-head">Find Us</div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                <div className="ft-info-row">
-                  <MapPin size={14} strokeWidth={1.75} className="ft-info-icon" color="#0ea5e9" style={{ marginTop: 3 }} />
-                  <span>
-                    Street No. 2, Zulfe Bengal<br />
-                    Dilshad Garden, Delhi — 110095
-                  </span>
-                </div>
-
-                <div className="ft-info-row">
-                  <Clock size={14} strokeWidth={1.75} className="ft-info-icon" color="#6366f1" style={{ marginTop: 3 }} />
-                  <span>
-                    Mon – Sun: 9:00 AM – 7:00 PM<br />
-                    Tuesday: Closed
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ── Bottom bar with Legal Notice ── */}
-          <div className="ft-bottom">
-            <div>
-              <div className="ft-copyright">
-                © {currentYear} BK Offset Printing. All Rights Reserved.
-              </div>
-              <div className="ft-made-with" style={{ marginTop: 4 }}>
-                <span className="ft-dot" />
-                Premium printing, Delhi
-              </div>
-            </div>
-            
-            {/* Legal Notice for Commercial Use */}
-            <div className="ft-legal-notice">
-              <p>© {currentYear} Keshav Sharma. All Rights Reserved.</p>
-              <p>Unauthorized commercial use or brand impersonation is strictly prohibited.</p>
-              <p style={{ fontSize: '10px', opacity: 0.5, marginTop: 6 }}>
-                License: CC BY-NC 4.0 — Credit required, no commercial use allowed.
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </>
-  );
-}

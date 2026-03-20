@@ -1,11 +1,297 @@
-﻿import React, { useState, useEffect } from "react";
+/**
+ * HeroSection.jsx — Premium editorial hero for BK Offset Printing.
+ * Features atmospheric animations, count-up statistics, and a "Learn More" info modal.
+ */
+
+import React, { useState, useEffect } from "react";
 import { Phone, MessageCircle, User, Sparkles, ArrowRight, Star, X } from "lucide-react";
 import { T } from "../../utils/designTokens";
 import { FloatingParticles } from "../common/FloatingParticles";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";
 import { PHONE_NUMBER, WHATSAPP_LINK } from "../../utils/constants";
 
-/* ─── Styles ──────────────────────────────── */
+/**
+ * HeroSection — Main landing component with interactive call-to-actions and brand stats.
+ */
+export function HeroSection({ text, isDark, c, isAuth, isMobile, setShowAuth }) {
+  const [ref, isVisible] = useScrollAnimation();
+  const [showLearnMore, setShowLearnMore] = useState(false);
+
+  return (
+    <>
+      <style>{HERO_STYLES}</style>
+
+      <section
+        ref={ref}
+        style={styles.section(isMobile)}
+      >
+        {/* ── Atmospheric background orbs ── */}
+        <div className="hero-orb" style={styles.orb1(isMobile, isDark)} />
+        <div className="hero-orb" style={styles.orb2(isMobile, isDark)} />
+        <div className="hero-orb" style={styles.orb3(isMobile, isDark)} />
+
+        {/* Dynamic scanline overlay */}
+        <div className="hero-scan" />
+
+        {/* Ambient floating particles */}
+        <FloatingParticles isDark={isDark} count={isMobile ? 20 : 35} />
+
+        {/* ── Main Content Container ── */}
+        <div style={styles.contentContainer}>
+
+          {/* Eyebrow badge for immediate value proposition */}
+          <div
+            className="hero-badge"
+            style={styles.heroBadge(isDark)}
+          >
+            <Sparkles size={13} strokeWidth={2} />
+            Premium Printing Services
+          </div>
+
+          {/* Primary Headline with gradient accent */}
+          <h1
+            className="hero-h1"
+            style={styles.headline(isMobile, isDark, isVisible)}
+          >
+            {text.heroTitle}
+            <br />
+            <span className="hero-grad-word">{text.heroTitle2}</span>
+          </h1>
+
+          {/* Subtext description */}
+          <p
+            className="hero-sub"
+            style={styles.subtext(isMobile, isDark, isVisible)}
+          >
+            {text.heroSub}
+          </p>
+
+          {/* Call-to-Action Group */}
+          <div style={styles.ctaGroup(isVisible)}>
+            {isAuth ? (
+              <>
+                {/* Contact links visible for authenticated users */}
+                <a
+                  href={`tel:${PHONE_NUMBER}`}
+                  className="hero-btn"
+                  style={styles.btnPrimary(isMobile)}
+                >
+                  <Phone size={16} strokeWidth={2} />
+                  Call Now
+                </a>
+                <a
+                  href={WHATSAPP_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hero-btn"
+                  style={styles.btnWhatsapp(isMobile)}
+                >
+                  <MessageCircle size={16} strokeWidth={2} />
+                  WhatsApp
+                </a>
+              </>
+            ) : (
+              <>
+                {/* Sign-in prompt for non-authenticated visitors */}
+                <button
+                  onClick={() => setShowAuth(true)}
+                  className="hero-btn"
+                  style={styles.btnPrimary(isMobile)}
+                >
+                  <User size={16} strokeWidth={2} />
+                  {isMobile ? text.signIn : `${text.signIn} to Contact Us`}
+                  <ArrowRight size={15} strokeWidth={2.5} />
+                </button>
+
+                {/* Info modal trigger */}
+                <button
+                  onClick={() => setShowLearnMore(true)}
+                  className="hero-btn"
+                  style={styles.btnSecondary(isMobile, isDark)}
+                >
+                  Learn More
+                  <ArrowRight size={15} strokeWidth={2.5} />
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* ── Stat strip for social proof ── */}
+          <div
+            className="hero-stat-strip"
+            style={styles.statStrip(isVisible)}
+          >
+            {STATS.map(({ target, suffix, label }, i) => (
+              <CountUpStat
+                key={label}
+                target={target}
+                suffix={suffix}
+                label={label}
+                isDark={isDark}
+                isVisible={isVisible}
+                delay={i * 0.12}
+              />
+            ))}
+          </div>
+
+          {/* Trust indicators (ratings and location) */}
+          <div style={styles.trustWrapper(isVisible)}>
+            <div className="hero-trust">
+              <Star size={11} fill="currentColor" color="#f59e0b" style={styles.starIcon} />
+              <Star size={11} fill="currentColor" color="#f59e0b" style={styles.starIcon} />
+              <Star size={11} fill="currentColor" color="#f59e0b" style={styles.starIcon} />
+              <Star size={11} fill="currentColor" color="#f59e0b" style={styles.starIcon} />
+              <Star size={11} fill="currentColor" color="#f59e0b" style={styles.starIcon} />
+              <span style={styles.trustText}>Trusted by publishers across Delhi since 1995</span>
+              <span className="hero-trust-dot" />
+              <span>Dilshad Garden</span>
+            </div>
+          </div>
+
+        </div>
+
+        {/* ── Bottom gradient vignette ── */}
+        <div style={styles.bottomFade(isDark)} />
+      </section>
+
+      {/* ── "About Us" Detailed Modal ── */}
+      {showLearnMore && (
+        <div className="hero-modal-overlay" onClick={() => setShowLearnMore(false)}>
+          <div 
+            className="hero-modal-content" 
+            onClick={(e) => e.stopPropagation()}
+            style={styles.modalContent(isDark)}
+          >
+            <button 
+              className="hero-modal-close"
+              onClick={() => setShowLearnMore(false)}
+            >
+              <X size={20} />
+            </button>
+
+            <h2 style={styles.modalTitle(isMobile, isDark)}>
+              About{" "}
+              <span style={styles.modalTitleAccent}>
+                BK Offset Printing
+              </span>
+            </h2>
+
+            <div style={styles.modalBody(isMobile, isDark)}>
+              <p style={styles.mb20}>
+                <strong>BK Offset Printing</strong> has been a trusted name in the printing industry since 1995, serving publishers, authors, and businesses across Delhi with premium printing solutions.
+              </p>
+
+              <h3 style={styles.sectionSubTitle}>Our Services</h3>
+
+              <ul style={styles.modalList}>
+                <li style={styles.mb8}><strong>Bulk Book Printing:</strong> High-volume printing for publishers, authors, and institutions. Textbooks, novels, catalogs, and manuals.</li>
+                <li style={styles.mb8}><strong>Thermal Gloss Lamination:</strong> Premium gloss finish using Fevicol-based adhesives that makes colours pop and protects your prints.</li>
+                <li style={styles.mb8}><strong>Matte Lamination:</strong> Sophisticated, non-reflective finish for premium covers that need to feel as good as they look.</li>
+                <li style={styles.mb8}><strong>Soft-Touch Lamination:</strong> Velvety, luxurious texture ideal for book covers, premium brochures, and collector's editions.</li>
+                <li style={styles.mb8}><strong>Title Printing:</strong> Custom title work with embossing, debossing, spot UV, and digital printing.</li>
+              </ul>
+
+              <h3 style={styles.sectionSubTitle}>Our Equipment</h3>
+
+              <p style={styles.mb16}>
+                We operate world-class Heidelberg and Akiyama equipment, including:
+              </p>
+
+              <ul style={styles.modalList}>
+                <li>Heidelberg Speedmaster Multicolor (Flagship 4-colour press)</li>
+                <li>Akiyama 4-Colour Press with alcohol-damping system</li>
+                <li>Heidelberg Autoplate automated plate-loading system</li>
+                <li>Heidelberg SORDZ 2-Colour press (25×36 inches)</li>
+                <li>Industrial-grade thermal lamination machines</li>
+                <li>Automatic paper cutting machines with ±0.01mm accuracy</li>
+              </ul>
+
+              <h3 style={styles.sectionSubTitle}>Why Choose Us</h3>
+
+              <div style={styles.metricGrid(isMobile)}>
+                <div style={styles.metricCard(isDark)}>
+                  <div style={styles.metricEmoji}>🎯</div>
+                  <h4 style={styles.metricHeader}>30+ Years Experience</h4>
+                  <p style={styles.metricSub(isDark)}>Trusted by thousands of businesses since 1995</p>
+                </div>
+                <div style={styles.metricCard(isDark)}>
+                  <div style={styles.metricEmoji}>⚡</div>
+                  <h4 style={styles.metricHeader}>Fast Turnaround</h4>
+                  <p style={styles.metricSub(isDark)}>Quick delivery without compromise on quality</p>
+                </div>
+                <div style={styles.metricCard(isDark)}>
+                  <div style={styles.metricEmoji}>🏆</div>
+                  <h4 style={styles.metricHeader}>Premium Quality</h4>
+                  <p style={styles.metricSub(isDark)}>Every print meets the highest standards</p>
+                </div>
+              </div>
+
+              <p style={styles.modalQuote(isDark)}>
+                "We welcome publishers, authors, and businesses for live demonstrations at our facility in Dilshad Garden."
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/**
+ * CountUpStat — Sub-component that counts 0 → target over ~1.6s.
+ */
+function CountUpStat({ target, suffix, label, isDark, isVisible, delay }) {
+  const [count, setCount] = useState(0);
+  const started = React.useRef(false);
+
+  useEffect(() => {
+    // Prevent re-triggering once started
+    if (!isVisible || started.current) return;
+    started.current = true;
+
+    const duration    = 1600;           // ms total animation
+    const startDelay  = delay * 1000;   // convert s → ms
+
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+    let raf;
+    const timeout = setTimeout(() => {
+      const startTime = performance.now();
+      function tick(now) {
+        const t = Math.min((now - startTime) / duration, 1);
+        setCount(Math.floor(easeOutCubic(t) * target));
+        if (t < 1) raf = requestAnimationFrame(tick);
+        else        setCount(target);
+      }
+      raf = requestAnimationFrame(tick);
+    }, startDelay);
+
+    return () => { clearTimeout(timeout); cancelAnimationFrame(raf); };
+  }, [isVisible, target, delay]);
+
+  return (
+    <div
+      className="hero-stat"
+      style={styles.stat(isVisible, delay)}
+    >
+      <div
+        className="hero-stat-num"
+        style={styles.statNum(isDark)}
+      >
+        {count}{suffix}
+      </div>
+      <div
+        className="hero-stat-label"
+        style={styles.statLabel(isDark)}
+      >
+        {label}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Consolidated Styles ────────────────────────────────── */
+
 const HERO_STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
 
@@ -56,7 +342,6 @@ const HERO_STYLES = `
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ── Eyebrow badge ── */
   .hero-badge {
     display: inline-flex;
     align-items: center;
@@ -72,7 +357,6 @@ const HERO_STYLES = `
     animation: hero-badge-pulse 3s ease-in-out infinite, hero-fadeDown 0.5s ease-out 0s both;
   }
 
-  /* ── Headline ── */
   .hero-h1 {
     font-family: 'Instrument Serif', Georgia, serif;
     font-weight: 400;
@@ -90,13 +374,11 @@ const HERO_STYLES = `
     font-style: italic;
   }
 
-  /* ── Sub text ── */
   .hero-sub {
     font-family: 'DM Sans', sans-serif;
     line-height: 1.75;
   }
 
-  /* ── Stat strip ── */
   .hero-stat-strip {
     display: flex;
     align-items: center;
@@ -135,7 +417,6 @@ const HERO_STYLES = `
     margin-top: 3px;
   }
 
-  /* ── CTA buttons ── */
   .hero-btn {
     display: inline-flex;
     align-items: center;
@@ -152,7 +433,6 @@ const HERO_STYLES = `
       transform    0.28s cubic-bezier(.34,1.56,.64,1),
       box-shadow   0.28s ease;
   }
-  /* Shimmer sweep */
   .hero-btn::before {
     content: '';
     position: absolute;
@@ -166,7 +446,6 @@ const HERO_STYLES = `
   .hero-btn:hover  { transform: translateY(-3px) scale(1.03); }
   .hero-btn:active { transform: scale(0.97); }
 
-  /* ── Learn More Modal ── */
   .hero-modal-overlay {
     position: fixed;
     inset: 0;
@@ -211,7 +490,6 @@ const HERO_STYLES = `
     transform: scale(1.1);
   }
 
-  /* ── Orbs ── */
   .hero-orb {
     position: absolute;
     border-radius: 50%;
@@ -219,7 +497,6 @@ const HERO_STYLES = `
     pointer-events: none;
   }
 
-  /* ── Scan line (subtle) ── */
   .hero-scan {
     position: absolute;
     left: 0; right: 0;
@@ -230,7 +507,6 @@ const HERO_STYLES = `
     z-index: 1;
   }
 
-  /* ── Trust badge row ── */
   .hero-trust {
     display: inline-flex;
     align-items: center;
@@ -254,481 +530,219 @@ const HERO_STYLES = `
   }
 `;
 
-// target: number to count up to | suffix: "+" / "K+" etc.
+const styles = {
+  section: (isMobile) => ({
+    position: "relative",
+    overflow: "hidden",
+    minHeight: isMobile ? "100svh" : "100vh",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: isMobile ? "100px 20px 60px" : "120px 40px 80px",
+    textAlign: "center",
+    background: "transparent",
+  }),
+  orb1: (isMobile, isDark) => ({
+    width: isMobile ? 300 : 600, height: isMobile ? 300 : 600,
+    top: isMobile ? "-100px" : "-200px", left: "10%",
+    background: isDark
+      ? "radial-gradient(circle,rgba(14,165,233,0.18) 0%,transparent 70%)"
+      : "radial-gradient(circle,rgba(14,165,233,0.14) 0%,transparent 70%)",
+    animation: "hero-orb1 14s ease-in-out infinite",
+    zIndex: 0,
+  }),
+  orb2: (isMobile, isDark) => ({
+    width: isMobile ? 250 : 500, height: isMobile ? 250 : 500,
+    bottom: isMobile ? "-50px" : "-100px", right: "5%",
+    background: isDark
+      ? "radial-gradient(circle,rgba(99,102,241,0.16) 0%,transparent 70%)"
+      : "radial-gradient(circle,rgba(99,102,241,0.11) 0%,transparent 70%)",
+    animation: "hero-orb2 18s ease-in-out infinite",
+    zIndex: 0,
+  }),
+  orb3: (isMobile, isDark) => ({
+    width: isMobile ? 180 : 320, height: isMobile ? 180 : 320,
+    top: "35%", right: isMobile ? "5%" : "20%",
+    background: isDark
+      ? "radial-gradient(circle,rgba(56,189,248,0.10) 0%,transparent 70%)"
+      : "radial-gradient(circle,rgba(56,189,248,0.08) 0%,transparent 70%)",
+    animation: "hero-orb3 11s ease-in-out infinite",
+    zIndex: 0,
+  }),
+  contentContainer: {
+    position: "relative",
+    zIndex: 2,
+    width: "100%",
+    maxWidth: 820,
+  },
+  heroBadge: (isDark) => ({
+    background: isDark ? "rgba(14,165,233,0.12)" : "rgba(14,165,233,0.10)",
+    border: `1px solid ${isDark ? "rgba(14,165,233,0.30)" : "rgba(14,165,233,0.25)"}`,
+    color: "#38bdf8",
+    marginBottom: 24,
+  }),
+  headline: (isMobile, isDark, isVisible) => ({
+    fontSize: isMobile ? "38px" : "clamp(44px,6.5vw,76px)",
+    color: isDark ? "#f1f5f9" : "#0f172a",
+    marginBottom: 20,
+    opacity: isVisible ? 1 : 0,
+    animation: isVisible ? "hero-fadeUp 0.7s ease-out 0.08s both" : "none",
+  }),
+  subtext: (isMobile, isDark, isVisible) => ({
+    fontSize: isMobile ? "14.5px" : "clamp(15px,1.6vw,17px)",
+    color: isDark ? "rgba(255,255,255,0.52)" : "#475569",
+    maxWidth: 540,
+    margin: "0 auto 36px",
+    opacity: isVisible ? 1 : 0,
+    animation: isVisible ? "hero-fadeUp 0.7s ease-out 0.18s both" : "none",
+  }),
+  ctaGroup: (isVisible) => ({
+    display: "flex",
+    justifyContent: "center",
+    gap: 12,
+    flexWrap: "wrap",
+    marginBottom: 48,
+    opacity: isVisible ? 1 : 0,
+    animation: isVisible ? "hero-fadeUp 0.7s ease-out 0.28s both" : "none",
+  }),
+  btnPrimary: (isMobile) => ({
+    background: "linear-gradient(135deg,#0ea5e9,#6366f1)",
+    color: "#fff",
+    padding: isMobile ? "12px 24px" : "14px 28px",
+    fontSize: isMobile ? "14px" : "15px",
+    boxShadow: "0 6px 24px rgba(14,165,233,0.35)",
+  }),
+  btnWhatsapp: (isMobile) => ({
+    background: "linear-gradient(135deg,#16a34a,#22c55e)",
+    color: "#fff",
+    padding: isMobile ? "12px 24px" : "14px 28px",
+    fontSize: isMobile ? "14px" : "15px",
+    boxShadow: "0 6px 24px rgba(22,163,74,0.32)",
+  }),
+  btnSecondary: (isMobile, isDark) => ({
+    background: "transparent",
+    color: isDark ? "rgba(255,255,255,0.75)" : "#0f172a",
+    padding: isMobile ? "11px 24px" : "13px 28px",
+    fontSize: isMobile ? "14px" : "15px",
+    border: `1px solid ${isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)"}`,
+    boxShadow: "none",
+    backdropFilter: "blur(8px)",
+    WebkitBackdropFilter: "blur(8px)",
+  }),
+  statStrip: (isVisible) => ({
+    marginBottom: 28,
+    opacity: isVisible ? 1 : 0,
+    animation: isVisible ? "hero-fadeUp 0.6s ease-out 0.38s both" : "none",
+  }),
+  stat: (isVisible, delay) => ({
+    opacity: isVisible ? 1 : 0,
+    animation: isVisible
+      ? `hero-counter 0.5s ease-out ${0.38 + delay}s both`
+      : "none",
+  }),
+  statNum: (isDark) => ({
+    color: isDark ? undefined : "#0f172a",
+    WebkitTextFillColor: isDark ? undefined : "#0f172a",
+    fontVariantNumeric: "tabular-nums",
+    minWidth: "3.5ch",
+  }),
+  statLabel: (isDark) => ({
+    color: isDark ? undefined : "rgba(0,0,0,0.40)",
+  }),
+  trustWrapper: (isVisible) => ({
+    opacity: isVisible ? 1 : 0,
+    animation: isVisible ? "hero-fadeIn 0.8s ease-out 0.55s both" : "none",
+    display: "flex",
+    justifyContent: "center",
+  }),
+  starIcon: {
+    opacity: 0.85,
+  },
+  trustText: {
+    marginLeft: 4,
+  },
+  bottomFade: (isDark) => ({
+    position: "absolute",
+    bottom: 0, left: 0, right: 0,
+    height: 80,
+    background: isDark
+      ? "linear-gradient(to bottom,transparent,rgba(2,6,23,0.55))"
+      : "linear-gradient(to bottom,transparent,rgba(248,250,252,0.60))",
+    pointerEvents: "none",
+    zIndex: 1,
+  }),
+  modalContent: (isDark) => ({
+    "--modal-bg": isDark ? "#0f172a" : "#ffffff",
+    "--close-bg": isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
+    "--close-border": isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
+    "--close-color": isDark ? "#94a3b8" : "#64748b",
+    "--close-hover-bg": isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
+  }),
+  modalTitle: (isMobile, isDark) => ({
+    fontFamily: "'Instrument Serif', Georgia, serif",
+    fontSize: isMobile ? "28px" : "36px",
+    fontWeight: 400,
+    color: isDark ? "#f1f5f9" : "#0f172a",
+    marginBottom: 24,
+  }),
+  modalTitleAccent: {
+    background: "linear-gradient(135deg,#0ea5e9,#6366f1)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+  },
+  modalBody: (isMobile, isDark) => ({
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: isMobile ? "15px" : "16px",
+    lineHeight: 1.8,
+    color: isDark ? "rgba(255,255,255,0.8)" : "#1e293b",
+  }),
+  sectionSubTitle: {
+    fontSize: "18px",
+    fontWeight: 600,
+    color: "#0ea5e9",
+    marginBottom: 12,
+    marginTop: 24,
+  },
+  modalList: {
+    marginBottom: 20,
+    paddingLeft: 20,
+  },
+  mb20: { marginBottom: 20 },
+  mb16: { marginBottom: 16 },
+  mb8: { marginBottom: 8 },
+  metricGrid: (isMobile) => ({
+    display: "grid",
+    gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+    gap: 16,
+    marginTop: 16,
+    marginBottom: 24,
+  }),
+  metricCard: (isDark) => ({
+    padding: 16,
+    background: isDark ? "rgba(255,255,255,0.05)" : "rgba(14,165,233,0.05)",
+    borderRadius: 12,
+    border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(14,165,233,0.2)"}`,
+  }),
+  metricEmoji: { fontSize: 24, marginBottom: 8 },
+  metricHeader: { fontWeight: 600, marginBottom: 4 },
+  metricSub: (isDark) => ({
+    fontSize: "14px",
+    color: isDark ? "rgba(255,255,255,0.6)" : "#475569",
+  }),
+  modalQuote: (isDark) => ({
+    fontStyle: "italic",
+    color: "#0ea5e9",
+    textAlign: "center",
+    marginTop: 24,
+    padding: 16,
+    borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(14,165,233,0.2)"}`,
+  }),
+};
+
 const STATS = [
   { target: 30,  suffix: "+",  label: "Years Active"  },
   { target: 50,  suffix: "K+", label: "Books Printed" },
   { target: 500, suffix: "+",  label: "Happy Clients" },
 ];
-
-/* ═══════════════════════════════════════════
-   HeroSection
-═══════════════════════════════════════════ */
-export function HeroSection({ text, isDark, c, isAuth, isMobile, setShowAuth }) {
-  const [ref, isVisible] = useScrollAnimation();
-  const [showLearnMore, setShowLearnMore] = useState(false);
-
-  return (
-    <>
-      <style>{HERO_STYLES}</style>
-
-      <section
-        ref={ref}
-        style={{
-          position: "relative",
-          overflow: "hidden",
-          minHeight: isMobile ? "100svh" : "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: isMobile ? "100px 20px 60px" : "120px 40px 80px",
-          textAlign: "center",
-          background: "transparent",
-        }}
-      >
-        {/* ── Atmospheric orbs ── */}
-        <div className="hero-orb" style={{
-          width: isMobile ? 300 : 600, height: isMobile ? 300 : 600,
-          top: isMobile ? "-100px" : "-200px", left: "10%",
-          background: isDark
-            ? "radial-gradient(circle,rgba(14,165,233,0.18) 0%,transparent 70%)"
-            : "radial-gradient(circle,rgba(14,165,233,0.14) 0%,transparent 70%)",
-          animation: "hero-orb1 14s ease-in-out infinite",
-          zIndex: 0,
-        }} />
-        <div className="hero-orb" style={{
-          width: isMobile ? 250 : 500, height: isMobile ? 250 : 500,
-          bottom: isMobile ? "-50px" : "-100px", right: "5%",
-          background: isDark
-            ? "radial-gradient(circle,rgba(99,102,241,0.16) 0%,transparent 70%)"
-            : "radial-gradient(circle,rgba(99,102,241,0.11) 0%,transparent 70%)",
-          animation: "hero-orb2 18s ease-in-out infinite",
-          zIndex: 0,
-        }} />
-        <div className="hero-orb" style={{
-          width: isMobile ? 180 : 320, height: isMobile ? 180 : 320,
-          top: "35%", right: isMobile ? "5%" : "20%",
-          background: isDark
-            ? "radial-gradient(circle,rgba(56,189,248,0.10) 0%,transparent 70%)"
-            : "radial-gradient(circle,rgba(56,189,248,0.08) 0%,transparent 70%)",
-          animation: "hero-orb3 11s ease-in-out infinite",
-          zIndex: 0,
-        }} />
-
-        {/* Scanline */}
-        <div className="hero-scan" />
-
-        <FloatingParticles isDark={isDark} count={isMobile ? 20 : 35} />
-
-        {/* ── Content ── */}
-        <div style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 820 }}>
-
-          {/* Eyebrow */}
-          <div
-            className="hero-badge"
-            style={{
-              background: isDark ? "rgba(14,165,233,0.12)" : "rgba(14,165,233,0.10)",
-              border: `1px solid ${isDark ? "rgba(14,165,233,0.30)" : "rgba(14,165,233,0.25)"}`,
-              color: "#38bdf8",
-              marginBottom: 24,
-            }}
-          >
-            <Sparkles size={13} strokeWidth={2} />
-            Premium Printing Services
-          </div>
-
-          {/* H1 */}
-          <h1
-            className="hero-h1"
-            style={{
-              fontSize: isMobile ? "38px" : "clamp(44px,6.5vw,76px)",
-              color: isDark ? "#f1f5f9" : "#0f172a",
-              marginBottom: 20,
-              opacity: isVisible ? 1 : 0,
-              animation: isVisible ? "hero-fadeUp 0.7s ease-out 0.08s both" : "none",
-            }}
-          >
-            {text.heroTitle}
-            <br />
-            <span className="hero-grad-word">{text.heroTitle2}</span>
-          </h1>
-
-          {/* Sub */}
-          <p
-            className="hero-sub"
-            style={{
-              fontSize: isMobile ? "14.5px" : "clamp(15px,1.6vw,17px)",
-              color: isDark ? "rgba(255,255,255,0.52)" : "#475569",
-              maxWidth: 540,
-              margin: "0 auto 36px",
-              opacity: isVisible ? 1 : 0,
-              animation: isVisible ? "hero-fadeUp 0.7s ease-out 0.18s both" : "none",
-            }}
-          >
-            {text.heroSub}
-          </p>
-
-          {/* CTAs */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: 12,
-              flexWrap: "wrap",
-              marginBottom: 48,
-              opacity: isVisible ? 1 : 0,
-              animation: isVisible ? "hero-fadeUp 0.7s ease-out 0.28s both" : "none",
-            }}
-          >
-            {isAuth ? (
-              <>
-                <a
-                  href={`tel:${PHONE_NUMBER}`}
-                  className="hero-btn"
-                  style={{
-                    background: "linear-gradient(135deg,#0ea5e9,#6366f1)",
-                    color: "#fff",
-                    padding: isMobile ? "12px 24px" : "14px 28px",
-                    fontSize: isMobile ? "14px" : "15px",
-                    boxShadow: "0 6px 24px rgba(14,165,233,0.35)",
-                  }}
-                >
-                  <Phone size={16} strokeWidth={2} />
-                  Call Now
-                </a>
-                <a
-                  href={WHATSAPP_LINK}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hero-btn"
-                  style={{
-                    background: "linear-gradient(135deg,#16a34a,#22c55e)",
-                    color: "#fff",
-                    padding: isMobile ? "12px 24px" : "14px 28px",
-                    fontSize: isMobile ? "14px" : "15px",
-                    boxShadow: "0 6px 24px rgba(22,163,74,0.32)",
-                  }}
-                >
-                  <MessageCircle size={16} strokeWidth={2} />
-                  WhatsApp
-                </a>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => setShowAuth(true)}
-                  className="hero-btn"
-                  style={{
-                    background: "linear-gradient(135deg,#0ea5e9,#6366f1)",
-                    color: "#fff",
-                    padding: isMobile ? "12px 26px" : "14px 30px",
-                    fontSize: isMobile ? "14px" : "15px",
-                    boxShadow: "0 6px 24px rgba(14,165,233,0.35)",
-                  }}
-                >
-                  <User size={16} strokeWidth={2} />
-                  {isMobile ? text.signIn : `${text.signIn} to Contact Us`}
-                  <ArrowRight size={15} strokeWidth={2.5} />
-                </button>
-
-                {/* Learn More Button */}
-                <button
-                  onClick={() => setShowLearnMore(true)}
-                  className="hero-btn"
-                  style={{
-                    background: "transparent",
-                    color: isDark ? "rgba(255,255,255,0.75)" : "#0f172a",
-                    padding: isMobile ? "11px 24px" : "13px 28px",
-                    fontSize: isMobile ? "14px" : "15px",
-                    border: `1px solid ${isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)"}`,
-                    boxShadow: "none",
-                    backdropFilter: "blur(8px)",
-                    WebkitBackdropFilter: "blur(8px)",
-                  }}
-                >
-                  Learn More
-                  <ArrowRight size={15} strokeWidth={2.5} />
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* ── Stat strip ── */}
-          <div
-            className="hero-stat-strip"
-            style={{
-              marginBottom: 28,
-              opacity: isVisible ? 1 : 0,
-              animation: isVisible ? "hero-fadeUp 0.6s ease-out 0.38s both" : "none",
-            }}
-          >
-            {STATS.map(({ target, suffix, label }, i) => (
-              <CountUpStat
-                key={label}
-                target={target}
-                suffix={suffix}
-                label={label}
-                isDark={isDark}
-                isVisible={isVisible}
-                delay={i * 0.12}
-              />
-            ))}
-          </div>
-
-          {/* Trust line */}
-          <div
-            style={{
-              opacity: isVisible ? 1 : 0,
-              animation: isVisible ? "hero-fadeIn 0.8s ease-out 0.55s both" : "none",
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <div className="hero-trust">
-              <Star size={11} fill="currentColor" color="#f59e0b" style={{ opacity: 0.85 }} />
-              <Star size={11} fill="currentColor" color="#f59e0b" style={{ opacity: 0.85 }} />
-              <Star size={11} fill="currentColor" color="#f59e0b" style={{ opacity: 0.85 }} />
-              <Star size={11} fill="currentColor" color="#f59e0b" style={{ opacity: 0.85 }} />
-              <Star size={11} fill="currentColor" color="#f59e0b" style={{ opacity: 0.85 }} />
-              <span style={{ marginLeft: 4}}>Trusted by publishers across Delhi since 1995</span>
-              <span className="hero-trust-dot" />
-              <span>Dilshad Garden</span>
-            </div>
-          </div>
-
-        </div>
-
-        {/* ── Bottom fade ── */}
-        <div style={{
-          position: "absolute",
-          bottom: 0, left: 0, right: 0,
-          height: 80,
-          background: isDark
-            ? "linear-gradient(to bottom,transparent,rgba(2,6,23,0.55))"
-            : "linear-gradient(to bottom,transparent,rgba(248,250,252,0.60))",
-          pointerEvents: "none",
-          zIndex: 1,
-        }} />
-      </section>
-
-      {/* ── Learn More Modal ── */}
-      {showLearnMore && (
-        <div className="hero-modal-overlay" onClick={() => setShowLearnMore(false)}>
-          <div 
-            className="hero-modal-content" 
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              "--modal-bg": isDark ? "#0f172a" : "#ffffff",
-              "--close-bg": isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
-              "--close-border": isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
-              "--close-color": isDark ? "#94a3b8" : "#64748b",
-              "--close-hover-bg": isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
-            }}
-          >
-            <button 
-              className="hero-modal-close"
-              onClick={() => setShowLearnMore(false)}
-            >
-              <X size={20} />
-            </button>
-
-            <h2 style={{
-              fontFamily: "'Instrument Serif', Georgia, serif",
-              fontSize: isMobile ? "28px" : "36px",
-              fontWeight: 400,
-              color: isDark ? "#f1f5f9" : "#0f172a",
-              marginBottom: 24,
-            }}>
-              About{" "}
-              <span style={{
-                background: "linear-gradient(135deg,#0ea5e9,#6366f1)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}>
-                BK Offset Printing
-              </span>
-            </h2>
-
-            <div style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: isMobile ? "15px" : "16px",
-              lineHeight: 1.8,
-              color: isDark ? "rgba(255,255,255,0.8)" : "#1e293b",
-            }}>
-              <p style={{ marginBottom: 20 }}>
-                <strong>BK Offset Printing</strong> has been a trusted name in the printing industry since 1995, serving publishers, authors, and businesses across Delhi with premium printing solutions.
-              </p>
-
-              <h3 style={{
-                fontSize: "18px",
-                fontWeight: 600,
-                color: "#0ea5e9",
-                marginBottom: 12,
-                marginTop: 24,
-              }}>
-                Our Services
-              </h3>
-
-              <ul style={{ marginBottom: 20, paddingLeft: 20 }}>
-                <li style={{ marginBottom: 8 }}><strong>Bulk Book Printing:</strong> High-volume printing for publishers, authors, and institutions. Textbooks, novels, catalogs, and manuals.</li>
-                <li style={{ marginBottom: 8 }}><strong>Thermal Gloss Lamination:</strong> Premium gloss finish using Fevicol-based adhesives that makes colours pop and protects your prints.</li>
-                <li style={{ marginBottom: 8 }}><strong>Matte Lamination:</strong> Sophisticated, non-reflective finish for premium covers that need to feel as good as they look.</li>
-                <li style={{ marginBottom: 8 }}><strong>Soft-Touch Lamination:</strong> Velvety, luxurious texture ideal for book covers, premium brochures, and collector's editions.</li>
-                <li style={{ marginBottom: 8 }}><strong>Title Printing:</strong> Custom title work with embossing, debossing, spot UV, and digital printing.</li>
-              </ul>
-
-              <h3 style={{
-                fontSize: "18px",
-                fontWeight: 600,
-                color: "#0ea5e9",
-                marginBottom: 12,
-                marginTop: 24,
-              }}>
-                Our Equipment
-              </h3>
-
-              <p style={{ marginBottom: 16 }}>
-                We operate world-class Heidelberg and Akiyama equipment, including:
-              </p>
-
-              <ul style={{ marginBottom: 20, paddingLeft: 20 }}>
-                <li>Heidelberg Speedmaster Multicolor (Flagship 4-colour press)</li>
-                <li>Akiyama 4-Colour Press with alcohol-damping system</li>
-                <li>Heidelberg Autoplate automated plate-loading system</li>
-                <li>Heidelberg SORDZ 2-Colour press (25×36 inches)</li>
-                <li>Industrial-grade thermal lamination machines</li>
-                <li>Automatic paper cutting machines with ±0.01mm accuracy</li>
-              </ul>
-
-              <h3 style={{
-                fontSize: "18px",
-                fontWeight: 600,
-                color: "#0ea5e9",
-                marginBottom: 12,
-                marginTop: 24,
-              }}>
-                Why Choose Us
-              </h3>
-
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
-                gap: 16,
-                marginTop: 16,
-                marginBottom: 24,
-              }}>
-                <div style={{
-                  padding: 16,
-                  background: isDark ? "rgba(255,255,255,0.05)" : "rgba(14,165,233,0.05)",
-                  borderRadius: 12,
-                  border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(14,165,233,0.2)"}`,
-                }}>
-                  <div style={{ fontSize: 24, marginBottom: 8 }}>🎯</div>
-                  <h4 style={{ fontWeight: 600, marginBottom: 4 }}>30+ Years Experience</h4>
-                  <p style={{ fontSize: "14px", color: isDark ? "rgba(255,255,255,0.6)" : "#475569" }}>Trusted by thousands of businesses since 1995</p>
-                </div>
-                <div style={{
-                  padding: 16,
-                  background: isDark ? "rgba(255,255,255,0.05)" : "rgba(14,165,233,0.05)",
-                  borderRadius: 12,
-                  border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(14,165,233,0.2)"}`,
-                }}>
-                  <div style={{ fontSize: 24, marginBottom: 8 }}>⚡</div>
-                  <h4 style={{ fontWeight: 600, marginBottom: 4 }}>Fast Turnaround</h4>
-                  <p style={{ fontSize: "14px", color: isDark ? "rgba(255,255,255,0.6)" : "#475569" }}>Quick delivery without compromise on quality</p>
-                </div>
-                <div style={{
-                  padding: 16,
-                  background: isDark ? "rgba(255,255,255,0.05)" : "rgba(14,165,233,0.05)",
-                  borderRadius: 12,
-                  border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(14,165,233,0.2)"}`,
-                }}>
-                  <div style={{ fontSize: 24, marginBottom: 8 }}>🏆</div>
-                  <h4 style={{ fontWeight: 600, marginBottom: 4 }}>Premium Quality</h4>
-                  <p style={{ fontSize: "14px", color: isDark ? "rgba(255,255,255,0.6)" : "#475569" }}>Every print meets the highest standards</p>
-                </div>
-              </div>
-
-              <p style={{
-                fontStyle: "italic",
-                color: "#0ea5e9",
-                textAlign: "center",
-                marginTop: 24,
-                padding: 16,
-                borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(14,165,233,0.2)"}`,
-              }}>
-                "We welcome publishers, authors, and businesses for live demonstrations at our facility in Dilshad Garden."
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
-/* ─── CountUpStat ───────────────────────────
-   Counts 0 → target over ~1.6s (easeOutCubic).
-   Starts when isVisible flips true, respects
-   per-stat delay so they stagger nicely.
-─────────────────────────────────────────── */
-function CountUpStat({ target, suffix, label, isDark, isVisible, delay }) {
-  const [count, setCount] = useState(0);
-  const started = React.useRef(false);
-
-  useEffect(() => {
-    if (!isVisible || started.current) return;
-    started.current = true;
-
-    const duration    = 1600;           // ms total animation
-    const startDelay  = delay * 1000;   // convert s → ms
-
-    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
-
-    let raf;
-    const timeout = setTimeout(() => {
-      const startTime = performance.now();
-      function tick(now) {
-        const t = Math.min((now - startTime) / duration, 1);
-        setCount(Math.floor(easeOutCubic(t) * target));
-        if (t < 1) raf = requestAnimationFrame(tick);
-        else        setCount(target);
-      }
-      raf = requestAnimationFrame(tick);
-    }, startDelay);
-
-    return () => { clearTimeout(timeout); cancelAnimationFrame(raf); };
-  }, [isVisible, target, delay]);
-
-  return (
-    <div
-      className="hero-stat"
-      style={{
-        opacity: isVisible ? 1 : 0,
-        animation: isVisible
-          ? `hero-counter 0.5s ease-out ${0.38 + delay}s both`
-          : "none",
-      }}
-    >
-      <div
-        className="hero-stat-num"
-        style={{
-          color: isDark ? undefined : "#0f172a",
-          WebkitTextFillColor: isDark ? undefined : "#0f172a",
-          fontVariantNumeric: "tabular-nums",
-          minWidth: "3.5ch",
-        }}
-      >
-        {count}{suffix}
-      </div>
-      <div
-        className="hero-stat-label"
-        style={{ color: isDark ? undefined : "rgba(0,0,0,0.40)" }}
-      >
-        {label}
-      </div>
-    </div>
-  );
-}

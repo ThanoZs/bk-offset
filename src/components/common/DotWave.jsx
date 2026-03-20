@@ -63,8 +63,7 @@ export function DotWave({ isDark }) {
         this.vx = 0; this.vy = 0; this.vz = 0;
 
         // Style
-        this.dashLen = 7 + Math.random() * 11;
-        this.thickness = 1.3 + Math.random() * 0.9;
+        this.radius = 1.5 + Math.random() * 1.5;
         this.alphaBase = 0.35 + Math.random() * 0.55;
         
         // Dynamic Hue based on relative home position (Diagonal Rainbow)
@@ -180,20 +179,12 @@ export function DotWave({ isDark }) {
 
         // Drawing
         const alpha = Math.max(0, p.alphaBase * scale * (p.z > -BASE_RADIUS ? 1 : 0.6));
-        const thickness = p.thickness * scale;
-        const ang = Math.atan2(p.vy, p.vx);
-        const l = p.dashLen * scale * (1 + Math.sqrt(velX*velX + velY*velY) * 0.05);
+        const radius = p.radius * scale;
 
-        ctx.lineWidth = thickness;
-        ctx.strokeStyle = `hsla(${p.hue}, 80%, ${isDark ? 70 : 50}%, ${alpha})`;
-        ctx.lineCap = "round";
-
+        ctx.fillStyle = `hsla(${p.hue}, 80%, ${isDark ? 70 : 50}%, ${alpha})`;
         ctx.beginPath();
-        const dx = Math.cos(ang) * l / 2;
-        const dy = Math.sin(ang) * l / 2;
-        ctx.moveTo(x2d - dx, y2d - dy);
-        ctx.lineTo(x2d + dx, y2d + dy);
-        ctx.stroke();
+        ctx.arc(x2d, y2d, radius, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       raf.current = requestAnimationFrame(loop);

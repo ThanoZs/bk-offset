@@ -1,8 +1,8 @@
-﻿import React, { useMemo } from "react";
+import React, { useMemo } from "react";
 import { T } from "../../utils/designTokens";
 
 export function FloatingParticles({ isDark, count = 50 }) {
-  const particles = useMemo(() => 
+  const particles = useMemo(() =>
     Array.from({ length: count }, (_, i) => ({
       id: i,
       size: Math.random() * 4 + 2,
@@ -23,6 +23,7 @@ export function FloatingParticles({ isDark, count = 50 }) {
         zIndex: 0,
       }}
     >
+      {/* 
       {particles.map((particle) => (
         <div
           key={particle.id}
@@ -40,6 +41,7 @@ export function FloatingParticles({ isDark, count = 50 }) {
           }}
         />
       ))}
+      */}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { Phone, MessageCircle, User, Sparkles, ArrowRight, Star, X } from "lucide-react";
 import { T } from "../../utils/designTokens";
 import { FloatingParticles } from "../common/FloatingParticles";
@@ -491,7 +491,7 @@ export function HeroSection({ text, isDark, c, isAuth, isMobile, setShowAuth }) 
               <Star size={11} fill="currentColor" color="#f59e0b" style={{ opacity: 0.85 }} />
               <Star size={11} fill="currentColor" color="#f59e0b" style={{ opacity: 0.85 }} />
               <Star size={11} fill="currentColor" color="#f59e0b" style={{ opacity: 0.85 }} />
-              <span style={{ marginLeft: 4 }}>Trusted by publishers across Delhi since 1995</span>
+              <span style={{ marginLeft: 4}}>Trusted by publishers across Delhi since 1995</span>
               <span className="hero-trust-dot" />
               <span>Dilshad Garden</span>
             </div>
